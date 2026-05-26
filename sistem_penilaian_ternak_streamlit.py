@@ -2408,6 +2408,20 @@ dan pengamatan langsung oleh orang yang berpengalaman.
 with tab_compare:
     st.subheader("Tabel Evaluasi Ternak")
 
+    reset_col, info_col = st.columns([1, 3])
+
+    with reset_col:
+        if st.button("🧹 Reset Data Evaluasi", use_container_width=True):
+            st.session_state.records = []
+            st.success("Data evaluasi sementara berhasil direset.")
+            st.rerun()
+
+    with info_col:
+        st.caption(
+            "Gunakan reset jika sebelumnya pernah menyimpan data dari versi lama "
+            "dan muncul error kolom saat perbandingan."
+        )
+
     if len(st.session_state.records) == 0:
         st.info("Belum ada data tersimpan. Simpan hasil dari tab **Hasil & Insight**.")
     else:
@@ -2461,15 +2475,47 @@ with tab_compare:
         st.dataframe(category_count, use_container_width=True, hide_index=True)
 
         st.markdown("**Rata-rata skor per jenis dan bangsa:**")
+
+        # -------------------------------------------------
+        # FIX:
+        # Beberapa data lama di session_state mungkin belum
+        # memiliki kolom baru seperti Skor Kuantitatif dan
+        # Skor Kualitatif. Karena itu kolom dicek dulu agar
+        # tidak menimbulkan KeyError saat groupby.
+        # -------------------------------------------------
+        group_columns = ["Jenis", "Bangsa"]
+        score_columns = [
+            "Skor Total",
+            "Skor Kuantitatif",
+            "Skor Kualitatif",
+        ]
+
+        for col in group_columns:
+            if col not in records_df.columns:
+                records_df[col] = "-"
+
+        for col in score_columns:
+            if col not in records_df.columns:
+                records_df[col] = 0
+
+        available_score_columns = [
+            col
+            for col in score_columns
+            if col in records_df.columns
+        ]
+
         group_df = (
             records_df
-            .groupby(["Jenis", "Bangsa"], as_index=False)[
-                ["Skor Total", "Skor Kuantitatif", "Skor Kualitatif"]
-            ]
-            .mean()
+            .groupby(group_columns, as_index=False)[available_score_columns]
+            .mean(numeric_only=True)
             .round(1)
         )
-        st.dataframe(group_df, use_container_width=True, hide_index=True)
+
+        st.dataframe(
+            group_df,
+            use_container_width=True,
+            hide_index=True,
+        )
 
 
 # =========================================================
