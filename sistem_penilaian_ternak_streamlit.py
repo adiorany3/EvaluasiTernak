@@ -1,4 +1,5 @@
 import math
+import json
 from datetime import datetime
 
 import pandas as pd
@@ -1883,6 +1884,73 @@ def build_action_plan(
 
     return actions
 
+
+def quality_grade(percent):
+    if percent >= 90:
+        return "Sangat lengkap"
+    if percent >= 75:
+        return "Cukup lengkap"
+    if percent >= 60:
+        return "Perlu dilengkapi"
+    return "Data belum kuat"
+
+
+def build_executive_summary(
+    species,
+    breed,
+    mode,
+    purpose,
+    category,
+    purpose_score,
+    risk_status,
+    sni_percent,
+    market_price_status,
+    decision,
+):
+    summary = [
+        f"Ternak yang dievaluasi adalah {species} rumpun/bangsa {breed} untuk tujuan {purpose}.",
+        f"Skor sesuai tujuan adalah {purpose_score:.1f}/100 dengan kategori {category}.",
+        f"Kesesuaian terhadap SNI/acuan aplikasi sebesar {sni_percent:.1f}%.",
+        f"Status risiko transaksi: {risk_status}; status harga: {market_price_status}.",
+        f"Kesimpulan: {decision}",
+    ]
+
+    if mode == "Jagal":
+        summary.append("Fokus keputusan: bobot, karkas, paha, dada, kesehatan, dan risiko pemotongan.")
+    elif mode == "Blantik / Jual Beli":
+        summary.append("Fokus keputusan: harga beli, harga pasar, margin, risiko, dan daya jual ulang.")
+    elif mode == "Pembibit":
+        summary.append("Fokus keputusan: fenotipe, reproduksi, dokumen asal, kesehatan, dan acuan bibit.")
+    elif species == "Ayam Lokal Indonesia":
+        summary.append("Fokus keputusan: rumpun ayam, warna, postur, kesehatan, dan tujuan khusus seperti telur, suara, atau hias.")
+    else:
+        summary.append("Fokus keputusan: kesehatan, pertumbuhan, pakan, target bobot, dan efisiensi biaya.")
+
+    return summary
+
+
+def build_json_payload(report_record, insights, red_flags, action_plan):
+    payload = {
+        "metadata": {
+            "app": "Sistem Penilaian Ternak Pro",
+            "developer": "Galuh Adi Insani",
+            "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        },
+        "report": report_record,
+        "red_flags": red_flags,
+        "action_plan": action_plan,
+        "insights": [
+            {
+                "type": item_type,
+                "title": title,
+                "body": body,
+            }
+            for item_type, title, body in insights
+        ],
+    }
+
+    return json.dumps(payload, ensure_ascii=False, indent=2)
+
 def make_report_html(record, insights):
     insight_html = "".join(
         f"<li><strong>{title}:</strong> {body}</li>"
@@ -1891,6 +1959,7 @@ def make_report_html(record, insights):
 
     red_flags_text = str(record.get("Red flags detail", ""))
     action_text = str(record.get("Rencana tindak lanjut", ""))
+    summary_text = str(record.get("Ringkasan eksekutif", ""))
 
     red_flag_html = "".join(
         f"<li>{item}</li>"
@@ -1903,6 +1972,12 @@ def make_report_html(record, insights):
         for item in action_text.split(" | ")
         if item.strip()
     ) or "<li>Lakukan monitoring berkala.</li>"
+
+    summary_html = "".join(
+        f"<li>{item}</li>"
+        for item in summary_text.split(" | ")
+        if item.strip()
+    ) or "<li>Ringkasan belum tersedia.</li>"
 
     rows = "".join(
         f"<tr><td>{k}</td><td>{v}</td></tr>"
@@ -1950,6 +2025,8 @@ th {{
 <p class="badge">{record.get("Kategori", "-")}</p>
 <h2>Data Ringkas</h2>
 <table>{rows}</table>
+<h2>Ringkasan Eksekutif</h2>
+<ul>{summary_html}</ul>
 <h2>Red Flags</h2>
 <ul>{red_flag_html}</ul>
 <h2>Rencana Tindak Lanjut</h2>
@@ -1992,7 +2069,6 @@ st.markdown(
         <span class="badge badge-warn">🇮🇩 Pembanding SNI</span>
         <span class="badge">🌗 Light/Dark</span>
         <span class="badge">📈 Riwayat & grafik</span>
-        <span class="badge badge-primary">👤 Developed by Galuh Adi Insani</span>
     </div>
 </div>
 """,
@@ -2002,7 +2078,6 @@ st.markdown(
 
 st.sidebar.markdown("### 🐄 Evaluasi Ternak Pro")
 st.sidebar.caption("Panel kontrol evaluasi ternak")
-st.sidebar.markdown("**Developed by Galuh Adi Insani**")
 st.sidebar.markdown("---")
 
 with st.sidebar.expander("Cara pakai", expanded=True):
@@ -2066,6 +2141,7 @@ with tab_input:
         location = st.text_input("Lokasi / kandang", value="")
         owner_name = st.text_input("Pemilik / penanggung jawab", value="")
         origin_source = st.text_input("Asal ternak / sumber pembelian", value="")
+        evaluator_name = st.text_input("Nama evaluator / pemeriksa", value="")
         entry_date = st.date_input("Tanggal masuk / tanggal evaluasi")
 
     st.markdown("---")
@@ -2505,8 +2581,10 @@ with tab_economy:
 # RESULT
 # =========================================================
 
+active_sni_thresholds = sni_thresholds if "sni_thresholds" in locals() else sni_default
+
 sni_df_calc, sni_percent_calc, sni_status_calc = sni_compare(
-    sni_default,
+    active_sni_thresholds,
     weight,
     height,
     length,
@@ -2605,6 +2683,19 @@ purpose_score = purpose_weighted_score(
 
 decision = advanced_decision(purpose_score, risk_status, mode, purpose)
 
+executive_summary = build_executive_summary(
+    species=species,
+    breed=breed,
+    mode=mode,
+    purpose=purpose,
+    category=category,
+    purpose_score=purpose_score,
+    risk_status=risk_status,
+    sni_percent=sni_percent_calc,
+    market_price_status=market_price_status,
+    decision=decision,
+)
+
 action_plan = build_action_plan(
     mode=mode,
     kind=kind,
@@ -2681,6 +2772,10 @@ with tab_result:
         unsafe_allow_html=True,
     )
 
+    if missing_items:
+        with st.expander("Lihat item data yang belum lengkap", expanded=False):
+            st.write(", ".join(missing_items))
+
     r1, r2, r3, r4 = st.columns(4)
 
     with r1:
@@ -2715,6 +2810,15 @@ with tab_result:
     r6.metric("Estimasi karkas", f"{weight * data['dressing'] / 100:.2f} kg")
     r7.metric("ADG aktual", "-" if actual_adg is None else f"{actual_adg:.3f} kg/hari")
     r8.metric("Status harga", market_price_status)
+
+    st.subheader("Ringkasan Eksekutif")
+    st.markdown(
+        "<div class='card'>"
+        + "".join([f"<div style='margin-bottom:8px;'>• {line}</div>" for line in executive_summary])
+        + f"<hr><strong>Kualitas data:</strong> {quality_grade(completeness_percent)} ({completeness_percent:.1f}%)."
+        + "</div>",
+        unsafe_allow_html=True,
+    )
 
     st.markdown(
         f"""
@@ -2814,6 +2918,7 @@ with tab_result:
             "Kelamin": sex,
             "Pemilik": owner_name,
             "Asal ternak": origin_source,
+            "Evaluator": evaluator_name,
             "Tanggal evaluasi": str(entry_date),
             "Jumlah foto": len(uploaded_photos) if uploaded_photos else 0,
             "Kelengkapan data %": completeness_percent,
@@ -2843,6 +2948,7 @@ with tab_result:
             "Rekomendasi akhir": decision,
             "Red flags detail": " | ".join(red_flags),
             "Rencana tindak lanjut": " | ".join(action_plan),
+            "Ringkasan eksekutif": " | ".join(executive_summary),
         }
         st.session_state.records.append(record)
         st.success("Data tersimpan ke riwayat.")
@@ -2972,21 +3078,40 @@ with tab_report:
         "Harga maksimal beli": rupiah(max_buy_price),
     }
 
+    display_report_record = {
+        key: value
+        for key, value in report_record.items()
+        if key not in ["Red flags detail", "Rencana tindak lanjut", "Ringkasan eksekutif"]
+    }
+
     st.dataframe(
-        pd.DataFrame(list(report_record.items()), columns=["Item", "Nilai"]),
+        pd.DataFrame(list(display_report_record.items()), columns=["Item", "Nilai"]),
         use_container_width=True,
         hide_index=True,
     )
 
     html_report = make_report_html(report_record, insights)
+    json_payload = build_json_payload(report_record, insights, red_flags, action_plan)
 
-    st.download_button(
-        "⬇️ Download Laporan HTML",
-        data=html_report.encode("utf-8"),
-        file_name=f"laporan_evaluasi_{animal_id}.html",
-        mime="text/html",
-        use_container_width=True,
-    )
+    d1, d2 = st.columns(2)
+
+    with d1:
+        st.download_button(
+            "⬇️ Download Laporan HTML",
+            data=html_report.encode("utf-8"),
+            file_name=f"laporan_evaluasi_{animal_id}.html",
+            mime="text/html",
+            use_container_width=True,
+        )
+
+    with d2:
+        st.download_button(
+            "⬇️ Download Data JSON",
+            data=json_payload.encode("utf-8"),
+            file_name=f"data_evaluasi_{animal_id}.json",
+            mime="application/json",
+            use_container_width=True,
+        )
 
 
 # =========================================================
@@ -3024,6 +3149,10 @@ with tab_guide:
 | Red flags otomatis | Peringatan cepat untuk risiko kesehatan, harga, dokumen, SNI, fenotipe, dan kaki |
 | Rencana tindak lanjut | Daftar tindakan praktis 7–30 hari berdasarkan kekurangan data |
 | Filter riwayat | Memfilter hasil evaluasi berdasarkan jenis, kategori, dan risiko transaksi |
+| Ringkasan eksekutif | Menyajikan kesimpulan cepat untuk laporan dan pengambilan keputusan |
+| JSON export | Mengunduh data evaluasi terstruktur untuk backup/integrasi |
+| Kualitas data | Memberi grade kelengkapan agar hasil evaluasi tidak menyesatkan |
+| Ambang aktif SNI | Ringkasan memakai ambang SNI yang sedang dipilih, termasuk ambang manual |
 
 ### Skor sesuai tujuan
 
