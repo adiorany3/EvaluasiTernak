@@ -6,20 +6,20 @@ import streamlit as st
 
 
 # =========================================================
-# SISTEM PENILAIAN TERNAK
-# Faktor kuantitatif + kualitatif berbasis jenis dan bangsa
-# =========================================================
-# Catatan:
-# - Aplikasi ini adalah alat bantu estimasi awal.
-# - Parameter dapat disesuaikan dengan standar lokal, pasar,
-#   pengalaman peternak, dan hasil validasi lapangan.
-# - Hasil bukan pengganti pemeriksaan dokter hewan, ahli nutrisi,
-#   inseminator, petugas teknis, jagal profesional, atau penilai ternak.
+# SISTEM PENILAIAN TERNAK PRO
+# Fitur:
+# - Form ruminansia dan ayam dipisah
+# - Evaluasi kuantitatif dan kualitatif
+# - Pembanding SNI/acuan minimum yang bisa diedit
+# - Mode pengguna: peternak, jagal, blantik, pembibit, ayam lokal
+# - Rekomendasi akhir
+# - Analisis ekonomi lanjutan
+# - Riwayat evaluasi, grafik, CSV, dan laporan HTML
 # =========================================================
 
 
 st.set_page_config(
-    page_title="Sistem Penilaian Ternak",
+    page_title="Sistem Penilaian Ternak Pro",
     page_icon="🐄",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -27,417 +27,241 @@ st.set_page_config(
 
 
 # =========================================================
-# STYLE
+# CSS LIGHT / DARK
 # =========================================================
 
 CUSTOM_CSS = """
 <style>
-/* =========================================================
-   THEME-AWARE DESIGN SYSTEM
-   Works better in Streamlit light and dark mode.
-   ========================================================= */
-
 :root {
     color-scheme: light dark;
-
-    --app-bg-1: #f8fafc;
-    --app-bg-2: #eef2ff;
-    --app-bg-3: #ecfeff;
-
-    --surface: rgba(255, 255, 255, 0.88);
-    --surface-soft: rgba(255, 255, 255, 0.68);
-    --surface-strong: rgba(255, 255, 255, 0.96);
-
-    --text-main: #0f172a;
-    --text-muted: #475569;
-    --text-soft: #64748b;
-
-    --border: rgba(15, 23, 42, 0.12);
-    --border-strong: rgba(15, 23, 42, 0.18);
-
-    --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.08);
-    --shadow-md: 0 16px 40px rgba(15, 23, 42, 0.12);
-
+    --bg1: #f8fafc;
+    --bg2: #eef2ff;
+    --surface: rgba(255,255,255,0.88);
+    --surface2: rgba(255,255,255,0.68);
+    --text: #0f172a;
+    --muted: #475569;
+    --soft: #64748b;
+    --border: rgba(15, 23, 42, .14);
+    --shadow: 0 12px 34px rgba(15, 23, 42, .10);
     --primary: #2563eb;
-    --primary-soft: rgba(37, 99, 235, 0.12);
-
+    --primary-soft: rgba(37,99,235,.12);
     --good: #16a34a;
-    --good-soft: rgba(22, 163, 74, 0.12);
-
-    --warning: #d97706;
-    --warning-soft: rgba(217, 119, 6, 0.14);
-
-    --danger: #dc2626;
-    --danger-soft: rgba(220, 38, 38, 0.12);
-
-    --info: #2563eb;
-    --info-soft: rgba(37, 99, 235, 0.12);
-
-    --card-radius: 20px;
-    --pill-radius: 999px;
+    --good-soft: rgba(22,163,74,.12);
+    --warn: #d97706;
+    --warn-soft: rgba(217,119,6,.14);
+    --bad: #dc2626;
+    --bad-soft: rgba(220,38,38,.12);
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --app-bg-1: #020617;
-        --app-bg-2: #0f172a;
-        --app-bg-3: #111827;
-
-        --surface: rgba(15, 23, 42, 0.78);
-        --surface-soft: rgba(15, 23, 42, 0.58);
-        --surface-strong: rgba(15, 23, 42, 0.94);
-
-        --text-main: #e5e7eb;
-        --text-muted: #cbd5e1;
-        --text-soft: #94a3b8;
-
-        --border: rgba(226, 232, 240, 0.14);
-        --border-strong: rgba(226, 232, 240, 0.22);
-
-        --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.26);
-        --shadow-md: 0 18px 48px rgba(0, 0, 0, 0.34);
-
+        --bg1: #020617;
+        --bg2: #0f172a;
+        --surface: rgba(15,23,42,.84);
+        --surface2: rgba(30,41,59,.64);
+        --text: #e5e7eb;
+        --muted: #cbd5e1;
+        --soft: #94a3b8;
+        --border: rgba(226,232,240,.16);
+        --shadow: 0 14px 42px rgba(0,0,0,.35);
         --primary: #60a5fa;
-        --primary-soft: rgba(96, 165, 250, 0.16);
-
+        --primary-soft: rgba(96,165,250,.16);
         --good: #4ade80;
-        --good-soft: rgba(74, 222, 128, 0.14);
-
-        --warning: #fbbf24;
-        --warning-soft: rgba(251, 191, 36, 0.16);
-
-        --danger: #f87171;
-        --danger-soft: rgba(248, 113, 113, 0.15);
-
-        --info: #60a5fa;
-        --info-soft: rgba(96, 165, 250, 0.16);
+        --good-soft: rgba(74,222,128,.15);
+        --warn: #fbbf24;
+        --warn-soft: rgba(251,191,36,.16);
+        --bad: #f87171;
+        --bad-soft: rgba(248,113,113,.15);
     }
 }
 
-/* Streamlit base */
 .stApp {
     background:
-        radial-gradient(circle at top left, var(--app-bg-2) 0, transparent 36%),
-        radial-gradient(circle at top right, var(--app-bg-3) 0, transparent 34%),
-        linear-gradient(135deg, var(--app-bg-1), var(--app-bg-2));
-    color: var(--text-main);
+        radial-gradient(circle at top left, var(--bg2), transparent 34%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+    color: var(--text);
 }
 
 .main .block-container {
-    padding-top: 1.25rem;
-    padding-bottom: 2.25rem;
-    max-width: 1280px;
+    max-width: 1320px;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
 }
 
-/* Better global text contrast */
-h1, h2, h3, h4, h5, h6,
-p, li, label, span, div {
-    color: inherit;
-}
-
-small, .small-text, .caption-text {
-    color: var(--text-soft);
-}
-
-/* Hero header */
-.app-hero {
+.hero {
+    border: 1px solid var(--border);
     border-radius: 28px;
+    background: linear-gradient(135deg, var(--surface), var(--surface2));
+    box-shadow: var(--shadow);
     padding: 28px 30px;
     margin-bottom: 18px;
-    border: 1px solid var(--border);
-    background:
-        linear-gradient(135deg, var(--surface-strong), var(--surface-soft)),
-        radial-gradient(circle at top right, var(--primary-soft), transparent 42%);
-    box-shadow: var(--shadow-md);
-    backdrop-filter: blur(18px);
+    backdrop-filter: blur(16px);
 }
 
-.app-hero-title {
-    font-size: clamp(1.75rem, 2.5vw, 2.7rem);
-    font-weight: 850;
-    letter-spacing: -0.035em;
+.hero-title {
+    font-size: clamp(1.7rem, 3vw, 2.7rem);
+    font-weight: 900;
     line-height: 1.08;
+    letter-spacing: -0.04em;
     margin-bottom: 8px;
-    color: var(--text-main);
+    color: var(--text);
 }
 
-.app-hero-subtitle {
-    font-size: 1rem;
-    color: var(--text-muted);
-    max-width: 880px;
-    line-height: 1.62;
+.hero-subtitle {
+    color: var(--muted);
+    max-width: 960px;
+    line-height: 1.6;
 }
 
-.hero-chip-row {
-    margin-top: 16px;
-}
-
-/* Cards */
-.metric-card {
-    border-radius: var(--card-radius);
-    padding: 20px 22px;
+.card {
     border: 1px solid var(--border);
-    background:
-        linear-gradient(180deg, var(--surface-strong), var(--surface));
-    box-shadow: var(--shadow-sm);
-    height: 100%;
-    backdrop-filter: blur(14px);
-}
-
-.metric-card:hover,
-.insight-card:hover,
-.section-note:hover {
-    border-color: var(--border-strong);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
-    transition: all 160ms ease;
-}
-
-.insight-card {
-    border-radius: var(--card-radius);
+    border-radius: 20px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
     padding: 18px 20px;
-    border: 1px solid var(--border);
-    border-left: 7px solid var(--info);
-    background: var(--surface);
-    box-shadow: var(--shadow-sm);
     margin-bottom: 14px;
-    line-height: 1.58;
-    color: var(--text-main);
 }
 
-.insight-card strong {
-    color: var(--text-main);
-    font-size: 1.02rem;
-}
-
-.good {
-    border-left-color: var(--good);
-    background:
-        linear-gradient(90deg, var(--good-soft), transparent 34%),
-        var(--surface);
-}
-
-.warning {
-    border-left-color: var(--warning);
-    background:
-        linear-gradient(90deg, var(--warning-soft), transparent 34%),
-        var(--surface);
-}
-
-.danger {
-    border-left-color: var(--danger);
-    background:
-        linear-gradient(90deg, var(--danger-soft), transparent 34%),
-        var(--surface);
-}
-
-.info {
-    border-left-color: var(--info);
-    background:
-        linear-gradient(90deg, var(--info-soft), transparent 34%),
-        var(--surface);
-}
-
-.section-note {
-    padding: 14px 16px;
-    border-radius: 16px;
+.metric-card {
     border: 1px solid var(--border);
+    border-radius: 20px;
     background: var(--surface);
-    box-shadow: var(--shadow-sm);
-    color: var(--text-main);
-    line-height: 1.56;
-}
-
-.small-text {
-    font-size: 0.88rem;
-    color: var(--text-soft);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+    min-height: 118px;
 }
 
 .big-score {
-    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    font-size: clamp(2.4rem, 5vw, 3.5rem);
     font-weight: 900;
-    line-height: 1;
-    letter-spacing: -0.05em;
     color: var(--primary);
+    letter-spacing: -0.06em;
+    line-height: 1;
+}
+
+.muted {
+    color: var(--muted);
 }
 
 .badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 13px;
-    border-radius: var(--pill-radius);
     border: 1px solid var(--border);
-    background: var(--surface-soft);
-    color: var(--text-muted);
-    font-size: 0.88rem;
-    font-weight: 650;
-    margin-right: 7px;
-    margin-bottom: 8px;
-    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+    border-radius: 999px;
+    padding: 7px 13px;
+    margin: 4px 6px 4px 0;
+    background: var(--surface2);
+    color: var(--muted);
+    font-weight: 700;
+    font-size: .88rem;
 }
 
 .badge-primary {
     color: var(--primary);
     background: var(--primary-soft);
-    border-color: color-mix(in srgb, var(--primary) 28%, transparent);
 }
 
 .badge-good {
     color: var(--good);
     background: var(--good-soft);
-    border-color: color-mix(in srgb, var(--good) 28%, transparent);
 }
 
-.badge-warning {
-    color: var(--warning);
-    background: var(--warning-soft);
-    border-color: color-mix(in srgb, var(--warning) 28%, transparent);
+.badge-warn {
+    color: var(--warn);
+    background: var(--warn-soft);
 }
 
-/* Streamlit widgets */
-div[data-testid="stMetric"] {
-    border-radius: var(--card-radius);
-    padding: 14px 16px;
+.badge-bad {
+    color: var(--bad);
+    background: var(--bad-soft);
+}
+
+.insight {
     border: 1px solid var(--border);
+    border-left: 7px solid var(--primary);
+    border-radius: 18px;
     background: var(--surface);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    line-height: 1.58;
 }
 
-div[data-testid="stMetric"] label,
-div[data-testid="stMetric"] div {
-    color: var(--text-main);
+.insight.good {
+    border-left-color: var(--good);
+    background: linear-gradient(90deg, var(--good-soft), transparent 40%), var(--surface);
 }
 
-div[data-testid="stMetric"] label {
-    color: var(--text-muted);
+.insight.warn {
+    border-left-color: var(--warn);
+    background: linear-gradient(90deg, var(--warn-soft), transparent 40%), var(--surface);
 }
 
-/* Inputs */
+.insight.bad {
+    border-left-color: var(--bad);
+    background: linear-gradient(90deg, var(--bad-soft), transparent 40%), var(--surface);
+}
+
+div[data-testid="stMetric"] {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    padding: 12px 14px;
+}
+
 .stTextInput input,
 .stNumberInput input,
 .stTextArea textarea,
 .stSelectbox div[data-baseweb="select"] > div,
 .stMultiSelect div[data-baseweb="select"] > div {
     border-radius: 14px !important;
-    border-color: var(--border-strong) !important;
-    background-color: var(--surface-strong) !important;
-    color: var(--text-main) !important;
+    border-color: var(--border) !important;
+    background-color: var(--surface) !important;
+    color: var(--text) !important;
 }
 
-.stTextArea textarea {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    line-height: 1.55;
-}
-
-/* Buttons */
 .stButton button,
 .stDownloadButton button {
     border-radius: 14px !important;
-    border: 1px solid var(--border-strong) !important;
-    background: linear-gradient(180deg, var(--surface-strong), var(--surface)) !important;
-    color: var(--text-main) !important;
-    box-shadow: var(--shadow-sm);
-    font-weight: 700;
+    border: 1px solid var(--border) !important;
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    font-weight: 800 !important;
 }
 
 .stButton button:hover,
 .stDownloadButton button:hover {
     border-color: var(--primary) !important;
     color: var(--primary) !important;
-    transform: translateY(-1px);
 }
 
-/* Tabs */
 button[data-baseweb="tab"] {
     border-radius: 999px !important;
-    padding: 8px 14px !important;
-    margin-right: 6px !important;
-    color: var(--text-muted) !important;
+    color: var(--muted) !important;
 }
 
 button[data-baseweb="tab"][aria-selected="true"] {
     background: var(--primary-soft) !important;
     color: var(--primary) !important;
-    font-weight: 800 !important;
+    font-weight: 900 !important;
 }
 
-/* Dataframe and tables */
 div[data-testid="stDataFrame"] {
-    border-radius: 18px;
     border: 1px solid var(--border);
+    border-radius: 18px;
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow);
 }
 
-table {
-    border-radius: 16px;
-    overflow: hidden;
-}
-
-thead tr th {
-    background: var(--surface-strong) !important;
-    color: var(--text-main) !important;
-}
-
-tbody tr td {
-    color: var(--text-main) !important;
-}
-
-/* Sidebar */
 section[data-testid="stSidebar"] {
-    background:
-        linear-gradient(180deg, var(--surface-strong), var(--surface)) !important;
+    background: linear-gradient(180deg, var(--surface), var(--surface2)) !important;
     border-right: 1px solid var(--border);
 }
 
-section[data-testid="stSidebar"] * {
-    color: var(--text-main);
-}
-
-/* Expander */
-.streamlit-expanderHeader {
-    border-radius: 14px !important;
-    color: var(--text-main) !important;
-}
-
-/* Alerts readability */
-div[data-testid="stAlert"] {
-    border-radius: 16px;
-    border: 1px solid var(--border);
-}
-
-/* Progress */
-.stProgress > div > div {
-    border-radius: 999px;
-}
-
-/* Divider */
 hr {
-    margin-top: 1.25rem;
-    margin-bottom: 1.25rem;
     border-color: var(--border);
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-    .main .block-container {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-
-    .app-hero {
-        padding: 22px 20px;
-        border-radius: 22px;
-    }
-
-    .metric-card {
-        padding: 16px 18px;
-    }
-
-    .insight-card {
-        padding: 15px 16px;
-    }
+    margin: 1.2rem 0;
 }
 </style>
 """
@@ -446,1558 +270,561 @@ st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 
 # =========================================================
-# MASTER DATA
+# DATA
 # =========================================================
 
 BREED_DATA = {
     "Sapi Potong": {
         "Bali": {
-            "target_market_min": 280,
-            "target_market_ideal": 350,
-            "adult_weight_min": 300,
-            "adult_weight_max": 450,
+            "kind": "ruminant",
+            "target_min": 280,
+            "target_ideal": 350,
             "height_min": 115,
             "height_max": 130,
             "adg": 0.55,
             "dressing": 50,
-            "quant": {
-                "chest_depth_ratio": (0.42, 0.53),
-                "rump_width_ratio": (0.20, 0.30),
-                "cannon_ratio": (0.10, 0.16),
+            "colors": ["Merah bata", "Cokelat kemerahan", "Hitam pada jantan dewasa"],
+            "face": ["Lurus", "Pendek agak lebar"],
+            "horn_or_comb": ["Bertanduk", "Tanduk kecil"],
+            "ear_or_leg": ["Telinga sedang", "Telinga tegak sedang"],
+            "build": ["Kompak", "Padat", "Rangka sedang"],
+            "features": ["Kaki kuat", "Punggung lurus", "Paha berisi", "Bulu bersih"],
+            "sni": {
+                "name": "SNI 7651-4:2023 - Bibit sapi potong Bali",
+                "coverage": "bibit",
+                "min_weight": 280,
+                "min_height": 115,
+                "min_length": 110,
+                "min_girth": 145,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Merah bata", "Cokelat kemerahan", "Hitam pada jantan dewasa"],
-                "faces": ["Lurus", "Pendek agak lebar"],
-                "horns": ["Bertanduk", "Tanduk kecil", "Tanduk melengkung"],
-                "ears": ["Sedang", "Tegak sedang"],
-                "body_builds": ["Kompak", "Padat", "Rangka sedang"],
-                "features": [
-                    "Garis punggung relatif lurus",
-                    "Kaki kuat",
-                    "Paha cukup berisi",
-                    "Kulit dan bulu tampak bersih",
-                ],
-            },
-            "notes": "Tahan lingkungan tropis, efisien pakan, cocok untuk pasar lokal dan penggemukan sedang.",
         },
         "Peranakan Ongole / PO": {
-            "target_market_min": 320,
-            "target_market_ideal": 450,
-            "adult_weight_min": 350,
-            "adult_weight_max": 550,
+            "kind": "ruminant",
+            "target_min": 320,
+            "target_ideal": 450,
             "height_min": 125,
             "height_max": 145,
             "adg": 0.65,
             "dressing": 49,
-            "quant": {
-                "chest_depth_ratio": (0.42, 0.55),
-                "rump_width_ratio": (0.20, 0.31),
-                "cannon_ratio": (0.10, 0.17),
+            "colors": ["Putih", "Abu-abu muda", "Abu-abu tua"],
+            "face": ["Panjang", "Lurus", "Cembung ringan"],
+            "horn_or_comb": ["Bertanduk", "Tanduk kecil"],
+            "ear_or_leg": ["Telinga sedang", "Telinga agak menggantung"],
+            "build": ["Rangka besar", "Tinggi", "Panjang"],
+            "features": ["Punuk terlihat", "Gelambir berkembang", "Dada dalam", "Kaki kuat"],
+            "sni": {
+                "name": "SNI 7651-5:2022 - Bibit sapi potong PO",
+                "coverage": "bibit",
+                "min_weight": 320,
+                "min_height": 125,
+                "min_length": 120,
+                "min_girth": 150,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Putih", "Abu-abu muda", "Abu-abu tua"],
-                "faces": ["Panjang", "Cembung ringan", "Lurus"],
-                "horns": ["Bertanduk", "Tanduk kecil", "Tanduk melengkung"],
-                "ears": ["Sedang", "Agak menggantung"],
-                "body_builds": ["Rangka besar", "Tinggi", "Panjang"],
-                "features": [
-                    "Punuk terlihat",
-                    "Gelambir berkembang",
-                    "Kaki kuat",
-                    "Dada cukup dalam",
-                ],
-            },
-            "notes": "Adaptif, rangka cukup besar, umum dipakai untuk kerja, bibit, dan penggemukan.",
-        },
-        "Madura": {
-            "target_market_min": 250,
-            "target_market_ideal": 350,
-            "adult_weight_min": 250,
-            "adult_weight_max": 400,
-            "height_min": 110,
-            "height_max": 125,
-            "adg": 0.50,
-            "dressing": 49,
-            "quant": {
-                "chest_depth_ratio": (0.40, 0.52),
-                "rump_width_ratio": (0.19, 0.29),
-                "cannon_ratio": (0.10, 0.15),
-            },
-            "phenotype": {
-                "colors": ["Cokelat kemerahan", "Merah bata", "Cokelat"],
-                "faces": ["Pendek agak lebar", "Lurus"],
-                "horns": ["Bertanduk", "Tanduk kecil"],
-                "ears": ["Kecil", "Sedang"],
-                "body_builds": ["Kompak", "Rangka sedang", "Padat"],
-                "features": [
-                    "Kaki kuat",
-                    "Tubuh kompak",
-                    "Paha cukup berisi",
-                    "Bulu mengilap",
-                ],
-            },
-            "notes": "Ukuran relatif kompak, tahan lingkungan, cocok untuk sistem rakyat.",
-        },
-        "Brahman Cross": {
-            "target_market_min": 400,
-            "target_market_ideal": 550,
-            "adult_weight_min": 450,
-            "adult_weight_max": 700,
-            "height_min": 130,
-            "height_max": 150,
-            "adg": 0.85,
-            "dressing": 51,
-            "quant": {
-                "chest_depth_ratio": (0.43, 0.56),
-                "rump_width_ratio": (0.21, 0.32),
-                "cannon_ratio": (0.11, 0.18),
-            },
-            "phenotype": {
-                "colors": ["Abu-abu", "Putih keabu-abuan", "Merah kecokelatan", "Cokelat"],
-                "faces": ["Panjang", "Cembung ringan"],
-                "horns": ["Bertanduk", "Tanduk kecil", "Tidak bertanduk/polled"],
-                "ears": ["Menggantung/lebar", "Panjang menggantung"],
-                "body_builds": ["Rangka besar", "Panjang", "Berotot sedang"],
-                "features": [
-                    "Punuk jelas",
-                    "Gelambir berkembang",
-                    "Kulit longgar",
-                    "Telinga menggantung",
-                    "Dada dalam",
-                ],
-            },
-            "notes": "Rangka besar, tahan panas, potensi penggemukan tinggi jika pakan dan manajemen baik.",
         },
         "Simmental Cross": {
-            "target_market_min": 450,
-            "target_market_ideal": 650,
-            "adult_weight_min": 500,
-            "adult_weight_max": 850,
+            "kind": "ruminant",
+            "target_min": 450,
+            "target_ideal": 650,
             "height_min": 135,
             "height_max": 155,
             "adg": 0.95,
             "dressing": 53,
-            "quant": {
-                "chest_depth_ratio": (0.44, 0.57),
-                "rump_width_ratio": (0.22, 0.34),
-                "cannon_ratio": (0.11, 0.18),
+            "colors": ["Cokelat putih", "Merah putih", "Krem putih"],
+            "face": ["Lebar", "Lurus"],
+            "horn_or_comb": ["Bertanduk", "Tidak bertanduk/polled"],
+            "ear_or_leg": ["Telinga sedang", "Telinga tegak sedang"],
+            "build": ["Rangka besar", "Berotot", "Panjang dan dalam"],
+            "features": ["Dada dalam", "Punggung lebar", "Paha penuh", "Kaki kokoh"],
+            "sni": {
+                "name": "SNI 7651-8:2022 - Bibit sapi potong Simmental Indonesia",
+                "coverage": "bibit",
+                "min_weight": 450,
+                "min_height": 135,
+                "min_length": 130,
+                "min_girth": 165,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Cokelat putih", "Merah putih", "Krem putih", "Cokelat muda"],
-                "faces": ["Lebar", "Lurus", "Pendek agak lebar"],
-                "horns": ["Bertanduk", "Tidak bertanduk/polled", "Tanduk kecil"],
-                "ears": ["Sedang", "Tegak sedang"],
-                "body_builds": ["Rangka besar", "Berotot", "Panjang dan dalam"],
-                "features": [
-                    "Dada dalam",
-                    "Punggung lebar",
-                    "Paha penuh",
-                    "Kaki kokoh",
-                    "Warna belang khas",
-                ],
-            },
-            "notes": "Pertumbuhan cepat, rangka besar, cocok untuk penggemukan intensif.",
         },
         "Limousin Cross": {
-            "target_market_min": 450,
-            "target_market_ideal": 650,
-            "adult_weight_min": 500,
-            "adult_weight_max": 850,
+            "kind": "ruminant",
+            "target_min": 450,
+            "target_ideal": 650,
             "height_min": 135,
             "height_max": 155,
             "adg": 0.95,
             "dressing": 54,
-            "quant": {
-                "chest_depth_ratio": (0.43, 0.56),
-                "rump_width_ratio": (0.22, 0.35),
-                "cannon_ratio": (0.11, 0.18),
+            "colors": ["Cokelat keemasan", "Merah kecokelatan", "Cokelat muda"],
+            "face": ["Panjang", "Lurus"],
+            "horn_or_comb": ["Bertanduk", "Tidak bertanduk/polled"],
+            "ear_or_leg": ["Telinga sedang", "Telinga tegak sedang"],
+            "build": ["Berotot", "Rangka besar", "Punggung panjang"],
+            "features": ["Paha sangat berisi", "Punggung lebar", "Dada dalam", "Kaki kokoh"],
+            "sni": {
+                "name": "SNI 7651-9:2022 - Bibit sapi potong Limousin Indonesia",
+                "coverage": "bibit",
+                "min_weight": 450,
+                "min_height": 135,
+                "min_length": 130,
+                "min_girth": 165,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Cokelat keemasan", "Merah kecokelatan", "Cokelat muda"],
-                "faces": ["Panjang", "Lurus"],
-                "horns": ["Bertanduk", "Tidak bertanduk/polled", "Tanduk kecil"],
-                "ears": ["Sedang", "Tegak sedang"],
-                "body_builds": ["Berotot", "Rangka besar", "Punggung panjang"],
-                "features": [
-                    "Paha sangat berisi",
-                    "Punggung lebar",
-                    "Dada dalam",
-                    "Otot tampak jelas",
-                    "Kaki kokoh",
-                ],
+        },
+        "Brahman Cross": {
+            "kind": "ruminant",
+            "target_min": 400,
+            "target_ideal": 550,
+            "height_min": 130,
+            "height_max": 150,
+            "adg": 0.85,
+            "dressing": 51,
+            "colors": ["Abu-abu", "Putih keabu-abuan", "Merah kecokelatan"],
+            "face": ["Panjang", "Cembung ringan"],
+            "horn_or_comb": ["Bertanduk", "Tanduk kecil", "Tidak bertanduk/polled"],
+            "ear_or_leg": ["Telinga menggantung", "Telinga panjang menggantung"],
+            "build": ["Rangka besar", "Panjang", "Berotot sedang"],
+            "features": ["Punuk jelas", "Gelambir berkembang", "Kulit longgar", "Dada dalam"],
+            "sni": {
+                "name": "Acuan internal - belum dipetakan SNI langsung",
+                "coverage": "internal",
+                "min_weight": 400,
+                "min_height": 130,
+                "min_length": 125,
+                "min_girth": 160,
+                "min_bcs": 2.5,
             },
-            "notes": "Potensi daging tinggi, cocok untuk pasar premium dan sistem pakan intensif.",
         },
     },
     "Sapi Perah": {
         "Friesian Holstein / FH": {
-            "target_market_min": 400,
-            "target_market_ideal": 550,
-            "adult_weight_min": 450,
-            "adult_weight_max": 700,
+            "kind": "ruminant",
+            "target_min": 400,
+            "target_ideal": 550,
             "height_min": 130,
             "height_max": 150,
             "adg": 0.70,
             "dressing": 47,
-            "quant": {
-                "chest_depth_ratio": (0.42, 0.55),
-                "rump_width_ratio": (0.21, 0.33),
-                "cannon_ratio": (0.09, 0.16),
+            "colors": ["Hitam putih", "Putih hitam", "Belang hitam putih"],
+            "face": ["Panjang", "Lurus"],
+            "horn_or_comb": ["Tidak bertanduk/polled", "Bertanduk", "Tanduk kecil"],
+            "ear_or_leg": ["Telinga sedang", "Telinga tegak sedang"],
+            "build": ["Tinggi", "Panjang", "Bentuk tubuh perah"],
+            "features": ["Ambing proporsional", "Kaki kuat", "Punggung lurus", "Rangka panjang"],
+            "sni": {
+                "name": "SNI 2735:2022 - Bibit sapi perah FH Indonesia",
+                "coverage": "bibit",
+                "min_weight": 400,
+                "min_height": 130,
+                "min_length": 125,
+                "min_girth": 160,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Hitam putih", "Putih hitam", "Belang hitam putih"],
-                "faces": ["Panjang", "Lurus"],
-                "horns": ["Tidak bertanduk/polled", "Bertanduk", "Tanduk kecil"],
-                "ears": ["Sedang", "Tegak sedang"],
-                "body_builds": ["Tinggi", "Panjang", "Bentuk tubuh perah"],
-                "features": [
-                    "Ambing proporsional",
-                    "Vena susu tampak baik",
-                    "Punggung relatif lurus",
-                    "Kaki dan kuku kuat",
-                    "Rangka panjang",
-                ],
-            },
-            "notes": "Fokus utama produksi susu. Penilaian perlu memperhatikan BCS, ambing, dan kondisi laktasi.",
-        },
-        "Jersey": {
-            "target_market_min": 300,
-            "target_market_ideal": 420,
-            "adult_weight_min": 350,
-            "adult_weight_max": 500,
-            "height_min": 120,
-            "height_max": 140,
-            "adg": 0.55,
-            "dressing": 46,
-            "quant": {
-                "chest_depth_ratio": (0.40, 0.53),
-                "rump_width_ratio": (0.20, 0.31),
-                "cannon_ratio": (0.09, 0.15),
-            },
-            "phenotype": {
-                "colors": ["Cokelat muda", "Cokelat kekuningan", "Abu-cokelat"],
-                "faces": ["Panjang", "Halus", "Lurus"],
-                "horns": ["Tidak bertanduk/polled", "Bertanduk", "Tanduk kecil"],
-                "ears": ["Sedang", "Tegak sedang"],
-                "body_builds": ["Kompak", "Bentuk tubuh perah", "Rangka sedang"],
-                "features": [
-                    "Ambing proporsional",
-                    "Tubuh ramping perah",
-                    "Kaki kuat",
-                    "Bulu halus",
-                ],
-            },
-            "notes": "Ukuran lebih kecil dari FH, dikenal efisien dan susu berlemak relatif tinggi.",
-        },
-        "Peranakan FH": {
-            "target_market_min": 350,
-            "target_market_ideal": 500,
-            "adult_weight_min": 400,
-            "adult_weight_max": 650,
-            "height_min": 125,
-            "height_max": 145,
-            "adg": 0.65,
-            "dressing": 46,
-            "quant": {
-                "chest_depth_ratio": (0.41, 0.54),
-                "rump_width_ratio": (0.20, 0.32),
-                "cannon_ratio": (0.09, 0.16),
-            },
-            "phenotype": {
-                "colors": ["Hitam putih", "Putih hitam", "Belang tidak seragam"],
-                "faces": ["Panjang", "Lurus"],
-                "horns": ["Tidak bertanduk/polled", "Bertanduk", "Tanduk kecil"],
-                "ears": ["Sedang", "Tegak sedang"],
-                "body_builds": ["Panjang", "Rangka sedang", "Bentuk tubuh perah"],
-                "features": [
-                    "Ambing proporsional",
-                    "Rangka cukup panjang",
-                    "Kaki kuat",
-                    "Punggung relatif lurus",
-                ],
-            },
-            "notes": "Adaptasi lebih beragam, penilaian perlu melihat garis keturunan dan performa produksi.",
         },
     },
     "Kerbau": {
         "Kerbau Lumpur / Rawa": {
-            "target_market_min": 350,
-            "target_market_ideal": 500,
-            "adult_weight_min": 400,
-            "adult_weight_max": 650,
+            "kind": "ruminant",
+            "target_min": 350,
+            "target_ideal": 500,
             "height_min": 125,
             "height_max": 145,
             "adg": 0.55,
             "dressing": 45,
-            "quant": {
-                "chest_depth_ratio": (0.42, 0.56),
-                "rump_width_ratio": (0.22, 0.34),
-                "cannon_ratio": (0.11, 0.18),
+            "colors": ["Abu-abu gelap", "Hitam keabu-abuan", "Cokelat kehitaman"],
+            "face": ["Panjang", "Lebar"],
+            "horn_or_comb": ["Tanduk besar", "Tanduk melengkung", "Bertanduk"],
+            "ear_or_leg": ["Telinga sedang", "Telinga agak menggantung"],
+            "build": ["Rangka besar", "Dada dalam", "Kuat"],
+            "features": ["Kulit tebal", "Kaki kuat", "Tubuh lebar", "Tanduk melengkung"],
+            "sni": {
+                "name": "SNI 7706:2023 - Bibit kerbau lumpur",
+                "coverage": "bibit",
+                "min_weight": 350,
+                "min_height": 125,
+                "min_length": 120,
+                "min_girth": 160,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Abu-abu gelap", "Hitam keabu-abuan", "Cokelat kehitaman"],
-                "faces": ["Panjang", "Lebar"],
-                "horns": ["Tanduk besar", "Tanduk melengkung", "Bertanduk"],
-                "ears": ["Sedang", "Agak menggantung"],
-                "body_builds": ["Rangka besar", "Dada dalam", "Kuat"],
-                "features": [
-                    "Tanduk melengkung ke belakang/samping",
-                    "Kulit tebal",
-                    "Kaki kuat",
-                    "Tubuh lebar",
-                ],
-            },
-            "notes": "Kuat, adaptif, cocok untuk daerah basah dan sistem tradisional.",
-        },
-        "Murrah": {
-            "target_market_min": 450,
-            "target_market_ideal": 650,
-            "adult_weight_min": 500,
-            "adult_weight_max": 800,
-            "height_min": 130,
-            "height_max": 150,
-            "adg": 0.70,
-            "dressing": 46,
-            "quant": {
-                "chest_depth_ratio": (0.43, 0.57),
-                "rump_width_ratio": (0.22, 0.35),
-                "cannon_ratio": (0.11, 0.18),
-            },
-            "phenotype": {
-                "colors": ["Hitam", "Hitam mengilap", "Hitam keabu-abuan"],
-                "faces": ["Panjang", "Halus"],
-                "horns": ["Tanduk melingkar", "Tanduk kecil melengkung", "Bertanduk"],
-                "ears": ["Sedang", "Agak menggantung"],
-                "body_builds": ["Rangka besar", "Dada dalam", "Bentuk tubuh perah"],
-                "features": [
-                    "Tanduk melingkar rapat",
-                    "Ambing proporsional",
-                    "Kulit hitam mengilap",
-                    "Dada dalam",
-                    "Kaki kuat",
-                ],
-            },
-            "notes": "Potensi susu baik, ukuran tubuh besar, perlu manajemen pakan dan kesehatan lebih intensif.",
         },
     },
     "Kambing": {
         "Kacang": {
-            "target_market_min": 18,
-            "target_market_ideal": 28,
-            "adult_weight_min": 20,
-            "adult_weight_max": 35,
+            "kind": "ruminant",
+            "target_min": 18,
+            "target_ideal": 28,
             "height_min": 45,
             "height_max": 60,
             "adg": 0.06,
             "dressing": 43,
-            "quant": {
-                "chest_depth_ratio": (0.35, 0.49),
-                "rump_width_ratio": (0.16, 0.27),
-                "cannon_ratio": (0.07, 0.13),
+            "colors": ["Cokelat", "Hitam", "Putih", "Belang"],
+            "face": ["Pendek", "Lurus"],
+            "horn_or_comb": ["Bertanduk", "Tanduk kecil"],
+            "ear_or_leg": ["Telinga kecil", "Telinga tegak"],
+            "build": ["Kompak", "Kecil", "Lincah"],
+            "features": ["Tubuh kompak", "Kaki kuat", "Bulu bersih", "Gerak lincah"],
+            "sni": {
+                "name": "SNI 7352-2:2018 - Bibit kambing Kacang",
+                "coverage": "bibit",
+                "min_weight": 18,
+                "min_height": 45,
+                "min_length": 42,
+                "min_girth": 50,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Cokelat", "Hitam", "Putih", "Belang"],
-                "faces": ["Pendek", "Lurus"],
-                "horns": ["Bertanduk", "Tanduk kecil"],
-                "ears": ["Kecil", "Tegak"],
-                "body_builds": ["Kompak", "Kecil", "Lincah"],
-                "features": [
-                    "Tubuh kompak",
-                    "Kaki kuat",
-                    "Bulu bersih",
-                    "Gerak lincah",
-                ],
-            },
-            "notes": "Adaptif, ukuran kecil, cocok untuk pasar lokal dan sistem pemeliharaan sederhana.",
         },
         "Peranakan Etawa / PE": {
-            "target_market_min": 35,
-            "target_market_ideal": 60,
-            "adult_weight_min": 40,
-            "adult_weight_max": 80,
+            "kind": "ruminant",
+            "target_min": 35,
+            "target_ideal": 60,
             "height_min": 65,
             "height_max": 90,
             "adg": 0.10,
             "dressing": 44,
-            "quant": {
-                "chest_depth_ratio": (0.36, 0.50),
-                "rump_width_ratio": (0.17, 0.29),
-                "cannon_ratio": (0.07, 0.13),
+            "colors": ["Putih hitam", "Putih cokelat", "Belang", "Cokelat putih"],
+            "face": ["Cembung", "Roman nose", "Panjang"],
+            "horn_or_comb": ["Bertanduk", "Tanduk kecil"],
+            "ear_or_leg": ["Telinga panjang menggantung", "Telinga menggantung"],
+            "build": ["Tinggi", "Panjang", "Dwiguna"],
+            "features": ["Telinga panjang menggantung", "Profil wajah cembung", "Ambing proporsional", "Kaki tinggi"],
+            "sni": {
+                "name": "SNI 7352-1:2022 - Bibit kambing PE",
+                "coverage": "bibit",
+                "min_weight": 35,
+                "min_height": 65,
+                "min_length": 62,
+                "min_girth": 70,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Putih hitam", "Putih cokelat", "Belang", "Cokelat putih"],
-                "faces": ["Cembung", "Roman nose", "Panjang"],
-                "horns": ["Bertanduk", "Tanduk kecil"],
-                "ears": ["Panjang menggantung", "Menggantung/lebar"],
-                "body_builds": ["Tinggi", "Panjang", "Dwiguna"],
-                "features": [
-                    "Telinga panjang menggantung",
-                    "Profil wajah cembung",
-                    "Ambing proporsional",
-                    "Kaki tinggi",
-                    "Rangka panjang",
-                ],
-            },
-            "notes": "Dwiguna, potensi susu dan daging. Perhatikan ambing, bentuk tubuh, dan reproduksi.",
         },
         "Boer": {
-            "target_market_min": 35,
-            "target_market_ideal": 70,
-            "adult_weight_min": 50,
-            "adult_weight_max": 100,
+            "kind": "ruminant",
+            "target_min": 35,
+            "target_ideal": 70,
             "height_min": 60,
             "height_max": 80,
             "adg": 0.15,
             "dressing": 48,
-            "quant": {
-                "chest_depth_ratio": (0.38, 0.53),
-                "rump_width_ratio": (0.19, 0.32),
-                "cannon_ratio": (0.08, 0.14),
+            "colors": ["Putih kepala cokelat", "Putih cokelat", "Cokelat putih"],
+            "face": ["Cembung ringan", "Lebar", "Roman nose"],
+            "horn_or_comb": ["Bertanduk", "Tanduk kecil", "Melengkung ke belakang"],
+            "ear_or_leg": ["Telinga menggantung", "Telinga sedang menggantung"],
+            "build": ["Berotot", "Dada lebar", "Paha penuh"],
+            "features": ["Kepala cokelat", "Badan putih dominan", "Paha penuh", "Dada lebar"],
+            "sni": {
+                "name": "SNI 7352-8:2024 - Bibit kambing Boer",
+                "coverage": "bibit",
+                "min_weight": 35,
+                "min_height": 60,
+                "min_length": 58,
+                "min_girth": 70,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Putih kepala cokelat", "Putih cokelat", "Cokelat putih"],
-                "faces": ["Cembung ringan", "Lebar", "Roman nose"],
-                "horns": ["Bertanduk", "Tanduk kecil", "Melengkung ke belakang"],
-                "ears": ["Menggantung/lebar", "Sedang menggantung"],
-                "body_builds": ["Berotot", "Dada lebar", "Paha penuh"],
-                "features": [
-                    "Kepala cokelat",
-                    "Badan putih dominan",
-                    "Paha penuh",
-                    "Dada lebar",
-                    "Tubuh padat",
-                ],
-            },
-            "notes": "Tipe pedaging, pertumbuhan cepat, cocok untuk penggemukan dan bakalan premium.",
-        },
-        "Saanen": {
-            "target_market_min": 35,
-            "target_market_ideal": 65,
-            "adult_weight_min": 45,
-            "adult_weight_max": 90,
-            "height_min": 70,
-            "height_max": 90,
-            "adg": 0.10,
-            "dressing": 42,
-            "quant": {
-                "chest_depth_ratio": (0.36, 0.50),
-                "rump_width_ratio": (0.17, 0.29),
-                "cannon_ratio": (0.07, 0.13),
-            },
-            "phenotype": {
-                "colors": ["Putih", "Krem muda", "Putih bersih"],
-                "faces": ["Panjang", "Lurus", "Halus"],
-                "horns": ["Tidak bertanduk/polled", "Bertanduk", "Tanduk kecil"],
-                "ears": ["Tegak", "Sedang"],
-                "body_builds": ["Tinggi", "Ramping perah", "Panjang"],
-                "features": [
-                    "Warna putih/krem dominan",
-                    "Ambing proporsional",
-                    "Tubuh perah",
-                    "Kaki kuat",
-                    "Bulu halus",
-                ],
-            },
-            "notes": "Tipe perah, penilaian lebih kuat pada kesehatan, ambing, dan performa susu.",
         },
     },
     "Domba": {
         "Domba Garut": {
-            "target_market_min": 30,
-            "target_market_ideal": 55,
-            "adult_weight_min": 35,
-            "adult_weight_max": 80,
+            "kind": "ruminant",
+            "target_min": 30,
+            "target_ideal": 55,
             "height_min": 55,
             "height_max": 75,
             "adg": 0.12,
             "dressing": 47,
-            "quant": {
-                "chest_depth_ratio": (0.36, 0.51),
-                "rump_width_ratio": (0.18, 0.30),
-                "cannon_ratio": (0.08, 0.14),
+            "colors": ["Putih", "Hitam", "Cokelat", "Belang"],
+            "face": ["Sedang", "Lurus"],
+            "horn_or_comb": ["Tanduk besar", "Tanduk melingkar", "Bertanduk"],
+            "ear_or_leg": ["Telinga kecil", "Telinga sedang"],
+            "build": ["Berotot", "Kompak", "Dada lebar"],
+            "features": ["Tanduk kuat", "Dada lebar", "Punggung kuat", "Paha berisi"],
+            "sni": {
+                "name": "SNI 7532.1:2015 - Bibit domba Garut",
+                "coverage": "bibit",
+                "min_weight": 30,
+                "min_height": 55,
+                "min_length": 50,
+                "min_girth": 65,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Putih", "Hitam", "Cokelat", "Belang"],
-                "faces": ["Sedang", "Lurus"],
-                "horns": ["Tanduk besar", "Tanduk melingkar", "Bertanduk"],
-                "ears": ["Kecil", "Sedang"],
-                "body_builds": ["Berotot", "Kompak", "Dada lebar"],
-                "features": [
-                    "Tanduk kuat/melingkar pada jantan",
-                    "Dada lebar",
-                    "Punggung kuat",
-                    "Paha berisi",
-                    "Kaki kokoh",
-                ],
-            },
-            "notes": "Potensi pedaging dan kontes, rangka baik menjadi nilai tambah.",
-        },
-        "Domba Ekor Tipis": {
-            "target_market_min": 20,
-            "target_market_ideal": 35,
-            "adult_weight_min": 25,
-            "adult_weight_max": 45,
-            "height_min": 45,
-            "height_max": 65,
-            "adg": 0.08,
-            "dressing": 44,
-            "quant": {
-                "chest_depth_ratio": (0.34, 0.49),
-                "rump_width_ratio": (0.16, 0.28),
-                "cannon_ratio": (0.07, 0.13),
-            },
-            "phenotype": {
-                "colors": ["Putih", "Cokelat", "Hitam", "Belang"],
-                "faces": ["Sedang", "Lurus"],
-                "horns": ["Bertanduk", "Tidak bertanduk/polled", "Tanduk kecil"],
-                "ears": ["Kecil", "Sedang"],
-                "body_builds": ["Kecil sedang", "Kompak", "Adaptif"],
-                "features": [
-                    "Ekor tipis",
-                    "Tubuh kompak",
-                    "Kaki kuat",
-                    "Bulu bersih",
-                ],
-            },
-            "notes": "Adaptif, banyak dipelihara rakyat, cocok untuk pasar lokal.",
-        },
-        "Domba Ekor Gemuk": {
-            "target_market_min": 25,
-            "target_market_ideal": 45,
-            "adult_weight_min": 30,
-            "adult_weight_max": 60,
-            "height_min": 50,
-            "height_max": 70,
-            "adg": 0.09,
-            "dressing": 45,
-            "quant": {
-                "chest_depth_ratio": (0.35, 0.50),
-                "rump_width_ratio": (0.17, 0.29),
-                "cannon_ratio": (0.07, 0.13),
-            },
-            "phenotype": {
-                "colors": ["Putih", "Cokelat", "Hitam", "Belang"],
-                "faces": ["Sedang", "Lurus"],
-                "horns": ["Bertanduk", "Tidak bertanduk/polled", "Tanduk kecil"],
-                "ears": ["Sedang", "Kecil"],
-                "body_builds": ["Kompak", "Dada cukup lebar", "Padat"],
-                "features": [
-                    "Ekor gemuk",
-                    "Cadangan lemak ekor jelas",
-                    "Kaki kuat",
-                    "Punggung relatif lurus",
-                ],
-            },
-            "notes": "Cadangan lemak di ekor perlu diperhatikan saat menilai komposisi tubuh.",
-        },
-        "Merino Cross": {
-            "target_market_min": 35,
-            "target_market_ideal": 60,
-            "adult_weight_min": 45,
-            "adult_weight_max": 85,
-            "height_min": 60,
-            "height_max": 80,
-            "adg": 0.12,
-            "dressing": 46,
-            "quant": {
-                "chest_depth_ratio": (0.36, 0.51),
-                "rump_width_ratio": (0.18, 0.31),
-                "cannon_ratio": (0.08, 0.14),
-            },
-            "phenotype": {
-                "colors": ["Putih", "Krem", "Putih krem"],
-                "faces": ["Sedang", "Lurus"],
-                "horns": ["Bertanduk", "Tidak bertanduk/polled", "Tanduk kecil"],
-                "ears": ["Sedang", "Kecil"],
-                "body_builds": ["Rangka sedang besar", "Panjang", "Berbulu tebal"],
-                "features": [
-                    "Bulu/wol lebih tebal",
-                    "Rangka panjang",
-                    "Dada dalam",
-                    "Kaki kuat",
-                ],
-            },
-            "notes": "Rangka lebih besar, perlu manajemen pakan baik untuk mencapai performa optimal.",
         },
     },
     "Ayam Lokal Indonesia": {
         "Ayam Kampung": {
-            "target_market_min": 0.9,
-            "target_market_ideal": 1.5,
-            "adult_weight_min": 1.0,
-            "adult_weight_max": 2.2,
+            "kind": "poultry",
+            "target_min": 0.9,
+            "target_ideal": 1.5,
             "height_min": 30,
             "height_max": 45,
             "adg": 0.010,
             "dressing": 62,
-            "quant": {
-                "chest_depth_ratio": (0.25, 0.38),
-                "rump_width_ratio": (0.12, 0.22),
-                "cannon_ratio": (0.035, 0.080),
+            "colors": ["Campuran/liar", "Hitam merah", "Cokelat merah", "Wiring", "Belang"],
+            "face": ["Kepala sedang", "Paruh sedang"],
+            "horn_or_comb": ["Jengger tunggal", "Jengger kecil"],
+            "ear_or_leg": ["Kaki kuning", "Kaki putih", "Kaki hitam", "Kaki kehijauan"],
+            "build": ["Tubuh sedang", "Lincah", "Tipe dwiguna lokal"],
+            "features": ["Gerak lincah", "Bulu rapat dan mengilap", "Dada cukup berisi", "Kaki kuat", "Mata cerah"],
+            "sni": {
+                "name": "Acuan internal - belum dipetakan SNI langsung",
+                "coverage": "internal",
+                "min_weight": 0.9,
+                "min_height": 30,
+                "min_length": 25,
+                "min_girth": 25,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Campuran/liar", "Hitam merah", "Cokelat merah", "Wiring", "Belang"],
-                "faces": ["Kepala sedang", "Paruh sedang", "Lurus"],
-                "horns": ["Jengger tunggal", "Jengger kecil", "Tidak yakin"],
-                "ears": ["Kaki kuning", "Kaki putih", "Kaki hitam", "Kaki kehijauan"],
-                "body_builds": ["Tubuh sedang", "Lincah", "Tipe dwiguna lokal"],
-                "features": [
-                    "Gerak lincah",
-                    "Bulu rapat dan mengilap",
-                    "Dada cukup berisi",
-                    "Kaki kuat",
-                    "Mata cerah",
-                ],
-            },
-            "notes": "Ayam lokal umum yang adaptif, tahan lingkungan, dan banyak dipakai untuk daging maupun telur skala rumah tangga.",
         },
         "Ayam KUB-1": {
-            "target_market_min": 1.0,
-            "target_market_ideal": 1.6,
-            "adult_weight_min": 1.2,
-            "adult_weight_max": 2.0,
+            "kind": "poultry",
+            "target_min": 1.0,
+            "target_ideal": 1.6,
             "height_min": 30,
             "height_max": 45,
             "adg": 0.012,
             "dressing": 62,
-            "quant": {
-                "chest_depth_ratio": (0.26, 0.39),
-                "rump_width_ratio": (0.13, 0.23),
-                "cannon_ratio": (0.035, 0.080),
+            "colors": ["Campuran/liar", "Hitam merah", "Cokelat merah", "Wiring", "Belang"],
+            "face": ["Kepala sedang", "Paruh sedang"],
+            "horn_or_comb": ["Jengger tunggal", "Jengger kecil"],
+            "ear_or_leg": ["Kaki kuning", "Kaki putih", "Kaki hitam"],
+            "build": ["Tipe petelur lokal", "Tubuh sedang", "Lincah"],
+            "features": ["Gerak lincah", "Bulu rapat dan mengilap", "Produksi telur relatif baik", "Dada cukup berisi", "Mata cerah"],
+            "sni": {
+                "name": "SNI 8405-1:2017 - Bibit ayam umur sehari/kuri KUB-1",
+                "coverage": "DOC/kuri",
+                "min_weight": 0.035,
+                "min_height": 8,
+                "min_length": 6,
+                "min_girth": 5,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Campuran/liar", "Hitam merah", "Cokelat merah", "Wiring", "Belang"],
-                "faces": ["Kepala sedang", "Paruh sedang"],
-                "horns": ["Jengger tunggal", "Jengger kecil"],
-                "ears": ["Kaki kuning", "Kaki putih", "Kaki hitam"],
-                "body_builds": ["Tipe petelur lokal", "Tubuh sedang", "Lincah"],
-                "features": [
-                    "Gerak lincah",
-                    "Bulu rapat dan mengilap",
-                    "Produksi telur relatif baik",
-                    "Dada cukup berisi",
-                    "Mata cerah",
-                ],
-            },
-            "notes": "Ayam Kampung Unggul Balitbangtan/KUB-1 adalah galur ayam lokal terseleksi, dikenal untuk produktivitas telur dan adaptasi pemeliharaan rakyat.",
         },
         "Ayam KUB Janaka Agrinak": {
-            "target_market_min": 1.0,
-            "target_market_ideal": 1.7,
-            "adult_weight_min": 1.2,
-            "adult_weight_max": 2.1,
+            "kind": "poultry",
+            "target_min": 1.0,
+            "target_ideal": 1.7,
             "height_min": 30,
             "height_max": 45,
             "adg": 0.012,
             "dressing": 62,
-            "quant": {
-                "chest_depth_ratio": (0.26, 0.39),
-                "rump_width_ratio": (0.13, 0.23),
-                "cannon_ratio": (0.035, 0.080),
+            "colors": ["Campuran/liar", "Cokelat merah", "Hitam merah", "Wiring"],
+            "face": ["Kepala sedang", "Paruh sedang"],
+            "horn_or_comb": ["Jengger tunggal", "Jengger kecil"],
+            "ear_or_leg": ["Kaki kuning", "Kaki putih", "Kaki hitam"],
+            "build": ["Tipe petelur lokal", "Tubuh sedang", "Lincah"],
+            "features": ["Gerak lincah", "Bulu rapat dan mengilap", "Produksi telur relatif baik", "Dada cukup berisi", "Mata cerah"],
+            "sni": {
+                "name": "SNI 8405-2:2023 - Bibit ayam umur sehari/kuri KUB Janaka Agrinak",
+                "coverage": "DOC/kuri",
+                "min_weight": 0.035,
+                "min_height": 8,
+                "min_length": 6,
+                "min_girth": 5,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Campuran/liar", "Cokelat merah", "Hitam merah", "Wiring"],
-                "faces": ["Kepala sedang", "Paruh sedang"],
-                "horns": ["Jengger tunggal", "Jengger kecil"],
-                "ears": ["Kaki kuning", "Kaki putih", "Kaki hitam"],
-                "body_builds": ["Tipe petelur lokal", "Tubuh sedang", "Lincah"],
-                "features": [
-                    "Gerak lincah",
-                    "Bulu rapat dan mengilap",
-                    "Produksi telur relatif baik",
-                    "Dada cukup berisi",
-                    "Mata cerah",
-                ],
-            },
-            "notes": "Galur KUB Janaka Agrinak merupakan pengembangan ayam lokal unggul. Cocok dinilai dari keseragaman DOC, kesehatan, pertumbuhan, dan potensi produksi telur.",
         },
         "Ayam Sentul": {
-            "target_market_min": 1.0,
-            "target_market_ideal": 1.7,
-            "adult_weight_min": 1.2,
-            "adult_weight_max": 2.5,
+            "kind": "poultry",
+            "target_min": 1.0,
+            "target_ideal": 1.7,
             "height_min": 32,
             "height_max": 48,
             "adg": 0.011,
             "dressing": 62,
-            "quant": {
-                "chest_depth_ratio": (0.26, 0.40),
-                "rump_width_ratio": (0.13, 0.23),
-                "cannon_ratio": (0.035, 0.085),
+            "colors": ["Abu-abu", "Kelabu", "Sentul batu", "Sentul kelabu", "Sentul mas"],
+            "face": ["Kepala sedang", "Paruh sedang"],
+            "horn_or_comb": ["Jengger tunggal", "Jengger kecil"],
+            "ear_or_leg": ["Kaki kuning", "Kaki putih", "Kaki hitam"],
+            "build": ["Tubuh sedang", "Tipe dwiguna lokal", "Lincah"],
+            "features": ["Warna kelabu/sentul khas", "Gerak lincah", "Dada cukup berisi", "Bulu rapat dan mengilap", "Kaki kuat"],
+            "sni": {
+                "name": "Acuan internal - belum dipetakan SNI langsung",
+                "coverage": "internal",
+                "min_weight": 1.0,
+                "min_height": 32,
+                "min_length": 26,
+                "min_girth": 26,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Abu-abu", "Kelabu", "Sentul batu", "Sentul kelabu", "Sentul mas"],
-                "faces": ["Kepala sedang", "Paruh sedang"],
-                "horns": ["Jengger tunggal", "Jengger kecil"],
-                "ears": ["Kaki kuning", "Kaki putih", "Kaki hitam"],
-                "body_builds": ["Tubuh sedang", "Tipe dwiguna lokal", "Lincah"],
-                "features": [
-                    "Warna kelabu/sentul khas",
-                    "Gerak lincah",
-                    "Dada cukup berisi",
-                    "Bulu rapat dan mengilap",
-                    "Kaki kuat",
-                ],
-            },
-            "notes": "Ayam Sentul merupakan ayam lokal Jawa Barat dengan warna kelabu/sentul yang khas dan potensi dwiguna.",
         },
         "Ayam Pelung": {
-            "target_market_min": 2.0,
-            "target_market_ideal": 3.5,
-            "adult_weight_min": 2.0,
-            "adult_weight_max": 5.0,
+            "kind": "poultry",
+            "target_min": 2.0,
+            "target_ideal": 3.5,
             "height_min": 45,
             "height_max": 70,
             "adg": 0.014,
             "dressing": 60,
-            "quant": {
-                "chest_depth_ratio": (0.25, 0.38),
-                "rump_width_ratio": (0.12, 0.22),
-                "cannon_ratio": (0.040, 0.090),
+            "colors": ["Hitam merah", "Wiring", "Cokelat merah", "Campuran/liar"],
+            "face": ["Kepala besar", "Postur kepala tegap", "Paruh sedang"],
+            "horn_or_comb": ["Jengger tunggal", "Jengger besar"],
+            "ear_or_leg": ["Kaki panjang", "Kaki kuning", "Kaki hitam"],
+            "build": ["Postur tegap", "Tubuh besar", "Panjang"],
+            "features": ["Postur tinggi dan tegap", "Suara panjang/merdu pada jantan", "Leher panjang", "Kaki panjang dan kuat", "Dada cukup dalam"],
+            "sni": {
+                "name": "Acuan internal - belum dipetakan SNI langsung",
+                "coverage": "internal",
+                "min_weight": 2.0,
+                "min_height": 45,
+                "min_length": 35,
+                "min_girth": 32,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Hitam merah", "Wiring", "Cokelat merah", "Campuran/liar"],
-                "faces": ["Kepala besar", "Paruh sedang", "Postur kepala tegap"],
-                "horns": ["Jengger tunggal", "Jengger besar"],
-                "ears": ["Kaki panjang", "Kaki kuning", "Kaki hitam"],
-                "body_builds": ["Postur tegap", "Tubuh besar", "Panjang"],
-                "features": [
-                    "Postur tinggi dan tegap",
-                    "Suara panjang/merdu pada jantan",
-                    "Leher panjang",
-                    "Kaki panjang dan kuat",
-                    "Dada cukup dalam",
-                ],
-            },
-            "notes": "Ayam Pelung dikenal sebagai ayam penyanyi dari Jawa Barat dengan postur besar, tinggi, dan suara khas pada pejantan.",
         },
         "Ayam Kedu Hitam": {
-            "target_market_min": 1.2,
-            "target_market_ideal": 2.0,
-            "adult_weight_min": 1.5,
-            "adult_weight_max": 3.0,
+            "kind": "poultry",
+            "target_min": 1.2,
+            "target_ideal": 2.0,
             "height_min": 35,
             "height_max": 55,
             "adg": 0.011,
             "dressing": 61,
-            "quant": {
-                "chest_depth_ratio": (0.25, 0.39),
-                "rump_width_ratio": (0.12, 0.22),
-                "cannon_ratio": (0.035, 0.085),
+            "colors": ["Hitam", "Hitam mengilap"],
+            "face": ["Kepala sedang", "Paruh gelap"],
+            "horn_or_comb": ["Jengger tunggal", "Jengger gelap", "Jengger kecil"],
+            "ear_or_leg": ["Kaki hitam", "Kaki gelap"],
+            "build": ["Tubuh sedang", "Postur tegap", "Tipe dwiguna lokal"],
+            "features": ["Bulu hitam dominan", "Paruh/kaki cenderung gelap", "Bulu rapat dan mengilap", "Kaki kuat", "Mata cerah"],
+            "sni": {
+                "name": "Acuan internal - belum dipetakan SNI langsung",
+                "coverage": "internal",
+                "min_weight": 1.2,
+                "min_height": 35,
+                "min_length": 28,
+                "min_girth": 28,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Hitam", "Hitam mengilap"],
-                "faces": ["Kepala sedang", "Paruh gelap"],
-                "horns": ["Jengger tunggal", "Jengger gelap", "Jengger kecil"],
-                "ears": ["Kaki hitam", "Kaki gelap"],
-                "body_builds": ["Tubuh sedang", "Postur tegap", "Tipe dwiguna lokal"],
-                "features": [
-                    "Bulu hitam dominan",
-                    "Paruh/kaki cenderung gelap",
-                    "Bulu rapat dan mengilap",
-                    "Kaki kuat",
-                    "Mata cerah",
-                ],
-            },
-            "notes": "Ayam Kedu Hitam berasal dari wilayah Kedu dan dikenal dengan warna hitam dominan serta nilai budaya/ekonomi tertentu.",
         },
         "Ayam Cemani": {
-            "target_market_min": 1.2,
-            "target_market_ideal": 2.0,
-            "adult_weight_min": 1.5,
-            "adult_weight_max": 3.0,
+            "kind": "poultry",
+            "target_min": 1.2,
+            "target_ideal": 2.0,
             "height_min": 35,
             "height_max": 55,
             "adg": 0.010,
             "dressing": 60,
-            "quant": {
-                "chest_depth_ratio": (0.25, 0.38),
-                "rump_width_ratio": (0.12, 0.22),
-                "cannon_ratio": (0.035, 0.085),
+            "colors": ["Hitam total", "Hitam mengilap"],
+            "face": ["Kepala sedang", "Paruh gelap"],
+            "horn_or_comb": ["Jengger gelap", "Jengger tunggal", "Jengger kecil"],
+            "ear_or_leg": ["Kaki hitam", "Kaki gelap"],
+            "build": ["Tubuh sedang", "Postur tegap"],
+            "features": ["Bulu hitam total", "Kulit/jengger/paruh/kaki hitam", "Bulu rapat dan mengilap", "Kaki kuat", "Mata cerah"],
+            "sni": {
+                "name": "Acuan internal - belum dipetakan SNI langsung",
+                "coverage": "internal",
+                "min_weight": 1.2,
+                "min_height": 35,
+                "min_length": 28,
+                "min_girth": 28,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Hitam total", "Hitam mengilap"],
-                "faces": ["Kepala sedang", "Paruh gelap"],
-                "horns": ["Jengger gelap", "Jengger tunggal", "Jengger kecil"],
-                "ears": ["Kaki hitam", "Kaki gelap"],
-                "body_builds": ["Tubuh sedang", "Postur tegap"],
-                "features": [
-                    "Bulu hitam total",
-                    "Kulit/jengger/paruh/kaki hitam",
-                    "Bulu rapat dan mengilap",
-                    "Kaki kuat",
-                    "Mata cerah",
-                ],
-            },
-            "notes": "Ayam Cemani memiliki karakter warna hitam menyeluruh. Nilai jual dipengaruhi kemurnian tampilan dan permintaan pasar khusus.",
         },
         "Ayam Nunukan": {
-            "target_market_min": 1.4,
-            "target_market_ideal": 2.2,
-            "adult_weight_min": 1.5,
-            "adult_weight_max": 3.0,
+            "kind": "poultry",
+            "target_min": 1.4,
+            "target_ideal": 2.2,
             "height_min": 35,
             "height_max": 55,
             "adg": 0.012,
             "dressing": 62,
-            "quant": {
-                "chest_depth_ratio": (0.26, 0.40),
-                "rump_width_ratio": (0.13, 0.23),
-                "cannon_ratio": (0.035, 0.085),
+            "colors": ["Cokelat kemerahan", "Buff/kuning kecokelatan", "Columbian"],
+            "face": ["Kepala sedang", "Paruh sedang"],
+            "horn_or_comb": ["Jengger tunggal", "Jengger kecil"],
+            "ear_or_leg": ["Kaki kuning", "Kaki putih"],
+            "build": ["Tubuh sedang", "Tipe dwiguna lokal"],
+            "features": ["Warna cokelat kemerahan/buff", "Ujung sayap atau ekor cenderung gelap", "Pertumbuhan bulu relatif lambat", "Dada cukup berisi", "Kaki kuat"],
+            "sni": {
+                "name": "Acuan internal - belum dipetakan SNI langsung",
+                "coverage": "internal",
+                "min_weight": 1.4,
+                "min_height": 35,
+                "min_length": 28,
+                "min_girth": 28,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Cokelat kemerahan", "Buff/kuning kecokelatan", "Columbian"],
-                "faces": ["Kepala sedang", "Paruh sedang"],
-                "horns": ["Jengger tunggal", "Jengger kecil"],
-                "ears": ["Kaki kuning", "Kaki putih"],
-                "body_builds": ["Tubuh sedang", "Tipe dwiguna lokal"],
-                "features": [
-                    "Warna cokelat kemerahan/buff",
-                    "Ujung sayap atau ekor cenderung gelap",
-                    "Pertumbuhan bulu relatif lambat",
-                    "Dada cukup berisi",
-                    "Kaki kuat",
-                ],
-            },
-            "notes": "Ayam Nunukan dikenal dari Kalimantan dengan warna buff/cokelat kemerahan dan karakter pertumbuhan bulu yang khas.",
         },
         "Ayam Merawang": {
-            "target_market_min": 1.2,
-            "target_market_ideal": 2.0,
-            "adult_weight_min": 1.5,
-            "adult_weight_max": 3.0,
+            "kind": "poultry",
+            "target_min": 1.2,
+            "target_ideal": 2.0,
             "height_min": 35,
             "height_max": 55,
             "adg": 0.011,
             "dressing": 62,
-            "quant": {
-                "chest_depth_ratio": (0.25, 0.39),
-                "rump_width_ratio": (0.12, 0.22),
-                "cannon_ratio": (0.035, 0.085),
+            "colors": ["Kuning keemasan", "Cokelat keemasan", "Cokelat merah"],
+            "face": ["Kepala sedang", "Paruh sedang"],
+            "horn_or_comb": ["Jengger tunggal", "Jengger kecil"],
+            "ear_or_leg": ["Kaki kuning", "Kaki putih"],
+            "build": ["Tubuh sedang", "Tipe dwiguna lokal"],
+            "features": ["Warna kuning/cokelat keemasan", "Bulu rapat dan mengilap", "Dada cukup berisi", "Kaki kuat", "Gerak lincah"],
+            "sni": {
+                "name": "Acuan internal - belum dipetakan SNI langsung",
+                "coverage": "internal",
+                "min_weight": 1.2,
+                "min_height": 35,
+                "min_length": 28,
+                "min_girth": 28,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Kuning keemasan", "Cokelat keemasan", "Cokelat merah"],
-                "faces": ["Kepala sedang", "Paruh sedang"],
-                "horns": ["Jengger tunggal", "Jengger kecil"],
-                "ears": ["Kaki kuning", "Kaki putih"],
-                "body_builds": ["Tubuh sedang", "Tipe dwiguna lokal"],
-                "features": [
-                    "Warna kuning/cokelat keemasan",
-                    "Bulu rapat dan mengilap",
-                    "Dada cukup berisi",
-                    "Kaki kuat",
-                    "Gerak lincah",
-                ],
-            },
-            "notes": "Ayam Merawang dikenal sebagai ayam lokal dari Bangka Belitung/Sumatera bagian selatan dengan warna kuning-keemasan.",
         },
         "Ayam Gaok": {
-            "target_market_min": 1.5,
-            "target_market_ideal": 2.8,
-            "adult_weight_min": 1.8,
-            "adult_weight_max": 4.0,
+            "kind": "poultry",
+            "target_min": 1.5,
+            "target_ideal": 2.8,
             "height_min": 40,
             "height_max": 65,
             "adg": 0.012,
             "dressing": 61,
-            "quant": {
-                "chest_depth_ratio": (0.25, 0.39),
-                "rump_width_ratio": (0.12, 0.22),
-                "cannon_ratio": (0.038, 0.090),
+            "colors": ["Hitam merah", "Wiring", "Cokelat merah", "Campuran/liar"],
+            "face": ["Kepala besar", "Postur kepala tegap"],
+            "horn_or_comb": ["Jengger tunggal", "Jengger besar"],
+            "ear_or_leg": ["Kaki panjang", "Kaki kuning", "Kaki hitam"],
+            "build": ["Postur tegap", "Tubuh besar", "Panjang"],
+            "features": ["Postur tinggi", "Suara panjang pada jantan", "Leher relatif panjang", "Kaki kuat", "Dada cukup dalam"],
+            "sni": {
+                "name": "Acuan internal - belum dipetakan SNI langsung",
+                "coverage": "internal",
+                "min_weight": 1.5,
+                "min_height": 40,
+                "min_length": 32,
+                "min_girth": 30,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Hitam merah", "Wiring", "Cokelat merah", "Campuran/liar"],
-                "faces": ["Kepala besar", "Postur kepala tegap"],
-                "horns": ["Jengger tunggal", "Jengger besar"],
-                "ears": ["Kaki panjang", "Kaki kuning", "Kaki hitam"],
-                "body_builds": ["Postur tegap", "Tubuh besar", "Panjang"],
-                "features": [
-                    "Postur tinggi",
-                    "Suara panjang pada jantan",
-                    "Leher relatif panjang",
-                    "Kaki kuat",
-                    "Dada cukup dalam",
-                ],
-            },
-            "notes": "Ayam Gaok dikenal sebagai ayam lokal tipe penyanyi/postur besar dari Madura dan sekitarnya.",
         },
         "Ayam Kokok Balenggek": {
-            "target_market_min": 1.2,
-            "target_market_ideal": 2.0,
-            "adult_weight_min": 1.4,
-            "adult_weight_max": 3.0,
+            "kind": "poultry",
+            "target_min": 1.2,
+            "target_ideal": 2.0,
             "height_min": 35,
             "height_max": 55,
             "adg": 0.010,
             "dressing": 60,
-            "quant": {
-                "chest_depth_ratio": (0.25, 0.38),
-                "rump_width_ratio": (0.12, 0.22),
-                "cannon_ratio": (0.035, 0.085),
+            "colors": ["Hitam merah", "Wiring", "Cokelat merah", "Campuran/liar"],
+            "face": ["Kepala sedang", "Postur kepala tegap"],
+            "horn_or_comb": ["Jengger tunggal", "Jengger kecil"],
+            "ear_or_leg": ["Kaki kuning", "Kaki hitam", "Kaki putih"],
+            "build": ["Postur tegap", "Tubuh sedang", "Lincah"],
+            "features": ["Kokok bertingkat/balenggek pada jantan", "Postur tegap", "Bulu rapat dan mengilap", "Kaki kuat", "Mata cerah"],
+            "sni": {
+                "name": "Acuan internal - belum dipetakan SNI langsung",
+                "coverage": "internal",
+                "min_weight": 1.2,
+                "min_height": 35,
+                "min_length": 28,
+                "min_girth": 28,
+                "min_bcs": 2.5,
             },
-            "phenotype": {
-                "colors": ["Hitam merah", "Wiring", "Cokelat merah", "Campuran/liar"],
-                "faces": ["Kepala sedang", "Postur kepala tegap"],
-                "horns": ["Jengger tunggal", "Jengger kecil"],
-                "ears": ["Kaki kuning", "Kaki hitam", "Kaki putih"],
-                "body_builds": ["Postur tegap", "Tubuh sedang", "Lincah"],
-                "features": [
-                    "Kokok bertingkat/balenggek pada jantan",
-                    "Postur tegap",
-                    "Bulu rapat dan mengilap",
-                    "Kaki kuat",
-                    "Mata cerah",
-                ],
-            },
-            "notes": "Ayam Kokok Balenggek berasal dari Sumatera Barat dan dikenal dari karakter suara kokok bertingkat pada pejantan.",
-        },
-    },
-
-}
-
-
-
-# =========================================================
-# REFERENSI SNI / ACUAN PEMBANDING
-# =========================================================
-# Keterangan penting:
-# - Nomor SNI disesuaikan dengan katalog BSN yang tersedia.
-# - Angka default di bawah ini adalah acuan awal aplikasi agar fitur
-#   pembanding dapat berjalan. Untuk sertifikasi/resmi, pengguna harus
-#   mengganti nilai minimum sesuai dokumen SNI resmi, karena SNI dapat
-#   membedakan umur, jenis kelamin, kelas mutu, lingkar skrotum, panjang
-#   telinga, sifat reproduksi, dan syarat khusus lain.
-# - Aplikasi menyediakan mode "ubah manual" agar nilai dapat disesuaikan
-#   dengan dokumen SNI yang dimiliki pengguna.
-# =========================================================
-
-SNI_REFERENCE_DATA = {
-    "Sapi Potong": {
-        "Bali": {
-            "standard_no": "SNI 7651-4:2023",
-            "standard_title": "Bibit sapi potong - Bagian 4: Bali",
-            "coverage": "bibit",
-            "source_note": "Katalog BSN mencantumkan SNI 7651-4:2023 untuk bibit sapi potong Bali.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 280,
-                "Tinggi pundak minimum (cm)": 115,
-                "Panjang badan minimum (cm)": 110,
-                "Lingkar dada minimum (cm)": 145,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Warna bulu sesuai karakter bangsa",
-                "Sehat dan tidak cacat",
-                "Kaki kuat",
-                "Bentuk tubuh sesuai rumpun",
-            ],
-        },
-        "Peranakan Ongole / PO": {
-            "standard_no": "SNI 7651-5:2022",
-            "standard_title": "Bibit sapi potong - Bagian 5: Peranakan ongole",
-            "coverage": "bibit",
-            "source_note": "Katalog BSN mencantumkan SNI 7651-5:2022 untuk bibit sapi potong Peranakan Ongole.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 320,
-                "Tinggi pundak minimum (cm)": 125,
-                "Panjang badan minimum (cm)": 120,
-                "Lingkar dada minimum (cm)": 150,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Warna tubuh putih/abu-abu sesuai karakter PO",
-                "Punuk/gelambir sesuai tipe zebu",
-                "Sehat dan tidak cacat",
-                "Kaki kuat",
-            ],
-        },
-        "Madura": {
-            "standard_no": "SNI 7651-2:2023",
-            "standard_title": "Bibit sapi potong - Bagian 2: Madura",
-            "coverage": "bibit",
-            "source_note": "Katalog BSN mencantumkan SNI 7651-2:2023 untuk bibit sapi potong Madura.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 250,
-                "Tinggi pundak minimum (cm)": 110,
-                "Panjang badan minimum (cm)": 105,
-                "Lingkar dada minimum (cm)": 135,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Warna cokelat/merah bata sesuai karakter Madura",
-                "Tubuh kompak",
-                "Sehat dan tidak cacat",
-                "Kaki kuat",
-            ],
-        },
-        "Simmental Cross": {
-            "standard_no": "SNI 7651-8:2022",
-            "standard_title": "Bibit sapi potong - Bagian 8: Simmental Indonesia",
-            "coverage": "bibit",
-            "source_note": "Katalog BSN mencantumkan SNI 7651-8:2022 untuk bibit sapi potong Simmental Indonesia.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 450,
-                "Tinggi pundak minimum (cm)": 135,
-                "Panjang badan minimum (cm)": 130,
-                "Lingkar dada minimum (cm)": 165,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Warna/tipe tubuh sesuai Simmental Indonesia",
-                "Rangka besar",
-                "Sehat dan tidak cacat",
-                "Kaki kuat",
-            ],
-        },
-        "Limousin Cross": {
-            "standard_no": "SNI 7651-9:2022",
-            "standard_title": "Bibit sapi potong - Bagian 9: Limousin Indonesia",
-            "coverage": "bibit",
-            "source_note": "Katalog BSN mencantumkan SNI 7651-9:2022 untuk bibit sapi potong Limousin Indonesia.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 450,
-                "Tinggi pundak minimum (cm)": 135,
-                "Panjang badan minimum (cm)": 130,
-                "Lingkar dada minimum (cm)": 165,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Warna/tipe tubuh sesuai Limousin Indonesia",
-                "Otot dan paha berkembang",
-                "Sehat dan tidak cacat",
-                "Kaki kuat",
-            ],
-        },
-        "Brahman Cross": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk Brahman Cross pada katalog yang digunakan.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 400,
-                "Tinggi pundak minimum (cm)": 130,
-                "Panjang badan minimum (cm)": 125,
-                "Lingkar dada minimum (cm)": 160,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Ciri zebu/Brahman tampak",
-                "Punuk/gelambir sesuai tipe",
-                "Sehat dan tidak cacat",
-                "Kaki kuat",
-            ],
-        },
-    },
-    "Sapi Perah": {
-        "Friesian Holstein / FH": {
-            "standard_no": "SNI 2735:2022 / Ralat1:2023",
-            "standard_title": "Bibit sapi perah friesian holstein Indonesia",
-            "coverage": "bibit",
-            "source_note": "Katalog BSN mencantumkan SNI 2735:2022 dan ralat 2023 untuk bibit sapi perah FH Indonesia.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 400,
-                "Tinggi pundak minimum (cm)": 130,
-                "Panjang badan minimum (cm)": 125,
-                "Lingkar dada minimum (cm)": 160,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Warna hitam-putih/putih-hitam sesuai FH",
-                "Bentuk tubuh perah",
-                "Ambing proporsional untuk betina",
-                "Sehat dan tidak cacat",
-            ],
-        },
-        "Peranakan FH": {
-            "standard_no": "SNI 2735:2022 / Ralat1:2023",
-            "standard_title": "Bibit sapi perah friesian holstein Indonesia",
-            "coverage": "acuan_terdekat",
-            "source_note": "Peranakan FH menggunakan acuan terdekat FH Indonesia dan perlu verifikasi dokumen resmi.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 350,
-                "Tinggi pundak minimum (cm)": 125,
-                "Panjang badan minimum (cm)": 120,
-                "Lingkar dada minimum (cm)": 150,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Tipe tubuh perah",
-                "Warna dominan FH/PFH",
-                "Ambing proporsional untuk betina",
-                "Sehat dan tidak cacat",
-            ],
-        },
-        "Jersey": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk Jersey.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 300,
-                "Tinggi pundak minimum (cm)": 120,
-                "Panjang badan minimum (cm)": 115,
-                "Lingkar dada minimum (cm)": 140,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Tipe tubuh perah",
-                "Warna cokelat/krem sesuai Jersey",
-                "Ambing proporsional untuk betina",
-                "Sehat dan tidak cacat",
-            ],
-        },
-    },
-    "Kerbau": {
-        "Kerbau Lumpur / Rawa": {
-            "standard_no": "SNI 7706:2023",
-            "standard_title": "Bibit kerbau lumpur",
-            "coverage": "bibit",
-            "source_note": "Katalog BSN mencantumkan SNI 7706:2023 untuk bibit kerbau lumpur.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 350,
-                "Tinggi pundak minimum (cm)": 125,
-                "Panjang badan minimum (cm)": 120,
-                "Lingkar dada minimum (cm)": 160,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Warna kulit sesuai kerbau lumpur",
-                "Tanduk sesuai karakter kerbau lumpur",
-                "Sehat dan tidak cacat",
-                "Kaki kuat",
-            ],
-        },
-        "Murrah": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk Murrah.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 450,
-                "Tinggi pundak minimum (cm)": 130,
-                "Panjang badan minimum (cm)": 125,
-                "Lingkar dada minimum (cm)": 170,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Warna hitam mengilap",
-                "Tanduk melingkar sesuai Murrah",
-                "Ambing proporsional untuk betina",
-                "Sehat dan tidak cacat",
-            ],
-        },
-    },
-    "Kambing": {
-        "Peranakan Etawa / PE": {
-            "standard_no": "SNI 7352-1:2022",
-            "standard_title": "Bibit kambing - Bagian 1: Peranakan Etawah",
-            "coverage": "bibit",
-            "source_note": "Katalog BSN mencantumkan SNI 7352-1:2022; penelitian SNI PE menyebut parameter tinggi pundak, panjang badan, lingkar dada, panjang telinga, dan lingkar skrotum.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 35,
-                "Tinggi pundak minimum (cm)": 65,
-                "Panjang badan minimum (cm)": 62,
-                "Lingkar dada minimum (cm)": 70,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Warna putih/hitam/cokelat atau kombinasinya",
-                "Telinga panjang menggantung",
-                "Profil muka cembung",
-                "Sehat dan tidak cacat",
-            ],
-        },
-        "Kacang": {
-            "standard_no": "SNI 7352-2:2018 Konfirmasi 2024",
-            "standard_title": "Bibit kambing - Bagian 2: Kacang",
-            "coverage": "bibit",
-            "source_note": "Katalog BSN mencantumkan SNI 7352-2:2018 dan konfirmasi 2024 untuk bibit kambing Kacang.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 18,
-                "Tinggi pundak minimum (cm)": 45,
-                "Panjang badan minimum (cm)": 42,
-                "Lingkar dada minimum (cm)": 50,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Tubuh kompak",
-                "Telinga kecil/tegak",
-                "Sehat dan tidak cacat",
-                "Kaki kuat",
-            ],
-        },
-        "Saanen": {
-            "standard_no": "SNI 7352-4:2022",
-            "standard_title": "Bibit kambing - Bagian 4: Saanen Indonesia",
-            "coverage": "bibit",
-            "source_note": "Katalog BSN mencantumkan SNI 7352-4:2022 untuk bibit kambing Saanen Indonesia.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 35,
-                "Tinggi pundak minimum (cm)": 70,
-                "Panjang badan minimum (cm)": 65,
-                "Lingkar dada minimum (cm)": 72,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Warna putih/krem dominan",
-                "Tipe tubuh perah",
-                "Ambing proporsional untuk betina",
-                "Sehat dan tidak cacat",
-            ],
-        },
-        "Boer": {
-            "standard_no": "SNI 7352-8:2024",
-            "standard_title": "Bibit kambing - Bagian 8: Boer",
-            "coverage": "bibit",
-            "source_note": "Katalog BSN mencantumkan SNI 7352-8:2024 untuk bibit kambing Boer.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 35,
-                "Tinggi pundak minimum (cm)": 60,
-                "Panjang badan minimum (cm)": 58,
-                "Lingkar dada minimum (cm)": 70,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Kepala cokelat/badan putih atau pola Boer",
-                "Tubuh pedaging berotot",
-                "Telinga menggantung",
-                "Sehat dan tidak cacat",
-            ],
-        },
-    },
-
-    "Ayam Lokal Indonesia": {
-        "Ayam KUB-1": {
-            "standard_no": "SNI 8405-1:2017",
-            "standard_title": "Bibit ayam umur sehari/kuri - Bagian 1: KUB-1",
-            "coverage": "doc_kuri",
-            "source_note": "BSN mencantumkan SNI 8405-1:2017 untuk bibit ayam umur sehari/kuri KUB-1. Untuk ayam grower/dewasa, gunakan ubah manual sesuai dokumen/standar operasional.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 0.035,
-                "Tinggi pundak minimum (cm)": 8,
-                "Panjang badan minimum (cm)": 6,
-                "Lingkar dada minimum (cm)": 5,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "DOC/kuri sehat, aktif, dan tidak cacat",
-                "Bulu kering, bersih, dan menutup tubuh",
-                "Pusar tertutup baik",
-                "Kaki normal dan kuat",
-                "Seragam sesuai galur KUB-1",
-            ],
-        },
-        "Ayam KUB Janaka Agrinak": {
-            "standard_no": "SNI 8405-2:2023",
-            "standard_title": "Bibit ayam umur sehari/kuri - Bagian 2: KUB janaka agrinak",
-            "coverage": "doc_kuri",
-            "source_note": "BSN mencantumkan SNI 8405-2:2023 sebagai SNI terkait untuk bibit ayam umur sehari/kuri KUB Janaka Agrinak. Untuk ayam grower/dewasa, gunakan ubah manual.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 0.035,
-                "Tinggi pundak minimum (cm)": 8,
-                "Panjang badan minimum (cm)": 6,
-                "Lingkar dada minimum (cm)": 5,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "DOC/kuri sehat, aktif, dan tidak cacat",
-                "Bulu kering, bersih, dan menutup tubuh",
-                "Pusar tertutup baik",
-                "Kaki normal dan kuat",
-                "Seragam sesuai galur KUB Janaka Agrinak",
-            ],
-        },
-        "Ayam Kampung": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Kampung dewasa. Gunakan acuan internal atau standar teknis lembaga.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 0.9,
-                "Tinggi pundak minimum (cm)": 30,
-                "Panjang badan minimum (cm)": 25,
-                "Lingkar dada minimum (cm)": 25,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Sehat, aktif, dan tidak cacat",
-                "Bulu rapat dan mengilap",
-                "Kaki kuat",
-                "Mata cerah",
-            ],
-        },
-        "Ayam Sentul": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Sentul.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 1.0,
-                "Tinggi pundak minimum (cm)": 32,
-                "Panjang badan minimum (cm)": 26,
-                "Lingkar dada minimum (cm)": 26,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Warna sentul/kelabu sesuai rumpun",
-                "Sehat dan aktif",
-                "Bulu rapat",
-                "Kaki kuat",
-            ],
-        },
-        "Ayam Pelung": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Pelung.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 2.0,
-                "Tinggi pundak minimum (cm)": 45,
-                "Panjang badan minimum (cm)": 35,
-                "Lingkar dada minimum (cm)": 32,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Postur tinggi dan tegap",
-                "Suara panjang/merdu pada jantan",
-                "Sehat dan aktif",
-                "Kaki panjang dan kuat",
-            ],
-        },
-        "Ayam Kedu Hitam": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Kedu Hitam.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 1.2,
-                "Tinggi pundak minimum (cm)": 35,
-                "Panjang badan minimum (cm)": 28,
-                "Lingkar dada minimum (cm)": 28,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Bulu hitam dominan",
-                "Kaki/paruh cenderung gelap",
-                "Sehat dan aktif",
-                "Bulu rapat dan mengilap",
-            ],
-        },
-        "Ayam Cemani": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Cemani.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 1.2,
-                "Tinggi pundak minimum (cm)": 35,
-                "Panjang badan minimum (cm)": 28,
-                "Lingkar dada minimum (cm)": 28,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Bulu, kulit, paruh, jengger, dan kaki hitam",
-                "Sehat dan aktif",
-                "Bulu rapat dan mengilap",
-                "Tidak cacat",
-            ],
-        },
-        "Ayam Nunukan": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Nunukan.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 1.4,
-                "Tinggi pundak minimum (cm)": 35,
-                "Panjang badan minimum (cm)": 28,
-                "Lingkar dada minimum (cm)": 28,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Warna buff/cokelat kemerahan",
-                "Ciri bulu sayap/ekor khas",
-                "Sehat dan aktif",
-                "Kaki kuat",
-            ],
-        },
-        "Ayam Merawang": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Merawang.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 1.2,
-                "Tinggi pundak minimum (cm)": 35,
-                "Panjang badan minimum (cm)": 28,
-                "Lingkar dada minimum (cm)": 28,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Warna kuning/cokelat keemasan",
-                "Sehat dan aktif",
-                "Bulu rapat",
-                "Kaki kuat",
-            ],
-        },
-        "Ayam Gaok": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Gaok.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 1.5,
-                "Tinggi pundak minimum (cm)": 40,
-                "Panjang badan minimum (cm)": 32,
-                "Lingkar dada minimum (cm)": 30,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Postur tinggi",
-                "Suara panjang pada jantan",
-                "Sehat dan aktif",
-                "Kaki kuat",
-            ],
-        },
-        "Ayam Kokok Balenggek": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Kokok Balenggek.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 1.2,
-                "Tinggi pundak minimum (cm)": 35,
-                "Panjang badan minimum (cm)": 28,
-                "Lingkar dada minimum (cm)": 28,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Kokok bertingkat pada jantan",
-                "Postur tegap",
-                "Sehat dan aktif",
-                "Bulu rapat dan mengilap",
-            ],
-        },
-    },
-    "Domba": {
-        "Domba Garut": {
-            "standard_no": "SNI 7532.1:2015",
-            "standard_title": "Bibit domba - Bagian 1: Garut",
-            "coverage": "bibit",
-            "source_note": "Katalog BSN mencantumkan SNI 7532.1:2015 untuk bibit domba Garut.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 30,
-                "Tinggi pundak minimum (cm)": 55,
-                "Panjang badan minimum (cm)": 50,
-                "Lingkar dada minimum (cm)": 65,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Tipe domba Garut",
-                "Dada lebar",
-                "Kaki kuat",
-                "Sehat dan tidak cacat",
-            ],
-        },
-        "Domba Ekor Tipis": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk domba ekor tipis.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 20,
-                "Tinggi pundak minimum (cm)": 45,
-                "Panjang badan minimum (cm)": 42,
-                "Lingkar dada minimum (cm)": 55,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Ekor tipis",
-                "Tubuh kompak",
-                "Sehat dan tidak cacat",
-                "Kaki kuat",
-            ],
-        },
-        "Domba Ekor Gemuk": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk domba ekor gemuk.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 25,
-                "Tinggi pundak minimum (cm)": 50,
-                "Panjang badan minimum (cm)": 48,
-                "Lingkar dada minimum (cm)": 60,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Ekor gemuk",
-                "Cadangan lemak ekor tampak",
-                "Sehat dan tidak cacat",
-                "Kaki kuat",
-            ],
-        },
-        "Merino Cross": {
-            "standard_no": "Belum dipetakan langsung",
-            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
-            "coverage": "non_sni_direct",
-            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk Merino Cross.",
-            "default_min": {
-                "Bobot hidup minimum (kg)": 35,
-                "Tinggi pundak minimum (cm)": 60,
-                "Panjang badan minimum (cm)": 58,
-                "Lingkar dada minimum (cm)": 68,
-                "BCS minimum": 2.5,
-            },
-            "qualitative_required": [
-                "Bulu/wol lebih tebal",
-                "Rangka panjang",
-                "Sehat dan tidak cacat",
-                "Kaki kuat",
-            ],
         },
     },
 }
 
 
-SPECIES_CONFIG = {
-    "Sapi Potong": {
-        "formula": "large",
-        "ideal_bcs": (3.0, 4.0),
-        "market_name": "potong/penggemukan",
-        "price_unit": "kg bobot hidup",
-    },
-    "Sapi Perah": {
-        "formula": "large",
-        "ideal_bcs": (2.75, 3.5),
-        "market_name": "perah/bibit",
-        "price_unit": "kg bobot hidup",
-    },
-    "Kerbau": {
-        "formula": "large",
-        "ideal_bcs": (3.0, 4.0),
-        "market_name": "kerja/potong/bibit",
-        "price_unit": "kg bobot hidup",
-    },
-    "Kambing": {
-        "formula": "small",
-        "ideal_bcs": (2.5, 3.5),
-        "market_name": "pedaging/perah/bibit",
-        "price_unit": "kg bobot hidup",
-    },
-    "Ayam Lokal Indonesia": {
-        "formula": "poultry",
-        "ideal_bcs": (2.5, 3.5),
-        "market_name": "daging/telur/hias/pelestarian",
-        "price_unit": "kg bobot hidup atau ekor",
-    },
-    "Domba": {
-        "formula": "small",
-        "ideal_bcs": (2.5, 3.5),
-        "market_name": "pedaging/bibit",
-        "price_unit": "kg bobot hidup",
-    },
-}
+USER_MODES = [
+    "Peternak",
+    "Jagal",
+    "Blantik / Jual Beli",
+    "Pembibit",
+    "Evaluasi SNI",
+    "Ayam Lokal",
+]
 
 
 PURPOSE_OPTIONS = [
@@ -2006,196 +833,27 @@ PURPOSE_OPTIONS = [
     "Perah",
     "Jagal",
     "Blantik / Jual Beli",
-]
-
-
-COLOR_OPTIONS = [
-    "Merah bata",
-    "Cokelat kemerahan",
-    "Hitam pada jantan dewasa",
-    "Putih",
-    "Abu-abu muda",
-    "Abu-abu tua",
-    "Cokelat",
-    "Abu-abu",
-    "Putih keabu-abuan",
-    "Merah kecokelatan",
-    "Cokelat putih",
-    "Merah putih",
-    "Krem putih",
-    "Cokelat muda",
-    "Cokelat keemasan",
-    "Hitam putih",
-    "Putih hitam",
-    "Belang hitam putih",
-    "Cokelat kekuningan",
-    "Abu-cokelat",
-    "Belang tidak seragam",
-    "Abu-abu gelap",
-    "Hitam keabu-abuan",
-    "Cokelat kehitaman",
-    "Hitam",
-    "Hitam mengilap",
-    "Putih cokelat",
-    "Belang",
-    "Putih kepala cokelat",
-    "Krem muda",
-    "Putih bersih",
-    "Krem",
-    "Putih krem",
-    "Lainnya / tidak sesuai",
-    "Tidak yakin",
-    "Campuran/liar",
-    "Hitam merah",
-    "Cokelat merah",
-    "Wiring",
-    "Kelabu",
-    "Sentul batu",
-    "Sentul kelabu",
-    "Sentul mas",
-    "Hitam total",
-    "Paruh gelap",
-    "Buff/kuning kecokelatan",
-    "Columbian",
-    "Kuning keemasan",
-]
-
-
-FACE_OPTIONS = [
-    "Lurus",
-    "Panjang",
-    "Pendek",
-    "Pendek agak lebar",
-    "Lebar",
-    "Halus",
-    "Cembung",
-    "Cembung ringan",
-    "Roman nose",
-    "Sedang",
-    "Tidak yakin",
-    "Kepala sedang",
-    "Kepala besar",
-    "Paruh sedang",
-    "Paruh gelap",
-    "Postur kepala tegap",
-]
-
-
-HORN_OPTIONS = [
-    "Bertanduk",
-    "Tidak bertanduk/polled",
-    "Tanduk kecil",
-    "Tanduk melengkung",
-    "Tanduk besar",
-    "Tanduk melingkar",
-    "Tanduk kecil melengkung",
-    "Melengkung ke belakang",
-    "Tidak yakin",
-    "Jengger tunggal",
-    "Jengger kecil",
-    "Jengger besar",
-    "Jengger gelap",
-    "Jengger rose",
-    "Jengger pea",
-]
-
-
-EAR_OPTIONS = [
-    "Kecil",
-    "Sedang",
-    "Tegak",
-    "Tegak sedang",
-    "Agak menggantung",
-    "Menggantung/lebar",
-    "Panjang menggantung",
-    "Sedang menggantung",
-    "Tidak yakin",
-    "Kaki kuning",
-    "Kaki putih",
-    "Kaki hitam",
-    "Kaki kehijauan",
-    "Kaki gelap",
-    "Kaki panjang",
-]
-
-
-BODY_BUILD_OPTIONS = [
-    "Kompak",
-    "Padat",
-    "Rangka sedang",
-    "Rangka besar",
-    "Tinggi",
-    "Panjang",
-    "Berotot",
-    "Berotot sedang",
-    "Panjang dan dalam",
-    "Punggung panjang",
-    "Bentuk tubuh perah",
-    "Dwiguna",
-    "Dada lebar",
-    "Paha penuh",
-    "Ramping perah",
-    "Dada dalam",
-    "Kuat",
-    "Kecil",
-    "Lincah",
-    "Kecil sedang",
-    "Adaptif",
-    "Rangka sedang besar",
-    "Berbulu tebal",
-    "Lainnya / tidak sesuai",
-    "Tidak yakin",
-    "Tubuh sedang",
-    "Tipe dwiguna lokal",
-    "Tipe petelur lokal",
-    "Postur tegap",
-    "Tubuh besar",
-    "Tipe pedaging lokal",
+    "Pedaging",
+    "Petelur",
+    "Hias / Kontes",
+    "Pelestarian Rumpun",
 ]
 
 
 # =========================================================
-# UTILITY FUNCTIONS
+# FUNCTIONS
 # =========================================================
+
+def rupiah(value):
+    return f"Rp{value:,.0f}".replace(",", ".")
+
 
 def clamp(value, low, high):
     return max(low, min(high, value))
 
 
-def rupiah(value):
-    try:
-        return f"Rp{value:,.0f}".replace(",", ".")
-    except Exception:
-        return "-"
-
-
-def estimate_weight(species, heart_girth_cm, body_length_cm, live_weight_kg=None):
-    formula_type = SPECIES_CONFIG[species]["formula"]
-
-    if formula_type == "poultry":
-        if live_weight_kg is None:
-            return 0
-        return round(float(live_weight_kg), 3)
-
-    if formula_type == "large":
-        weight = (heart_girth_cm ** 2 * body_length_cm) / 10840
-    else:
-        weight = (heart_girth_cm ** 2 * body_length_cm) / 10000
-
-    return round(weight, 2)
-
-
-def get_age_stage(species, age_months):
-    if species in ["Sapi Potong", "Sapi Perah", "Kerbau"]:
-        if age_months < 8:
-            return "Pedet/anak"
-        if age_months < 18:
-            return "Muda/tumbuh"
-        if age_months < 36:
-            return "Dewasa muda/siap produksi"
-        return "Dewasa"
-
-    if species == "Ayam Lokal Indonesia":
+def get_age_stage(kind, age_months):
+    if kind == "poultry":
         if age_months < 1:
             return "DOC/kuri"
         if age_months < 2:
@@ -2206,966 +864,324 @@ def get_age_stage(species, age_months):
             return "Dara/pullet atau jantan muda"
         return "Dewasa/produksi"
 
-    if age_months < 4:
-        return "Cempe/anak"
-    if age_months < 10:
+    if age_months < 8:
+        return "Anak/pedet/cempe"
+    if age_months < 18:
         return "Muda/tumbuh"
-    if age_months < 24:
+    if age_months < 36:
         return "Dewasa muda/siap produksi"
     return "Dewasa"
 
 
-def score_weight(weight, target_min, target_ideal):
-    max_score = 20
+def estimate_ruminant_weight(girth_cm, length_cm, species):
+    if species in ["Sapi Potong", "Sapi Perah", "Kerbau"]:
+        return round((girth_cm ** 2 * length_cm) / 10840, 2)
+    return round((girth_cm ** 2 * length_cm) / 10000, 2)
 
+
+def score_weight(weight, target_min, target_ideal):
     if weight <= 0:
         return 0
-
     if weight < target_min:
-        ratio = weight / target_min
-        return round(clamp(ratio * 15, 0, 15), 1)
-
-    if target_min <= weight <= target_ideal:
-        ratio = (weight - target_min) / max(target_ideal - target_min, 1)
-        return round(15 + ratio * 5, 1)
-
-    excess_ratio = (weight - target_ideal) / target_ideal
-    penalty = min(excess_ratio * 8, 4)
-    return round(max_score - penalty, 1)
+        return round(clamp((weight / target_min) * 15, 0, 15), 1)
+    if weight <= target_ideal:
+        return round(15 + ((weight - target_min) / max(target_ideal - target_min, 1)) * 5, 1)
+    excess = (weight - target_ideal) / max(target_ideal, 1)
+    return round(clamp(20 - min(excess * 8, 4), 0, 20), 1)
 
 
-def score_bcs(bcs, ideal_low, ideal_high, purpose):
-    max_score = 15
-
-    if ideal_low <= bcs <= ideal_high:
-        base = max_score
+def score_bcs(bcs, kind, purpose):
+    low, high = (2.5, 3.5) if kind == "poultry" else (2.75, 4.0)
+    if low <= bcs <= high:
+        score = 15
     else:
-        distance = min(abs(bcs - ideal_low), abs(bcs - ideal_high))
-        base = max_score - distance * 5
-
-    if purpose == "Perah" and bcs > 3.75:
-        base -= 1.5
-    if purpose == "Jagal" and bcs < 3.0:
-        base -= 2
-    if purpose == "Bibit / Breeding" and (bcs < 2.75 or bcs > 4.0):
-        base -= 2
-
-    return round(clamp(base, 0, max_score), 1)
+        distance = min(abs(bcs - low), abs(bcs - high))
+        score = 15 - distance * 5
+    if purpose in ["Bibit / Breeding", "Petelur"] and bcs > 4:
+        score -= 2
+    return round(clamp(score, 0, 15), 1)
 
 
-def score_frame(height_cm, height_min, height_max):
-    max_score = 10
-
-    if height_min <= height_cm <= height_max:
-        return max_score
-
-    if height_cm < height_min:
-        ratio = height_cm / height_min
-        return round(clamp(ratio * 8, 0, 8), 1)
-
-    excess_ratio = (height_cm - height_max) / height_max
-    penalty = min(excess_ratio * 6, 2.5)
-    return round(max_score - penalty, 1)
-
-
-def score_proportion(heart_girth_cm, body_length_cm, species):
-    max_score = 8
-
-    if heart_girth_cm <= 0:
-        return 0, 0
-
-    proportion = body_length_cm / heart_girth_cm
-
-    if species in ["Sapi Potong", "Sapi Perah", "Kerbau"]:
-        low, high = 0.85, 1.18
-    elif species == "Ayam Lokal Indonesia":
-        low, high = 0.75, 1.35
-    else:
-        low, high = 0.80, 1.20
-
-    if low <= proportion <= high:
-        return max_score, proportion
-
-    distance = min(abs(proportion - low), abs(proportion - high))
-    score = max_score - distance * 15
-    return round(clamp(score, 0, max_score), 1), proportion
-
-
-def score_health(health_checks):
-    max_score = 15
-    total = len(health_checks)
-
-    if total == 0:
-        return 0
-
-    positive = sum(1 for value in health_checks.values() if value)
-    return round((positive / total) * max_score, 1)
-
-
-def score_market_readiness(weight, target_min, bcs, health_score, purpose):
-    max_score = 7
-    score = 0
-
-    if weight >= target_min:
-        score += 3
-    elif weight >= target_min * 0.9:
-        score += 2.3
-    elif weight >= target_min * 0.8:
-        score += 1.6
-    else:
-        score += 0.8
-
-    if purpose in ["Jagal", "Penggemukan / Potong", "Blantik / Jual Beli"]:
-        if 3.0 <= bcs <= 4.0:
-            score += 2
-        elif 2.5 <= bcs < 3.0 or 4.0 < bcs <= 4.5:
-            score += 1.2
-        else:
-            score += 0.5
-    else:
-        if 2.75 <= bcs <= 3.75:
-            score += 2
-        else:
-            score += 0.8
-
-    if health_score >= 13:
-        score += 2
-    elif health_score >= 10:
-        score += 1.2
-    else:
-        score += 0.5
-
-    return round(clamp(score, 0, max_score), 1)
-
-
-def score_ratio(value, target_range, max_score):
-    low, high = target_range
-
-    if value <= 0:
-        return 0
-
+def score_range(value, low, high, max_score):
     if low <= value <= high:
         return max_score
-
     if value < low:
-        gap = low - value
-    else:
-        gap = value - high
-
-    tolerance = max((high - low), 0.01)
-    penalty = min((gap / tolerance) * max_score, max_score)
-    return round(max_score - penalty, 1)
+        ratio = value / max(low, 1)
+        return round(clamp(ratio * max_score * 0.9, 0, max_score), 1)
+    excess = (value - high) / max(high, 1)
+    return round(clamp(max_score - min(excess * max_score, max_score * 0.35), 0, max_score), 1)
 
 
-def score_quantitative_traits(
-    chest_depth_cm,
-    rump_width_cm,
-    cannon_circumference_cm,
-    height_cm,
-    breed_info,
-):
-    max_score = 10
+def score_body_proportion(girth_cm, length_cm, kind):
+    ratio = length_cm / max(girth_cm, 1)
+    low, high = (0.75, 1.35) if kind == "poultry" else (0.80, 1.20)
+    score = score_range(ratio, low, high, 8)
+    return score, round(ratio, 3)
 
+
+def score_quant_extra(height_cm, chest_depth_cm, rump_width_cm, cannon_cm, kind):
     if height_cm <= 0:
-        return 0, {
-            "Rasio kedalaman dada": 0,
-            "Rasio lebar pinggul": 0,
-            "Rasio lingkar tulang kering": 0,
-        }
+        return 0, {}
 
     chest_ratio = chest_depth_cm / height_cm
     rump_ratio = rump_width_cm / height_cm
-    cannon_ratio = cannon_circumference_cm / height_cm
+    cannon_ratio = cannon_cm / height_cm
 
-    quant = breed_info["quant"]
+    if kind == "poultry":
+        chest_range = (0.25, 0.40)
+        rump_range = (0.12, 0.24)
+        cannon_range = (0.035, 0.090)
+    else:
+        chest_range = (0.36, 0.56)
+        rump_range = (0.17, 0.34)
+        cannon_range = (0.07, 0.18)
 
-    chest_score = score_ratio(
-        chest_ratio,
-        quant["chest_depth_ratio"],
-        4,
-    )
-
-    rump_score = score_ratio(
-        rump_ratio,
-        quant["rump_width_ratio"],
-        3,
-    )
-
-    cannon_score = score_ratio(
-        cannon_ratio,
-        quant["cannon_ratio"],
-        3,
-    )
-
-    total = round(chest_score + rump_score + cannon_score, 1)
+    chest_score = score_range(chest_ratio, *chest_range, 4)
+    rump_score = score_range(rump_ratio, *rump_range, 3)
+    cannon_score = score_range(cannon_ratio, *cannon_range, 3)
 
     details = {
         "Rasio kedalaman dada": round(chest_ratio, 3),
-        "Rasio lebar pinggul": round(rump_ratio, 3),
-        "Rasio lingkar tulang kering": round(cannon_ratio, 3),
+        "Rasio lebar pinggul/panggul": round(rump_ratio, 3),
+        "Rasio lingkar kaki/tulang kering": round(cannon_ratio, 3),
         "Skor kedalaman dada": chest_score,
-        "Skor lebar pinggul": rump_score,
-        "Skor tulang kering": cannon_score,
+        "Skor lebar pinggul/panggul": rump_score,
+        "Skor kaki/tulang kering": cannon_score,
     }
 
-    return clamp(total, 0, max_score), details
+    return round(chest_score + rump_score + cannon_score, 1), details
 
 
-def match_score(selected_value, expected_values, max_score):
-    if selected_value == "Tidak yakin":
-        return round(max_score * 0.45, 1), "Tidak yakin"
+def score_health(checks):
+    if not checks:
+        return 0
+    return round((sum(1 for value in checks.values() if value) / len(checks)) * 15, 1)
 
-    if selected_value == "Lainnya / tidak sesuai":
-        return 0, "Tidak sesuai"
 
-    if selected_value in expected_values:
+def match_score(value, expected, max_score):
+    if value in expected:
         return max_score, "Sesuai"
+    if value in ["Tidak yakin", "Lainnya / tidak sesuai"]:
+        return round(max_score * 0.35, 1), "Belum yakin"
+    return round(max_score * 0.45, 1), "Kurang sesuai"
 
-    return round(max_score * 0.35, 1), "Kurang sesuai"
 
+def score_phenotype(data, color, face, horn_or_comb, ear_or_leg, build, features):
+    s_color, st_color = match_score(color, data["colors"], 3)
+    s_face, st_face = match_score(face, data["face"], 2)
+    s_horn, st_horn = match_score(horn_or_comb, data["horn_or_comb"], 2)
+    s_ear, st_ear = match_score(ear_or_leg, data["ear_or_leg"], 2)
+    s_build, st_build = match_score(build, data["build"], 2.5)
 
-def score_qualitative_traits(
-    selected_color,
-    selected_face,
-    selected_horn,
-    selected_ear,
-    selected_body_build,
-    selected_features,
-    breed_info,
-):
-    pheno = breed_info["phenotype"]
+    expected_features = data["features"]
+    feature_match = len([x for x in features if x in expected_features])
+    s_feature = 3.5 * feature_match / max(len(expected_features), 1)
 
-    color_score, color_status = match_score(selected_color, pheno["colors"], 3)
-    face_score, face_status = match_score(selected_face, pheno["faces"], 2)
-    horn_score, horn_status = match_score(selected_horn, pheno["horns"], 2)
-    ear_score, ear_status = match_score(selected_ear, pheno["ears"], 2)
-    body_score, body_status = match_score(selected_body_build, pheno["body_builds"], 2.5)
+    total = round(s_color + s_face + s_horn + s_ear + s_build + s_feature, 1)
 
-    expected_features = pheno["features"]
-
-    if len(expected_features) == 0:
-        feature_score = 3.5
-    else:
-        matched_features = [
-            feature
-            for feature in selected_features
-            if feature in expected_features
-        ]
-        feature_score = 3.5 * (len(matched_features) / len(expected_features))
-        feature_score = clamp(feature_score, 0, 3.5)
-
-    total = round(
-        color_score
-        + face_score
-        + horn_score
-        + ear_score
-        + body_score
-        + feature_score,
-        1,
+    details = pd.DataFrame(
+        [
+            ["Warna bulu", color, ", ".join(data["colors"]), st_color, s_color],
+            ["Kepala/wajah/paruh", face, ", ".join(data["face"]), st_face, s_face],
+            ["Tanduk/jengger", horn_or_comb, ", ".join(data["horn_or_comb"]), st_horn, s_horn],
+            ["Telinga/kaki", ear_or_leg, ", ".join(data["ear_or_leg"]), st_ear, s_ear],
+            ["Bentuk tubuh", build, ", ".join(data["build"]), st_build, s_build],
+            ["Ciri khas", ", ".join(features) if features else "-", ", ".join(expected_features), f"{feature_match}/{len(expected_features)} cocok", round(s_feature, 1)],
+        ],
+        columns=["Ciri", "Input", "Acuan", "Status", "Skor"],
     )
-
-    details = {
-        "Warna bulu": {
-            "Input": selected_color,
-            "Status": color_status,
-            "Skor": color_score,
-            "Acuan": ", ".join(pheno["colors"]),
-        },
-        "Bentuk wajah": {
-            "Input": selected_face,
-            "Status": face_status,
-            "Skor": face_score,
-            "Acuan": ", ".join(pheno["faces"]),
-        },
-        "Tanduk": {
-            "Input": selected_horn,
-            "Status": horn_status,
-            "Skor": horn_score,
-            "Acuan": ", ".join(pheno["horns"]),
-        },
-        "Telinga": {
-            "Input": selected_ear,
-            "Status": ear_status,
-            "Skor": ear_score,
-            "Acuan": ", ".join(pheno["ears"]),
-        },
-        "Bentuk tubuh": {
-            "Input": selected_body_build,
-            "Status": body_status,
-            "Skor": body_score,
-            "Acuan": ", ".join(pheno["body_builds"]),
-        },
-        "Ciri khas bangsa": {
-            "Input": ", ".join(selected_features) if selected_features else "-",
-            "Status": f"{len(selected_features)} dipilih",
-            "Skor": round(feature_score, 1),
-            "Acuan": ", ".join(expected_features),
-        },
-    }
 
     return clamp(total, 0, 15), details
 
 
-def classify_total_score(total_score):
-    if total_score >= 85:
+def classify_score(score):
+    if score >= 85:
         return "Sangat Layak", "good"
-    if total_score >= 70:
+    if score >= 70:
         return "Layak", "good"
-    if total_score >= 55:
-        return "Perlu Perbaikan", "warning"
-    return "Risiko Tinggi", "danger"
+    if score >= 55:
+        return "Perlu Perbaikan", "warn"
+    return "Risiko Tinggi", "bad"
 
 
-def classify_weight_position(weight, target_min, target_ideal):
-    if weight < target_min * 0.85:
-        return "Jauh di bawah target"
-    if weight < target_min:
-        return "Mendekati target minimum"
-    if target_min <= weight <= target_ideal:
-        return "Dalam rentang target"
-    if weight <= target_ideal * 1.15:
-        return "Di atas target ideal"
-    return "Terlalu berat untuk target umum"
+def final_decision(score, sni_percent, health_score, purpose, mode, kind):
+    if health_score < 9:
+        return "❌ Tunda keputusan. Kesehatan lapangan belum aman."
+
+    if score >= 85 and sni_percent >= 85:
+        if mode == "Jagal":
+            return "✅ Layak dibeli untuk potong, cek harga akhir dan kondisi karkas."
+        if mode == "Blantik / Jual Beli":
+            return "✅ Layak untuk transaksi, masih aman untuk dijual sebagai ternak berkualitas."
+        if mode == "Pembibit":
+            return "✅ Potensial untuk bibit, lanjutkan cek reproduksi dan asal-usul."
+        if kind == "poultry":
+            return "✅ Layak dipertahankan/dibeli sesuai tujuan ayam lokal."
+        return "✅ Layak dipelihara atau dibeli."
+
+    if score >= 70:
+        return "⚠️ Layak bersyarat. Bisa dipilih, tetapi harga dan risiko perlu dinegosiasikan."
+
+    if score >= 55:
+        return "⚠️ Perlu perbaikan 7–30 hari sebelum dijadikan pilihan utama."
+
+    return "❌ Tidak disarankan untuk keputusan besar atau harga premium."
 
 
-def generate_insights(
+def sni_compare(thresholds, weight, height, length, girth, bcs, pheno_score, health_score):
+    rows = [
+        ["Bobot hidup", weight, thresholds["min_weight"], "kg", weight >= thresholds["min_weight"]],
+        ["Tinggi", height, thresholds["min_height"], "cm", height >= thresholds["min_height"]],
+        ["Panjang badan", length, thresholds["min_length"], "cm", length >= thresholds["min_length"]],
+        ["Lingkar dada", girth, thresholds["min_girth"], "cm", girth >= thresholds["min_girth"]],
+        ["BCS", bcs, thresholds["min_bcs"], "skor", bcs >= thresholds["min_bcs"]],
+        ["Kesesuaian fenotipe", round(pheno_score / 15 * 100, 1), 70, "%", pheno_score >= 10.5],
+        ["Kesehatan lapangan", round(health_score / 15 * 100, 1), 80, "%", health_score >= 12],
+    ]
+
+    df = pd.DataFrame(rows, columns=["Parameter", "Nilai", "Acuan minimum", "Satuan", "Lolos"])
+    df["Status"] = df["Lolos"].apply(lambda x: "Memenuhi" if x else "Belum memenuhi")
+    percent = round(df["Lolos"].mean() * 100, 1)
+
+    if percent >= 100:
+        status = "Sesuai acuan"
+    elif percent >= 70:
+        status = "Mendekati acuan"
+    else:
+        status = "Belum sesuai acuan"
+
+    return df, percent, status
+
+
+def make_insights(
+    kind,
     species,
     breed,
+    mode,
     purpose,
-    sex,
-    age_months,
-    age_stage,
     weight,
     target_min,
     target_ideal,
     bcs,
-    ideal_bcs,
-    height_cm,
-    heart_girth_cm,
-    body_length_cm,
-    total_score,
-    category,
-    weight_position,
-    frame_score,
-    proportion,
     health_score,
-    market_score,
+    pheno_score,
     quant_score,
-    quant_details,
-    qualitative_score,
-    qualitative_details,
-    price_per_kg,
-    feed_cost_per_day,
-    desired_target_weight,
-    adg,
-    dressing,
-    notes,
+    sni_percent,
+    profit,
+    max_buy_price,
 ):
     insights = []
 
-    deficit_to_min = max(target_min - weight, 0)
-    deficit_to_desired = max(desired_target_weight - weight, 0)
-    days_to_target = math.ceil(deficit_to_desired / adg) if adg > 0 and deficit_to_desired > 0 else 0
-
-    if category in ["Sangat Layak", "Layak"]:
-        insights.append(
-            {
-                "type": "good",
-                "title": "Kesimpulan utama",
-                "body": (
-                    f"Ternak {species} bangsa {breed} masuk kategori **{category}**. "
-                    f"Bobot estimasi {weight:.1f} kg berada pada posisi **{weight_position.lower()}** "
-                    f"untuk target {target_min}-{target_ideal} kg."
-                ),
-            }
-        )
-    elif category == "Perlu Perbaikan":
-        insights.append(
-            {
-                "type": "warning",
-                "title": "Kesimpulan utama",
-                "body": (
-                    "Ternak masih **perlu perbaikan** sebelum dijadikan pilihan utama. "
-                    "Fokus evaluasi ada pada bobot, BCS, proporsi tubuh, kesehatan, dan kesesuaian fenotipe bangsa."
-                ),
-            }
-        )
-    else:
-        insights.append(
-            {
-                "type": "danger",
-                "title": "Kesimpulan utama",
-                "body": (
-                    "Ternak masuk kategori **risiko tinggi**. Sebaiknya tidak langsung dibeli, "
-                    "dijual sebagai premium, atau dijadikan bibit sebelum dilakukan pemeriksaan lanjutan."
-                ),
-            }
-        )
-
     if weight < target_min:
-        insights.append(
-            {
-                "type": "warning",
-                "title": "Bobot belum mencapai target minimum",
-                "body": (
-                    f"Selisih terhadap target minimum sekitar **{deficit_to_min:.1f} kg**. "
-                    f"Dengan asumsi pertambahan bobot harian {adg:.2f} kg/hari, ternak membutuhkan "
-                    f"sekitar **{math.ceil(deficit_to_min / adg) if adg > 0 else 0} hari** untuk mencapai target minimum."
-                ),
-            }
-        )
-    elif weight > target_ideal * 1.15:
-        insights.append(
-            {
-                "type": "warning",
-                "title": "Bobot terlalu tinggi untuk target umum",
-                "body": (
-                    "Bobot yang terlalu tinggi dapat menurunkan efisiensi pembelian bila harga tidak sebanding "
-                    "dengan tambahan karkas. Untuk jagal atau blantik, cek lagi umur, lemak, dan harga per kg."
-                ),
-            }
-        )
+        insights.append(("warn", "Bobot belum optimal", f"Bobot masih di bawah target minimum {target_min} kg. Prioritaskan pakan, kesehatan, dan evaluasi parasit."))
+    elif weight <= target_ideal:
+        insights.append(("good", "Bobot berada pada rentang target", f"Bobot {weight:.2f} kg berada pada rentang ekonomis untuk {breed}."))
     else:
-        insights.append(
-            {
-                "type": "good",
-                "title": "Bobot berada pada rentang ekonomis",
-                "body": (
-                    "Bobot sudah berada pada rentang yang relatif aman untuk dipertimbangkan. "
-                    "Keputusan akhir tetap perlu melihat harga beli, kondisi kesehatan, dan tujuan pemeliharaan."
-                ),
-            }
-        )
+        insights.append(("warn", "Bobot di atas target ideal", "Pastikan harga beli masih sebanding dengan tambahan bobot/karkas."))
 
-    if bcs < ideal_bcs[0]:
-        insights.append(
-            {
-                "type": "warning",
-                "title": "BCS cenderung kurus",
-                "body": (
-                    f"BCS {bcs:.1f} berada di bawah rentang ideal {ideal_bcs[0]}-{ideal_bcs[1]}. "
-                    "Perlu evaluasi pakan, parasit, penyakit kronis, stres transportasi, dan kompetisi pakan."
-                ),
-            }
-        )
-    elif bcs > ideal_bcs[1]:
-        insights.append(
-            {
-                "type": "warning",
-                "title": "BCS cenderung gemuk",
-                "body": (
-                    f"BCS {bcs:.1f} berada di atas rentang ideal {ideal_bcs[0]}-{ideal_bcs[1]}. "
-                    "Untuk indukan/perah, kondisi terlalu gemuk dapat mengganggu efisiensi reproduksi atau metabolisme. "
-                    "Untuk potong, pastikan tambahan lemak masih dihargai pasar."
-                ),
-            }
-        )
+    if pheno_score >= 12:
+        insights.append(("good", "Ciri bangsa kuat", f"Fenotipe cukup sesuai dengan karakter {breed}."))
+    elif pheno_score >= 8:
+        insights.append(("warn", "Ciri bangsa sedang", "Ada ciri yang belum kuat. Untuk harga premium, minta bukti asal atau riwayat keturunan."))
     else:
-        insights.append(
-            {
-                "type": "good",
-                "title": "BCS sesuai tujuan umum",
-                "body": (
-                    f"BCS {bcs:.1f} berada dalam rentang ideal. Ini mendukung performa pasar, "
-                    "kesehatan, dan efisiensi pemeliharaan."
-                ),
-            }
-        )
-
-    if quant_score >= 8:
-        insights.append(
-            {
-                "type": "good",
-                "title": "Faktor kuantitatif tambahan baik",
-                "body": (
-                    f"Skor kuantitatif tambahan **{quant_score}/10**. "
-                    "Rasio kedalaman dada, lebar pinggul, dan lingkar tulang kering relatif sesuai acuan bangsa."
-                ),
-            }
-        )
-    elif quant_score >= 5.5:
-        insights.append(
-            {
-                "type": "warning",
-                "title": "Faktor kuantitatif tambahan cukup",
-                "body": (
-                    f"Skor kuantitatif tambahan **{quant_score}/10**. "
-                    "Masih perlu dicek apakah dada cukup dalam, pinggul cukup lebar, dan kaki cukup kuat untuk tujuan ternak."
-                ),
-            }
-        )
-    else:
-        insights.append(
-            {
-                "type": "danger",
-                "title": "Faktor kuantitatif tambahan lemah",
-                "body": (
-                    f"Skor kuantitatif tambahan **{quant_score}/10**. "
-                    "Indikasi rangka, kapasitas tubuh, atau kekuatan kaki belum mendukung performa optimal."
-                ),
-            }
-        )
-
-    if qualitative_score >= 12:
-        insights.append(
-            {
-                "type": "good",
-                "title": "Kesesuaian ciri bangsa tinggi",
-                "body": (
-                    f"Skor kualitatif/fenotipe **{qualitative_score}/15**. "
-                    f"Ciri luar ternak cukup sesuai dengan karakter bangsa {breed}."
-                ),
-            }
-        )
-    elif qualitative_score >= 8:
-        insights.append(
-            {
-                "type": "warning",
-                "title": "Kesesuaian ciri bangsa sedang",
-                "body": (
-                    f"Skor kualitatif/fenotipe **{qualitative_score}/15**. "
-                    "Masih ada ciri yang kurang kuat. Untuk transaksi bibit atau premium, minta riwayat keturunan atau bukti asal ternak."
-                ),
-            }
-        )
-    else:
-        insights.append(
-            {
-                "type": "danger",
-                "title": "Kesesuaian ciri bangsa rendah",
-                "body": (
-                    f"Skor kualitatif/fenotipe **{qualitative_score}/15**. "
-                    "Jangan langsung menganggap ternak murni atau premium hanya dari klaim penjual. Gunakan sebagai bahan negosiasi harga."
-                ),
-            }
-        )
-
-    mismatches = []
-    for trait_name, trait_data in qualitative_details.items():
-        if trait_data["Status"] in ["Kurang sesuai", "Tidak sesuai"]:
-            mismatches.append(f"{trait_name}: {trait_data['Input']}")
-
-    if mismatches:
-        insights.append(
-            {
-                "type": "warning",
-                "title": "Ciri kualitatif yang perlu dicermati",
-                "body": (
-                    "Beberapa ciri kurang sesuai dengan acuan bangsa: "
-                    + "; ".join(mismatches)
-                    + ". Ini bisa disebabkan persilangan, umur, jenis kelamin, kondisi perawatan, atau salah identifikasi bangsa."
-                ),
-            }
-        )
-
-    if proportion < 0.8:
-        prop_msg = "Panjang badan relatif pendek dibanding lingkar dada. Cek kembali pengukuran, umur, dan tipe genetik."
-        prop_type = "warning"
-    elif proportion > 1.2:
-        prop_msg = "Panjang badan relatif panjang dibanding lingkar dada. Ternak bisa terlihat rangka panjang tetapi belum cukup berisi."
-        prop_type = "warning"
-    else:
-        prop_msg = "Proporsi panjang badan dan lingkar dada relatif seimbang."
-        prop_type = "good"
-
-    insights.append(
-        {
-            "type": prop_type,
-            "title": "Proporsi tubuh",
-            "body": (
-                f"Indeks panjang/lingkar dada = **{proportion:.2f}**. {prop_msg} "
-                f"Skor rangka/tinggi: **{frame_score}/10**."
-            ),
-        }
-    )
+        insights.append(("bad", "Ciri bangsa lemah", "Jangan membeli dengan harga premium hanya berdasarkan klaim bangsa/rumpun."))
 
     if health_score < 10:
-        insights.append(
-            {
-                "type": "danger",
-                "title": "Kesehatan lapangan perlu diperiksa",
-                "body": (
-                    f"Skor kesehatan hanya **{health_score}/15**. Jangan hanya mengejar bobot. "
-                    "Periksa nafsu makan, pernapasan, mata-hidung, feses, pincang, luka, dan tanda parasit."
-                ),
-            }
-        )
+        insights.append(("bad", "Kesehatan perlu dicek", "Nafsu makan, mata, napas, feses, kaki, bulu/kulit, dan luka perlu diperiksa ulang."))
     elif health_score < 13:
-        insights.append(
-            {
-                "type": "warning",
-                "title": "Kesehatan cukup, tetapi belum optimal",
-                "body": (
-                    f"Skor kesehatan **{health_score}/15**. Ternak masih bisa dipertimbangkan, "
-                    "namun perlu pemeriksaan lapangan sebelum transaksi."
-                ),
-            }
-        )
+        insights.append(("warn", "Kesehatan cukup", "Masih bisa dipertimbangkan, tetapi tetap perlu pemeriksaan lapangan sebelum transaksi."))
     else:
-        insights.append(
-            {
-                "type": "good",
-                "title": "Kesehatan lapangan baik",
-                "body": (
-                    f"Skor kesehatan **{health_score}/15**. Kondisi ini mendukung keputusan beli/pelihara, "
-                    "selama tidak ada penyakit tersembunyi."
-                ),
-            }
-        )
+        insights.append(("good", "Kesehatan baik", "Kondisi lapangan mendukung keputusan pemeliharaan atau pembelian."))
 
-    if purpose == "Jagal":
-        carcass = weight * dressing / 100
-        meat = carcass * 0.70
-        insights.append(
-            {
-                "type": "info",
-                "title": "Insight untuk jagal",
-                "body": (
-                    f"Estimasi karkas sekitar **{carcass:.1f} kg** dengan asumsi dressing {dressing}%. "
-                    f"Estimasi daging bersih kasar sekitar **{meat:.1f} kg**. "
-                    "Prioritaskan ternak dengan dada dalam, paha berisi, punggung lebar, tidak pincang, dan BCS cukup."
-                ),
-            }
-        )
-    elif purpose == "Blantik / Jual Beli":
-        insights.append(
-            {
-                "type": "info",
-                "title": "Insight untuk blantik",
-                "body": (
-                    "Nilai tawar utama ada pada kombinasi bobot, tampilan tubuh, bangsa, umur, kesehatan, dan momentum pasar. "
-                    "Ciri bangsa yang kuat dapat menaikkan nilai jual, sedangkan ciri yang meragukan bisa menjadi bahan negosiasi."
-                ),
-            }
-        )
-    elif purpose == "Penggemukan / Potong":
-        insights.append(
-            {
-                "type": "info",
-                "title": "Insight penggemukan",
-                "body": (
-                    f"Potensi penggemukan dipengaruhi bangsa {breed}, pakan, kesehatan, umur, dan kapasitas rangka. "
-                    f"Asumsi ADG sistem ini: **{adg:.2f} kg/hari**. "
-                    "Pilih ternak dengan rangka cukup besar, sehat, belum terlalu gemuk, dan dada/pinggul berkembang."
-                ),
-            }
-        )
-    elif purpose == "Perah":
-        insights.append(
-            {
-                "type": "info",
-                "title": "Insight ternak perah",
-                "body": (
-                    "Untuk ternak perah, bobot bukan satu-satunya indikator. Perlu penilaian ambing, riwayat laktasi, "
-                    "kesehatan reproduksi, kaki, kuku, dan riwayat pakan."
-                ),
-            }
-        )
+    if mode == "Jagal":
+        insights.append(("info", "Insight jagal", "Fokus pada karkas, dada, paha, punggung, BCS, dan tidak pincang. Bobot besar belum tentu untung jika lemak berlebihan."))
+    elif mode == "Blantik / Jual Beli":
+        insights.append(("info", "Insight blantik", f"Harga maksimal beli berbasis simulasi: {rupiah(max_buy_price)}. Gunakan kekurangan SNI/fenotipe sebagai bahan negosiasi."))
+    elif mode == "Pembibit":
+        insights.append(("info", "Insight pembibit", "Prioritaskan asal-usul, reproduksi, kaki, kesehatan, kemurnian ciri bangsa, dan kesesuaian acuan."))
+    elif kind == "poultry":
+        insights.append(("info", "Insight ayam lokal", "Untuk ayam penyanyi nilai suara penting; untuk petelur nilai produksi telur penting; untuk Cemani/Kedu warna menjadi faktor harga."))
     else:
-        insights.append(
-            {
-                "type": "info",
-                "title": "Insight bibit/breeding",
-                "body": (
-                    "Untuk bibit, ciri bangsa dan struktur tubuh penting. Prioritaskan kesehatan, kaki, alat reproduksi, "
-                    "riwayat keturunan, umur produktif, BCS sedang, serta bentuk tubuh yang sesuai tujuan produksi."
-                ),
-            }
-        )
+        insights.append(("info", "Insight peternak", "Pantau ADG, biaya pakan, BCS, dan target panen. Jangan hanya mengejar bobot tanpa kesehatan."))
 
-    if price_per_kg > 0:
-        estimated_value = weight * price_per_kg
-        insights.append(
-            {
-                "type": "info",
-                "title": "Estimasi ekonomi sederhana",
-                "body": (
-                    f"Estimasi nilai bobot hidup: **{rupiah(estimated_value)}**. "
-                    f"Bila memakai basis karkas kasar, bobot karkas estimasi sekitar "
-                    f"**{weight * dressing / 100:.1f} kg**. "
-                    "Gunakan ini sebagai pembanding awal, bukan harga final transaksi."
-                ),
-            }
-        )
+    if profit >= 0:
+        insights.append(("good", "Ekonomi positif", f"Simulasi menunjukkan potensi laba kasar {rupiah(profit)}."))
+    else:
+        insights.append(("warn", "Ekonomi belum aman", f"Simulasi menunjukkan potensi rugi kasar {rupiah(abs(profit))}. Tekan harga beli atau biaya pemeliharaan."))
 
-    if feed_cost_per_day > 0 and days_to_target > 0:
-        total_feed_cost = feed_cost_per_day * days_to_target
-        added_weight_value = deficit_to_desired * price_per_kg if price_per_kg > 0 else 0
-
-        body = (
-            f"Untuk mengejar target {desired_target_weight:.1f} kg, estimasi waktu sekitar "
-            f"**{days_to_target} hari**. Estimasi biaya pakan tambahan: **{rupiah(total_feed_cost)}**."
-        )
-
-        if price_per_kg > 0:
-            body += (
-                f" Nilai tambahan bobot kasar: **{rupiah(added_weight_value)}**. "
-                f"Selisih kasar nilai tambahan dan biaya pakan: **{rupiah(added_weight_value - total_feed_cost)}**."
-            )
-
-        insights.append(
-            {
-                "type": "info",
-                "title": "Simulasi menuju target bobot",
-                "body": body,
-            }
-        )
-
-    insights.append(
-        {
-            "type": "info",
-            "title": f"Catatan bangsa {breed}",
-            "body": notes,
-        }
-    )
+    if sni_percent < 70:
+        insights.append(("warn", "Acuan SNI belum kuat", "Beberapa parameter belum memenuhi acuan aplikasi. Aktifkan edit manual jika memakai dokumen SNI resmi."))
+    else:
+        insights.append(("good", "Acuan SNI cukup baik", f"Kesesuaian acuan mencapai {sni_percent}%."))
 
     return insights
 
 
-def build_ai_prompt(
-    species,
-    breed,
-    purpose,
-    sex,
-    age_months,
-    age_stage,
-    weight,
-    target_min,
-    target_ideal,
-    bcs,
-    height_cm,
-    heart_girth_cm,
-    body_length_cm,
-    chest_depth_cm,
-    rump_width_cm,
-    cannon_circumference_cm,
-    selected_color,
-    selected_face,
-    selected_horn,
-    selected_ear,
-    selected_body_build,
-    selected_features,
-    total_score,
-    category,
-    health_score,
-    market_score,
-    quant_score,
-    qualitative_score,
-    qualitative_details,
-    price_per_kg,
-    feed_cost_per_day,
-    notes,
-):
-    mismatch_lines = []
+def make_report_html(record, insights):
+    insight_html = "".join(
+        f"<li><strong>{title}:</strong> {body}</li>"
+        for _, title, body in insights
+    )
 
-    for trait_name, trait_data in qualitative_details.items():
-        mismatch_lines.append(
-            f"- {trait_name}: input {trait_data['Input']} | status {trait_data['Status']} | acuan {trait_data['Acuan']}"
-        )
+    rows = "".join(
+        f"<tr><td>{k}</td><td>{v}</td></tr>"
+        for k, v in record.items()
+    )
 
-    feature_text = ", ".join(selected_features) if selected_features else "-"
-
-    prompt = f"""
-Anda adalah konsultan peternakan, jagal, dan perdagangan ternak.
-Analisis data ternak berikut secara detail, praktis, dan berbasis keputusan lapangan.
-
-DATA TERNAK:
-- Jenis ternak: {species}
-- Bangsa/ras: {breed}
-- Tujuan penilaian: {purpose}
-- Jenis kelamin: {sex}
-- Umur: {age_months} bulan
-- Fase umur: {age_stage}
-
-DATA KUANTITATIF:
-- Lingkar dada: {heart_girth_cm} cm
-- Panjang badan: {body_length_cm} cm
-- Tinggi badan: {height_cm} cm
-- Kedalaman dada: {chest_depth_cm} cm
-- Lebar pinggul/panggul: {rump_width_cm} cm
-- Lingkar tulang kering/metacarpus: {cannon_circumference_cm} cm
-- Estimasi bobot hidup: {weight:.2f} kg
-- Target bobot minimum bangsa ini: {target_min} kg
-- Target bobot ideal bangsa ini: {target_ideal} kg
-- BCS: {bcs}
-
-DATA KUALITATIF / FENOTIPE:
-- Warna bulu: {selected_color}
-- Bentuk wajah/profil kepala: {selected_face}
-- Tanduk: {selected_horn}
-- Bentuk telinga: {selected_ear}
-- Bentuk tubuh umum: {selected_body_build}
-- Ciri khas yang tampak: {feature_text}
-
-KESESUAIAN CIRI BANGSA:
-{chr(10).join(mismatch_lines)}
-
-HASIL SKOR:
-- Skor kesehatan lapangan: {health_score}/15
-- Skor kesiapan pasar: {market_score}/7
-- Skor kuantitatif tambahan: {quant_score}/10
-- Skor kualitatif/fenotipe: {qualitative_score}/15
-- Skor total: {total_score}/100
-- Kategori hasil: {category}
-
-EKONOMI:
-- Harga per kg bobot hidup: Rp{price_per_kg:,.0f}
-- Biaya pakan per hari: Rp{feed_cost_per_day:,.0f}
-
-CATATAN BANGSA:
-{notes}
-
-TUGAS ANALISIS:
-1. Berikan kesimpulan kelayakan ternak.
-2. Jelaskan kekuatan dan kelemahannya dari sisi kuantitatif.
-3. Jelaskan kesesuaian kualitatif/fenotipe terhadap bangsa ternak.
-4. Berikan rekomendasi untuk peternak.
-5. Berikan insight untuk jagal.
-6. Berikan insight untuk blantik ternak.
-7. Berikan strategi negosiasi harga yang wajar.
-8. Berikan tindakan perbaikan 7-30 hari.
-9. Jelaskan risiko yang harus diperiksa langsung di lapangan.
-
-Gunakan bahasa Indonesia yang praktis, mudah dipahami, dan tidak terlalu teoritis.
-""".strip()
-
-    return prompt
-
-
-
-def get_sni_reference(species, breed):
-    species_refs = SNI_REFERENCE_DATA.get(species, {})
-    return species_refs.get(breed)
-
-
-def evaluate_sni_compliance(
-    sni_thresholds,
-    estimated_weight,
-    height_cm,
-    body_length_cm,
-    heart_girth_cm,
-    bcs,
-    qualitative_score,
-    health_score,
-):
-    checks = [
-        {
-            "Parameter": "Bobot hidup",
-            "Nilai ternak": round(estimated_weight, 2),
-            "Acuan minimum": sni_thresholds["Bobot hidup minimum (kg)"],
-            "Satuan": "kg",
-            "Status": "Memenuhi" if estimated_weight >= sni_thresholds["Bobot hidup minimum (kg)"] else "Belum memenuhi",
-        },
-        {
-            "Parameter": "Tinggi pundak",
-            "Nilai ternak": round(height_cm, 2),
-            "Acuan minimum": sni_thresholds["Tinggi pundak minimum (cm)"],
-            "Satuan": "cm",
-            "Status": "Memenuhi" if height_cm >= sni_thresholds["Tinggi pundak minimum (cm)"] else "Belum memenuhi",
-        },
-        {
-            "Parameter": "Panjang badan",
-            "Nilai ternak": round(body_length_cm, 2),
-            "Acuan minimum": sni_thresholds["Panjang badan minimum (cm)"],
-            "Satuan": "cm",
-            "Status": "Memenuhi" if body_length_cm >= sni_thresholds["Panjang badan minimum (cm)"] else "Belum memenuhi",
-        },
-        {
-            "Parameter": "Lingkar dada",
-            "Nilai ternak": round(heart_girth_cm, 2),
-            "Acuan minimum": sni_thresholds["Lingkar dada minimum (cm)"],
-            "Satuan": "cm",
-            "Status": "Memenuhi" if heart_girth_cm >= sni_thresholds["Lingkar dada minimum (cm)"] else "Belum memenuhi",
-        },
-        {
-            "Parameter": "BCS",
-            "Nilai ternak": round(bcs, 2),
-            "Acuan minimum": sni_thresholds["BCS minimum"],
-            "Satuan": "skor",
-            "Status": "Memenuhi" if bcs >= sni_thresholds["BCS minimum"] else "Belum memenuhi",
-        },
-        {
-            "Parameter": "Kesesuaian fenotipe",
-            "Nilai ternak": round((qualitative_score / 15) * 100, 1),
-            "Acuan minimum": 70,
-            "Satuan": "%",
-            "Status": "Memenuhi" if qualitative_score >= 10.5 else "Belum memenuhi",
-        },
-        {
-            "Parameter": "Kesehatan lapangan",
-            "Nilai ternak": round((health_score / 15) * 100, 1),
-            "Acuan minimum": 80,
-            "Satuan": "%",
-            "Status": "Memenuhi" if health_score >= 12 else "Belum memenuhi",
-        },
-    ]
-
-    total_checks = len(checks)
-    passed_checks = sum(1 for item in checks if item["Status"] == "Memenuhi")
-    compliance_percent = round((passed_checks / total_checks) * 100, 1)
-
-    if passed_checks == total_checks:
-        final_status = "Sesuai acuan SNI aplikasi"
-        final_style = "good"
-    elif compliance_percent >= 70:
-        final_status = "Mendekati acuan SNI"
-        final_style = "warning"
-    else:
-        final_status = "Belum sesuai acuan SNI"
-        final_style = "danger"
-
-    return checks, compliance_percent, final_status, final_style
-
-
-def generate_sni_gap_text(checks):
-    gaps = []
-
-    for item in checks:
-        if item["Status"] == "Belum memenuhi":
-            diff = item["Acuan minimum"] - item["Nilai ternak"]
-            if diff > 0:
-                gaps.append(
-                    f"{item['Parameter']} kurang {diff:.1f} {item['Satuan']}"
-                )
-            else:
-                gaps.append(
-                    f"{item['Parameter']} belum memenuhi"
-                )
-
-    if not gaps:
-        return "Semua parameter pembanding telah memenuhi acuan yang digunakan aplikasi."
-
-    return "; ".join(gaps)
+    return f"""
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Laporan Evaluasi Ternak</title>
+<style>
+body {{
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    color: #111827;
+    margin: 32px;
+}}
+h1, h2 {{ color: #0f172a; }}
+table {{
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+}}
+td, th {{
+    border: 1px solid #d1d5db;
+    padding: 8px 10px;
+}}
+th {{
+    background: #f3f4f6;
+}}
+.badge {{
+    display: inline-block;
+    padding: 6px 10px;
+    background: #e0f2fe;
+    border-radius: 999px;
+    font-weight: bold;
+}}
+</style>
+</head>
+<body>
+<h1>Laporan Evaluasi Ternak</h1>
+<p class="badge">{record.get("Kategori", "-")}</p>
+<h2>Data Ringkas</h2>
+<table>{rows}</table>
+<h2>Insight</h2>
+<ul>{insight_html}</ul>
+<p><em>Laporan ini adalah alat bantu evaluasi, bukan sertifikat resmi.</em></p>
+</body>
+</html>
+"""
 
 
 # =========================================================
-# SESSION STATE
+# SESSION
 # =========================================================
 
 if "records" not in st.session_state:
     st.session_state.records = []
-
-
-# =========================================================
-# SIDEBAR
-# =========================================================
-
-st.sidebar.title("🐄 Evaluasi Ternak")
-st.sidebar.caption("Kuantitatif, kualitatif, fenotipe, ekonomi, dan pembanding SNI.")
-
-with st.sidebar.expander("Cara pakai singkat", expanded=True):
-    st.write(
-        """
-1. Pilih jenis dan bangsa ternak.  
-2. Masukkan ukuran tubuh, BCS, kesehatan, dan ciri luar/fenotipe.  
-3. Buka tab hasil untuk melihat skor, evaluasi, insight, dan prompt AI.  
-4. Simpan data ke tabel evaluasi bila ingin membandingkan beberapa ternak.
-"""
-    )
-
-st.sidebar.warning(
-    "Hasil bersifat estimasi awal. Untuk keputusan besar, tetap lakukan pemeriksaan langsung dan konsultasi teknis."
-)
 
 
 # =========================================================
@@ -3174,17 +1190,18 @@ st.sidebar.warning(
 
 st.markdown(
     """
-<div class="app-hero">
-    <div class="app-hero-title">🐄 Sistem Penilaian Ternak Berbasis Kuantitatif, Kualitatif & SNI</div>
-    <div class="app-hero-subtitle">
-        Menilai sapi, kerbau, kambing, domba, dan ayam lokal Indonesia berdasarkan ukuran tubuh,
-        BCS, kesehatan, ciri fenotipe, tujuan pasar, serta pembanding acuan SNI yang dapat diedit.
+<div class="hero">
+    <div class="hero-title">🐄 Sistem Penilaian Ternak Pro</div>
+    <div class="hero-subtitle">
+        Evaluasi sapi, kerbau, kambing, domba, dan ayam lokal Indonesia berdasarkan faktor kuantitatif,
+        kualitatif, kesehatan, ekonomi, mode pengguna, serta pembanding SNI/acuan minimum yang bisa diedit.
     </div>
-    <div class="hero-chip-row">
+    <div style="margin-top:14px;">
         <span class="badge badge-primary">📊 Skor 100</span>
-        <span class="badge badge-good">🧬 Ciri bangsa</span>
-        <span class="badge badge-warning">🇮🇩 Pembanding SNI</span>
-        <span class="badge">🌗 Light/Dark ready</span>
+        <span class="badge badge-good">🧬 Fenotipe bangsa/rumpun</span>
+        <span class="badge badge-warn">🇮🇩 Pembanding SNI</span>
+        <span class="badge">🌗 Light/Dark</span>
+        <span class="badge">📈 Riwayat & grafik</span>
     </div>
 </div>
 """,
@@ -3192,239 +1209,113 @@ st.markdown(
 )
 
 
-# =========================================================
-# INPUT AREA
-# =========================================================
+st.sidebar.title("🐄 Evaluasi Ternak Pro")
+st.sidebar.caption("Form adaptif, insight otomatis, ekonomi, SNI, dan riwayat evaluasi.")
 
-tab_input, tab_result, tab_pheno, tab_sni, tab_compare, tab_prompt, tab_guide = st.tabs(
+with st.sidebar.expander("Cara pakai", expanded=True):
+    st.write(
+        """
+1. Pilih jenis, bangsa/rumpun, mode pengguna, dan tujuan.
+2. Isi data ukuran tubuh, BCS, kesehatan, dan ciri fenotipe.
+3. Cek hasil, SNI, ekonomi, rekomendasi akhir, dan insight.
+4. Simpan ke riwayat bila ingin membandingkan beberapa ternak.
+"""
+    )
+
+st.sidebar.warning("Hasil adalah alat bantu. Untuk sertifikasi resmi, gunakan dokumen SNI dan petugas berwenang.")
+
+
+tab_input, tab_result, tab_sni, tab_economy, tab_history, tab_report, tab_guide = st.tabs(
     [
-        "📝 Input Penilaian",
-        "📊 Hasil & Insight",
-        "🧬 Ciri Bangsa",
-        "🇮🇩 Pembanding SNI",
-        "📋 Tabel Evaluasi",
-        "🤖 Prompt AI",
+        "📝 Input",
+        "📊 Hasil",
+        "🇮🇩 SNI/Acuan",
+        "💰 Ekonomi",
+        "📈 Riwayat",
+        "📄 Laporan",
         "📘 Panduan",
     ]
 )
 
 
+# =========================================================
+# INPUT
+# =========================================================
+
 with tab_input:
-    st.subheader("Input Identitas Ternak")
-    st.markdown(
-        """
-<div class="section-note">
-Isi data dari atas ke bawah. Untuk ruminansia, bobot dihitung dari lingkar dada dan panjang badan.
-Untuk ayam lokal Indonesia, bobot dimasukkan langsung dari hasil timbang agar evaluasi lebih realistis.
-</div>
-""",
-        unsafe_allow_html=True,
-    )
+    st.subheader("Input Identitas dan Tujuan")
 
-    col_a, col_b, col_c = st.columns(3)
+    c1, c2, c3 = st.columns(3)
 
-    with col_a:
-        species = st.selectbox(
-            "Jenis ternak",
-            list(BREED_DATA.keys()),
-            index=0,
-        )
+    with c1:
+        species = st.selectbox("Jenis ternak", list(BREED_DATA.keys()))
+        breed = st.selectbox("Bangsa / rumpun", list(BREED_DATA[species].keys()))
 
-        breed = st.selectbox(
-            "Bangsa / ras ternak",
-            list(BREED_DATA[species].keys()),
+    data = BREED_DATA[species][breed]
+    kind = data["kind"]
+
+    with c2:
+        mode = st.selectbox(
+            "Mode pengguna",
+            USER_MODES,
+            index=5 if species == "Ayam Lokal Indonesia" else 0,
         )
 
         purpose = st.selectbox(
             "Tujuan penilaian",
             PURPOSE_OPTIONS,
-            index=0,
+            index=5 if kind == "poultry" else 0,
         )
 
-    breed_info = BREED_DATA[species][breed]
-    pheno = breed_info["phenotype"]
-
-    with col_b:
-        sex = st.selectbox(
-            "Jenis kelamin",
-            ["Jantan", "Betina", "Kebiri / tidak diketahui"],
-        )
-
-        age_months = st.number_input(
-            "Umur ternak (bulan)",
-            min_value=0,
-            max_value=240,
-            value=24 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else (6 if species == "Ayam Lokal Indonesia" else 12),
-            step=1,
-        )
-
-        bcs = st.slider(
-            "BCS / Body Condition Score",
-            min_value=1.0,
-            max_value=5.0,
-            value=3.0,
-            step=0.1,
-            help="Skor 1 sangat kurus, 3 sedang/ideal, 5 sangat gemuk.",
-        )
-
-    with col_c:
-        animal_id = st.text_input(
-            "Kode / nama ternak",
-            value=f"{species}-{breed}-{datetime.now().strftime('%H%M%S')}",
-        )
-
-        location = st.text_input(
-            "Lokasi / kandang",
-            value="",
-            placeholder="Contoh: Kandang A / Pasar Hewan",
-        )
-
-        evaluator = st.text_input(
-            "Penilai",
-            value="",
-            placeholder="Nama peternak / petugas / blantik",
-        )
+    with c3:
+        animal_id = st.text_input("Kode / nama ternak", value=f"{breed}-{datetime.now().strftime('%H%M%S')}")
+        sex = st.selectbox("Jenis kelamin", ["Jantan", "Betina", "Kebiri / tidak diketahui"])
+        location = st.text_input("Lokasi / kandang", value="")
 
     st.markdown("---")
-    st.subheader("Faktor Kuantitatif: Ukuran Tubuh")
+    st.subheader("Data Kuantitatif")
 
-    default_height = int((breed_info["height_min"] + breed_info["height_max"]) / 2)
-
-    if species == "Ayam Lokal Indonesia":
-        live_weight_kg = st.number_input(
-            "Bobot hidup aktual / estimasi timbang (kg)",
-            min_value=0.01,
-            max_value=10.0,
-            value=float(breed_info["target_market_ideal"]),
-            step=0.01,
-            help="Untuk ayam, bobot hidup dimasukkan langsung karena rumus lingkar dada x panjang badan untuk sapi/kambing tidak valid untuk unggas.",
-        )
+    if kind == "poultry":
+        st.info("Form ayam memakai bobot aktual/estimasi timbang. Rumus bobot ruminansia tidak dipakai untuk ayam.")
+        age_months = st.number_input("Umur ayam (bulan)", min_value=0.0, max_value=120.0, value=5.0, step=0.25)
+        live_weight = st.number_input("Bobot hidup aktual / estimasi timbang (kg)", min_value=0.01, max_value=10.0, value=float(data["target_ideal"]), step=0.01)
+        girth = st.number_input("Lingkar dada ayam (cm)", min_value=1.0, max_value=80.0, value=28.0, step=0.5)
+        length = st.number_input("Panjang badan ayam (cm)", min_value=1.0, max_value=100.0, value=30.0, step=0.5)
+        height = st.number_input("Tinggi ayam (cm)", min_value=1.0, max_value=100.0, value=float((data["height_min"] + data["height_max"]) / 2), step=0.5)
+        chest_depth = st.number_input("Kedalaman dada (cm)", min_value=1.0, max_value=50.0, value=10.0, step=0.5)
+        rump_width = st.number_input("Lebar panggul / badan belakang (cm)", min_value=1.0, max_value=50.0, value=8.0, step=0.5)
+        cannon = st.number_input("Lingkar shank/kaki (cm)", min_value=0.1, max_value=20.0, value=2.5, step=0.1)
+        weight = live_weight
     else:
-        live_weight_kg = None
+        age_months = st.number_input("Umur ternak (bulan)", min_value=0.0, max_value=240.0, value=24.0, step=1.0)
+        girth = st.number_input("Lingkar dada (cm)", min_value=10.0, max_value=300.0, value=150.0, step=0.5)
+        length = st.number_input("Panjang badan (cm)", min_value=10.0, max_value=300.0, value=130.0, step=0.5)
+        height = st.number_input("Tinggi pundak/gumba (cm)", min_value=10.0, max_value=250.0, value=float((data["height_min"] + data["height_max"]) / 2), step=0.5)
+        chest_depth = st.number_input("Kedalaman dada (cm)", min_value=1.0, max_value=150.0, value=60.0, step=0.5)
+        rump_width = st.number_input("Lebar pinggul/panggul (cm)", min_value=1.0, max_value=150.0, value=35.0, step=0.5)
+        cannon = st.number_input("Lingkar tulang kering/kaki depan (cm)", min_value=1.0, max_value=80.0, value=18.0, step=0.5)
+        weight = estimate_ruminant_weight(girth, length, species)
 
-    col_m1, col_m2, col_m3 = st.columns(3)
+    bcs = st.slider("BCS / Body Condition Score", 1.0, 5.0, 3.0, 0.1)
 
-    with col_m1:
-        heart_girth_cm = st.number_input(
-            "Lingkar dada (cm)",
-            min_value=10.0,
-            max_value=300.0,
-            value=150.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else (28.0 if species == "Ayam Lokal Indonesia" else 70.0),
-            step=0.5,
-        )
-
-    with col_m2:
-        body_length_cm = st.number_input(
-            "Panjang badan (cm)",
-            min_value=10.0,
-            max_value=300.0,
-            value=130.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else (30.0 if species == "Ayam Lokal Indonesia" else 65.0),
-            step=0.5,
-        )
-
-    with col_m3:
-        height_cm = st.number_input(
-            "Tinggi badan / gumba (cm)",
-            min_value=10.0,
-            max_value=250.0,
-            value=float(default_height),
-            step=0.5,
-        )
+    st.markdown("---")
+    st.subheader("Data Kualitatif / Fenotipe")
 
     q1, q2, q3 = st.columns(3)
 
     with q1:
-        chest_depth_cm = st.number_input(
-            "Kedalaman dada (cm)",
-            min_value=1.0,
-            max_value=150.0,
-            value=60.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else (10.0 if species == "Ayam Lokal Indonesia" else 28.0),
-            step=0.5,
-            help="Diukur dari bagian atas punggung/gumba ke bagian bawah dada secara vertikal.",
-        )
+        color = st.selectbox("Warna bulu dominan", data["colors"] + ["Tidak yakin", "Lainnya / tidak sesuai"])
+        face = st.selectbox("Kepala/wajah/paruh", data["face"] + ["Tidak yakin", "Lainnya / tidak sesuai"])
 
     with q2:
-        rump_width_cm = st.number_input(
-            "Lebar pinggul / panggul (cm)",
-            min_value=1.0,
-            max_value=150.0,
-            value=35.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else (8.0 if species == "Ayam Lokal Indonesia" else 16.0),
-            step=0.5,
-            help="Menggambarkan kapasitas rangka belakang, penting untuk daging, reproduksi, dan keseimbangan tubuh.",
-        )
+        horn_label = "Jengger" if kind == "poultry" else "Tanduk"
+        leg_label = "Warna/bentuk kaki" if kind == "poultry" else "Telinga"
+        horn_or_comb = st.selectbox(horn_label, data["horn_or_comb"] + ["Tidak yakin", "Lainnya / tidak sesuai"])
+        ear_or_leg = st.selectbox(leg_label, data["ear_or_leg"] + ["Tidak yakin", "Lainnya / tidak sesuai"])
 
     with q3:
-        cannon_circumference_cm = st.number_input(
-            "Lingkar tulang kering / kaki depan (cm)",
-            min_value=1.0,
-            max_value=80.0,
-            value=18.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else (2.5 if species == "Ayam Lokal Indonesia" else 7.0),
-            step=0.5,
-            help="Indikator kasar kekuatan kaki/rangka. Jangan dinilai sendiri tanpa melihat postur dan kesehatan kuku.",
-        )
-
-    st.markdown(
-        """
-<div class="section-note">
-<strong>Faktor kuantitatif tambahan</strong> membantu membaca kapasitas tubuh: dada dalam untuk volume tubuh,
-pinggul lebar untuk rangka belakang/reproduksi, dan tulang kering untuk indikasi kekuatan kaki.
-</div>
-""",
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("---")
-    st.subheader("Faktor Kualitatif: Ciri Luar / Fenotipe Bangsa")
-
-    k1, k2, k3 = st.columns(3)
-
-    with k1:
-        selected_color = st.selectbox(
-            "Warna bulu dominan",
-            COLOR_OPTIONS,
-            index=COLOR_OPTIONS.index(pheno["colors"][0]) if pheno["colors"][0] in COLOR_OPTIONS else 0,
-        )
-
-        selected_face = st.selectbox(
-            "Bentuk wajah / profil kepala",
-            FACE_OPTIONS,
-            index=FACE_OPTIONS.index(pheno["faces"][0]) if pheno["faces"][0] in FACE_OPTIONS else 0,
-        )
-
-    with k2:
-        selected_horn = st.selectbox(
-            "Jengger" if species == "Ayam Lokal Indonesia" else "Kondisi tanduk",
-            HORN_OPTIONS,
-            index=HORN_OPTIONS.index(pheno["horns"][0]) if pheno["horns"][0] in HORN_OPTIONS else 0,
-        )
-
-        selected_ear = st.selectbox(
-            "Warna/bentuk kaki" if species == "Ayam Lokal Indonesia" else "Bentuk telinga",
-            EAR_OPTIONS,
-            index=EAR_OPTIONS.index(pheno["ears"][0]) if pheno["ears"][0] in EAR_OPTIONS else 0,
-        )
-
-    with k3:
-        selected_body_build = st.selectbox(
-            "Bentuk tubuh umum",
-            BODY_BUILD_OPTIONS,
-            index=BODY_BUILD_OPTIONS.index(pheno["body_builds"][0]) if pheno["body_builds"][0] in BODY_BUILD_OPTIONS else 0,
-        )
-
-        selected_features = st.multiselect(
-            "Ciri khas yang tampak",
-            options=pheno["features"],
-            default=pheno["features"][:2],
-        )
-
-    with st.expander("Acuan ciri bangsa yang sedang dipilih", expanded=False):
-        st.write(f"**Bangsa:** {breed}")
-        st.write(f"**Warna acuan:** {', '.join(pheno['colors'])}")
-        st.write(f"**Wajah acuan:** {', '.join(pheno['faces'])}")
-        st.write(f"**Tanduk acuan:** {', '.join(pheno['horns'])}")
-        st.write(f"**Telinga acuan:** {', '.join(pheno['ears'])}")
-        st.write(f"**Bentuk tubuh acuan:** {', '.join(pheno['body_builds'])}")
-        st.write(f"**Ciri khas:** {', '.join(pheno['features'])}")
+        build = st.selectbox("Bentuk tubuh", data["build"] + ["Tidak yakin", "Lainnya / tidak sesuai"])
+        features = st.multiselect("Ciri khas yang tampak", data["features"], default=data["features"][:2])
 
     st.markdown("---")
     st.subheader("Kesehatan Lapangan")
@@ -3432,838 +1323,436 @@ pinggul lebar untuk rangka belakang/reproduksi, dan tulang kering untuk indikasi
     h1, h2, h3 = st.columns(3)
 
     with h1:
-        check_appetite = st.checkbox("Nafsu makan baik", value=True)
-        check_active = st.checkbox("Aktif dan responsif", value=True)
-        check_eye_nose = st.checkbox("Mata dan hidung normal", value=True)
+        check_appetite = st.checkbox("Nafsu makan baik", True)
+        check_active = st.checkbox("Aktif/responsif", True)
+        check_eye = st.checkbox("Mata cerah/normal", True)
 
     with h2:
-        check_feces = st.checkbox("Feses normal", value=True)
-        check_limping = st.checkbox("Tidak pincang", value=True)
-        check_skin = st.checkbox("Bulu/kulit tampak baik", value=True)
+        check_feces = st.checkbox("Feses normal", True)
+        check_limp = st.checkbox("Tidak pincang", True)
+        check_skin = st.checkbox("Bulu/kulit baik", True)
 
     with h3:
-        check_breathing = st.checkbox("Napas normal", value=True)
-        check_wound = st.checkbox("Tidak ada luka serius", value=True)
-        check_parasite = st.checkbox("Tidak tampak gejala parasit berat", value=True)
+        check_breath = st.checkbox("Napas normal", True)
+        check_wound = st.checkbox("Tidak ada luka serius", True)
+        check_parasite = st.checkbox("Tidak tampak parasit berat", True)
 
     health_checks = {
-        "Nafsu makan baik": check_appetite,
-        "Aktif dan responsif": check_active,
-        "Mata dan hidung normal": check_eye_nose,
-        "Feses normal": check_feces,
-        "Tidak pincang": check_limping,
-        "Bulu/kulit baik": check_skin,
-        "Napas normal": check_breathing,
-        "Tidak ada luka serius": check_wound,
-        "Tidak tampak parasit berat": check_parasite,
+        "Nafsu makan": check_appetite,
+        "Aktif": check_active,
+        "Mata": check_eye,
+        "Feses": check_feces,
+        "Tidak pincang": check_limp,
+        "Bulu/kulit": check_skin,
+        "Napas": check_breath,
+        "Luka": check_wound,
+        "Parasit": check_parasite,
     }
 
-    st.markdown("---")
-    st.subheader("Ekonomi dan Target")
-
-    e1, e2, e3 = st.columns(3)
-
-    with e1:
-        price_per_kg = st.number_input(
-            "Harga per kg bobot hidup (Rp)",
-            min_value=0,
-            value=0,
-            step=1000,
-        )
-
-    with e2:
-        feed_cost_per_day = st.number_input(
-            "Biaya pakan per hari (Rp)",
-            min_value=0,
-            value=0,
-            step=1000,
-        )
-
-    with e3:
-        desired_target_weight = st.number_input(
-            "Target bobot yang ingin dicapai (kg)",
-            min_value=0.0,
-            value=float(breed_info["target_market_ideal"]),
-            step=1.0,
-        )
-
-    st.success("Input selesai. Buka tab **Hasil & Insight** untuk melihat evaluasi.")
+    st.success("Input selesai. Buka tab Hasil, SNI/Acuan, dan Ekonomi.")
 
 
 # =========================================================
 # CALCULATION
 # =========================================================
 
-target_min = breed_info["target_market_min"]
-target_ideal = breed_info["target_market_ideal"]
-adult_min = breed_info["adult_weight_min"]
-adult_max = breed_info["adult_weight_max"]
-height_min = breed_info["height_min"]
-height_max = breed_info["height_max"]
-adg = breed_info["adg"]
-dressing = breed_info["dressing"]
-notes = breed_info["notes"]
-ideal_bcs = SPECIES_CONFIG[species]["ideal_bcs"]
-
-estimated_weight = estimate_weight(species, heart_girth_cm, body_length_cm, live_weight_kg)
-age_stage = get_age_stage(species, age_months)
-
-weight_score = score_weight(estimated_weight, target_min, target_ideal)
-bcs_score = score_bcs(bcs, ideal_bcs[0], ideal_bcs[1], purpose)
-frame_score = score_frame(height_cm, height_min, height_max)
-prop_score, proportion = score_proportion(heart_girth_cm, body_length_cm, species)
+age_stage = get_age_stage(kind, age_months)
+weight_score = score_weight(weight, data["target_min"], data["target_ideal"])
+bcs_score = score_bcs(bcs, kind, purpose)
+height_score = score_range(height, data["height_min"], data["height_max"], 10)
+prop_score, prop_ratio = score_body_proportion(girth, length, kind)
+quant_score, quant_details = score_quant_extra(height, chest_depth, rump_width, cannon, kind)
 health_score = score_health(health_checks)
-market_score = score_market_readiness(
-    estimated_weight,
-    target_min,
-    bcs,
-    health_score,
-    purpose,
-)
+pheno_score, pheno_df = score_phenotype(data, color, face, horn_or_comb, ear_or_leg, build, features)
 
-quant_score, quant_details = score_quantitative_traits(
-    chest_depth_cm=chest_depth_cm,
-    rump_width_cm=rump_width_cm,
-    cannon_circumference_cm=cannon_circumference_cm,
-    height_cm=height_cm,
-    breed_info=breed_info,
-)
-
-qualitative_score, qualitative_details = score_qualitative_traits(
-    selected_color=selected_color,
-    selected_face=selected_face,
-    selected_horn=selected_horn,
-    selected_ear=selected_ear,
-    selected_body_build=selected_body_build,
-    selected_features=selected_features,
-    breed_info=breed_info,
-)
-
-sni_reference = get_sni_reference(species, breed)
-
-if sni_reference is None:
-    sni_reference = {
-        "standard_no": "Belum tersedia",
-        "standard_title": "Belum tersedia",
-        "coverage": "unmapped",
-        "source_note": "Belum ada pemetaan SNI pada aplikasi.",
-        "default_min": {
-            "Bobot hidup minimum (kg)": target_min,
-            "Tinggi pundak minimum (cm)": height_min,
-            "Panjang badan minimum (cm)": max(body_length_cm * 0.9, 1),
-            "Lingkar dada minimum (cm)": max(heart_girth_cm * 0.9, 1),
-            "BCS minimum": 2.5,
-        },
-        "qualitative_required": [
-            "Sehat dan tidak cacat",
-            "Bentuk tubuh sesuai tujuan",
-        ],
-    }
-
-default_sni_thresholds = dict(sni_reference["default_min"])
+market_score = 7
+if weight < data["target_min"]:
+    market_score -= 2
+if health_score < 12:
+    market_score -= 1.5
+if pheno_score < 10:
+    market_score -= 1
+market_score = round(clamp(market_score, 0, 7), 1)
 
 total_score = round(
-    weight_score
-    + bcs_score
-    + frame_score
-    + prop_score
-    + health_score
-    + market_score
-    + quant_score
-    + qualitative_score,
+    weight_score + bcs_score + height_score + prop_score + quant_score + health_score + pheno_score + market_score,
     1,
 )
+total_score = clamp(total_score, 0, 100)
+category, cat_style = classify_score(total_score)
 
-total_score = round(clamp(total_score, 0, 100), 1)
-
-category, category_style = classify_total_score(total_score)
-weight_position = classify_weight_position(estimated_weight, target_min, target_ideal)
-
-carcass_estimate = round(estimated_weight * dressing / 100, 2)
-meat_estimate = round(carcass_estimate * 0.70, 2)
-estimated_value = estimated_weight * price_per_kg if price_per_kg > 0 else 0
-
-deficit_to_desired = max(desired_target_weight - estimated_weight, 0)
-days_to_desired = math.ceil(deficit_to_desired / adg) if adg > 0 and deficit_to_desired > 0 else 0
-additional_feed_cost = days_to_desired * feed_cost_per_day
+# SNI thresholds default
+sni_default = data["sni"].copy()
 
 
 # =========================================================
-# RESULTS
+# SNI / ACUAN
 # =========================================================
 
-with tab_result:
-    st.subheader("Ringkasan Hasil Penilaian")
+with tab_sni:
+    st.subheader("Pembanding SNI / Acuan Minimum")
 
-    status_badge_class = "badge-good" if category in ["Sangat Layak", "Layak"] else ("badge-warning" if category == "Perlu Perbaikan" else "")
     st.markdown(
         f"""
-<span class="badge {{status_badge_class}}">Kategori: {category}</span>
-<span class="badge badge-primary">Jenis: {species}</span>
-<span class="badge">Bangsa: {breed}</span>
-<span class="badge">Tujuan: {purpose}</span>
+<div class="card">
+<strong>Acuan saat ini:</strong> {sni_default["name"]}<br>
+<span class="muted">Cakupan: {sni_default["coverage"]}. Untuk dokumen SNI resmi, edit ambang sesuai umur, jenis kelamin, dan kelas mutu.</span>
+</div>
 """,
         unsafe_allow_html=True,
     )
 
-    col1, col2, col3, col4 = st.columns(4)
+    edit_sni = st.toggle("Ubah ambang SNI/acuan secara manual", value=False)
 
-    with col1:
+    if edit_sni:
+        s1, s2, s3 = st.columns(3)
+        with s1:
+            min_weight = st.number_input("Bobot minimum", min_value=0.0, value=float(sni_default["min_weight"]), step=0.1)
+            min_height = st.number_input("Tinggi minimum", min_value=0.0, value=float(sni_default["min_height"]), step=0.5)
+        with s2:
+            min_length = st.number_input("Panjang badan minimum", min_value=0.0, value=float(sni_default["min_length"]), step=0.5)
+            min_girth = st.number_input("Lingkar dada minimum", min_value=0.0, value=float(sni_default["min_girth"]), step=0.5)
+        with s3:
+            min_bcs = st.number_input("BCS minimum", min_value=1.0, max_value=5.0, value=float(sni_default["min_bcs"]), step=0.1)
+    else:
+        min_weight = float(sni_default["min_weight"])
+        min_height = float(sni_default["min_height"])
+        min_length = float(sni_default["min_length"])
+        min_girth = float(sni_default["min_girth"])
+        min_bcs = float(sni_default["min_bcs"])
+
+    sni_thresholds = {
+        "min_weight": min_weight,
+        "min_height": min_height,
+        "min_length": min_length,
+        "min_girth": min_girth,
+        "min_bcs": min_bcs,
+    }
+
+    sni_df, sni_percent, sni_status = sni_compare(
+        sni_thresholds,
+        weight,
+        height,
+        length,
+        girth,
+        bcs,
+        pheno_score,
+        health_score,
+    )
+
+    a, b, c = st.columns(3)
+    a.metric("Status acuan", sni_status)
+    b.metric("Kesesuaian", f"{sni_percent:.1f}%")
+    c.metric("Parameter lolos", f"{int(sni_df['Lolos'].sum())}/{len(sni_df)}")
+
+    st.dataframe(sni_df.drop(columns=["Lolos"]), use_container_width=True, hide_index=True)
+
+    failed = sni_df[sni_df["Status"] == "Belum memenuhi"]
+    if failed.empty:
+        st.success("Semua parameter pembanding memenuhi ambang yang digunakan.")
+    else:
+        notes = []
+        for _, row in failed.iterrows():
+            diff = row["Acuan minimum"] - row["Nilai"]
+            if diff > 0:
+                notes.append(f"{row['Parameter']} kurang {diff:.2f} {row['Satuan']}")
+            else:
+                notes.append(f"{row['Parameter']} belum memenuhi")
+        st.warning("; ".join(notes))
+
+
+# =========================================================
+# EKONOMI
+# =========================================================
+
+with tab_economy:
+    st.subheader("Analisis Ekonomi Lanjutan")
+
+    e1, e2, e3 = st.columns(3)
+
+    with e1:
+        buy_price = st.number_input("Harga beli total (Rp)", min_value=0, value=0, step=5000)
+        sell_price_per_kg = st.number_input("Estimasi harga jual per kg bobot hidup (Rp)", min_value=0, value=0, step=1000)
+
+    with e2:
+        feed_cost_day = st.number_input("Biaya pakan per hari (Rp)", min_value=0, value=0, step=1000)
+        other_cost_day = st.number_input("Biaya lain per hari (Rp)", min_value=0, value=0, step=1000)
+
+    with e3:
+        target_weight = st.number_input("Target bobot jual (kg)", min_value=0.0, value=float(data["target_ideal"]), step=0.1)
+        desired_margin = st.number_input("Target margin/laba minimal (Rp)", min_value=0, value=0, step=5000)
+
+    days_to_target = math.ceil(max(target_weight - weight, 0) / max(data["adg"], 0.0001))
+    total_operational_cost = days_to_target * (feed_cost_day + other_cost_day)
+    estimated_sell_value = target_weight * sell_price_per_kg if sell_price_per_kg > 0 else 0
+    profit = estimated_sell_value - buy_price - total_operational_cost
+    bep_price_per_kg = (buy_price + total_operational_cost) / max(target_weight, 0.01)
+    max_buy_price = max(estimated_sell_value - total_operational_cost - desired_margin, 0)
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Estimasi hari ke target", f"{days_to_target} hari")
+    c2.metric("Biaya operasional", rupiah(total_operational_cost))
+    c3.metric("Laba/rugi kasar", rupiah(profit))
+    c4.metric("Harga BEP/kg", rupiah(bep_price_per_kg))
+
+    st.info(
+        f"Harga maksimal beli agar mencapai margin target: **{rupiah(max_buy_price)}**. "
+        "Gunakan angka ini untuk batas negosiasi, bukan harga mutlak."
+    )
+
+
+# =========================================================
+# RESULT
+# =========================================================
+
+sni_df_calc, sni_percent_calc, sni_status_calc = sni_compare(
+    sni_default,
+    weight,
+    height,
+    length,
+    girth,
+    bcs,
+    pheno_score,
+    health_score,
+)
+
+# These ekonomi variables might not exist before tab render in some cases,
+# so define safe defaults.
+if "buy_price" not in locals():
+    buy_price = 0
+if "sell_price_per_kg" not in locals():
+    sell_price_per_kg = 0
+if "feed_cost_day" not in locals():
+    feed_cost_day = 0
+if "other_cost_day" not in locals():
+    other_cost_day = 0
+if "target_weight" not in locals():
+    target_weight = float(data["target_ideal"])
+if "days_to_target" not in locals():
+    days_to_target = math.ceil(max(target_weight - weight, 0) / max(data["adg"], 0.0001))
+if "total_operational_cost" not in locals():
+    total_operational_cost = days_to_target * (feed_cost_day + other_cost_day)
+if "estimated_sell_value" not in locals():
+    estimated_sell_value = target_weight * sell_price_per_kg if sell_price_per_kg > 0 else 0
+if "profit" not in locals():
+    profit = estimated_sell_value - buy_price - total_operational_cost
+if "bep_price_per_kg" not in locals():
+    bep_price_per_kg = (buy_price + total_operational_cost) / max(target_weight, 0.01)
+if "max_buy_price" not in locals():
+    max_buy_price = max(estimated_sell_value - total_operational_cost, 0)
+
+decision = final_decision(total_score, sni_percent_calc, health_score, purpose, mode, kind)
+
+insights = make_insights(
+    kind,
+    species,
+    breed,
+    mode,
+    purpose,
+    weight,
+    data["target_min"],
+    data["target_ideal"],
+    bcs,
+    health_score,
+    pheno_score,
+    quant_score,
+    sni_percent_calc,
+    profit,
+    max_buy_price,
+)
+
+with tab_result:
+    st.subheader("Ringkasan Hasil")
+
+    badge_class = "badge-good" if cat_style == "good" else ("badge-warn" if cat_style == "warn" else "badge-bad")
+    st.markdown(
+        f"""
+<span class="badge {badge_class}">Kategori: {category}</span>
+<span class="badge badge-primary">Jenis: {species}</span>
+<span class="badge">Bangsa/Rumpun: {breed}</span>
+<span class="badge">Mode: {mode}</span>
+<span class="badge">Fase: {age_stage}</span>
+""",
+        unsafe_allow_html=True,
+    )
+
+    r1, r2, r3, r4 = st.columns(4)
+
+    with r1:
         st.markdown(
             f"""
 <div class="metric-card">
-    <div class="small-text">Skor Total</div>
-    <div class="big-score">{total_score:.1f}</div>
-    <div class="small-text">dari 100</div>
+<div class="muted">Skor Total</div>
+<div class="big-score">{total_score:.1f}</div>
+<div class="muted">dari 100</div>
 </div>
 """,
             unsafe_allow_html=True,
         )
 
-    with col2:
-        st.metric("Kategori", category)
-        st.caption(f"Tujuan: {purpose}")
+    r2.metric("Estimasi/aktual bobot", f"{weight:.2f} kg")
+    r3.metric("Kesesuaian SNI/acuan", f"{sni_percent_calc:.1f}%")
+    r4.metric("Estimasi karkas", f"{weight * data['dressing'] / 100:.2f} kg")
 
-    with col3:
-        st.metric("Estimasi bobot hidup", f"{estimated_weight:.1f} kg")
-        st.caption(weight_position)
-
-    with col4:
-        st.metric("Estimasi karkas", f"{carcass_estimate:.1f} kg")
-        st.caption(f"Asumsi dressing {dressing}%")
-
-    st.markdown("---")
-
-    st.subheader("Rincian Skor")
+    st.markdown(
+        f"""
+<div class="card">
+<strong>Rekomendasi akhir:</strong><br>{decision}
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
     score_df = pd.DataFrame(
         [
-            ["Bobot vs target bangsa", weight_score, 20],
-            ["BCS / kondisi tubuh", bcs_score, 15],
-            ["Rangka dan tinggi", frame_score, 10],
+            ["Bobot", weight_score, 20],
+            ["BCS", bcs_score, 15],
+            ["Tinggi/rangka", height_score, 10],
             ["Proporsi tubuh", prop_score, 8],
-            ["Kesehatan lapangan", health_score, 15],
-            ["Kesiapan pasar", market_score, 7],
             ["Kuantitatif tambahan", quant_score, 10],
-            ["Kualitatif / fenotipe bangsa", qualitative_score, 15],
+            ["Kesehatan", health_score, 15],
+            ["Kualitatif/fenotipe", pheno_score, 15],
+            ["Kesiapan pasar", market_score, 7],
         ],
         columns=["Komponen", "Skor", "Maksimum"],
     )
 
-    st.dataframe(
-        score_df,
-        use_container_width=True,
-        hide_index=True,
-    )
-
+    st.dataframe(score_df, use_container_width=True, hide_index=True)
     st.progress(int(clamp(total_score, 0, 100)))
 
-    c1, c2, c3 = st.columns(3)
-
-    with c1:
-        st.info(
-            f"""
-**Data bangsa/ras**  
-Jenis: {species}  
-Bangsa: {breed}  
-Target pasar: {target_min}-{target_ideal} kg  
-Bobot dewasa acuan: {adult_min}-{adult_max} kg
-"""
-        )
-
-    with c2:
-        st.info(
-            f"""
-**Kondisi tubuh**  
-BCS: {bcs:.1f}  
-BCS ideal: {ideal_bcs[0]}-{ideal_bcs[1]}  
-Fase umur: {age_stage}  
-Indeks panjang/lingkar dada: {proportion:.2f}
-"""
-        )
-
-    with c3:
-        st.info(
-            f"""
-**Ekonomi**  
-Nilai bobot hidup: {rupiah(estimated_value) if price_per_kg > 0 else "-"}  
-Target bobot: {desired_target_weight:.1f} kg  
-Estimasi waktu ke target: {days_to_desired} hari  
-Biaya pakan tambahan: {rupiah(additional_feed_cost) if feed_cost_per_day > 0 else "-"}
-"""
-        )
-
-    st.markdown("---")
-
-    st.subheader("Ringkasan Kuantitatif Tambahan")
-
-    quant_df = pd.DataFrame(
-        [
-            [
-                "Kedalaman dada / tinggi",
-                quant_details["Rasio kedalaman dada"],
-                f"{breed_info['quant']['chest_depth_ratio'][0]} - {breed_info['quant']['chest_depth_ratio'][1]}",
-                quant_details["Skor kedalaman dada"],
-                4,
-            ],
-            [
-                "Lebar pinggul / tinggi",
-                quant_details["Rasio lebar pinggul"],
-                f"{breed_info['quant']['rump_width_ratio'][0]} - {breed_info['quant']['rump_width_ratio'][1]}",
-                quant_details["Skor lebar pinggul"],
-                3,
-            ],
-            [
-                "Lingkar tulang kering / tinggi",
-                quant_details["Rasio lingkar tulang kering"],
-                f"{breed_info['quant']['cannon_ratio'][0]} - {breed_info['quant']['cannon_ratio'][1]}",
-                quant_details["Skor tulang kering"],
-                3,
-            ],
-        ],
-        columns=["Indikator", "Nilai", "Acuan Rasio", "Skor", "Maksimum"],
-    )
-
-    st.dataframe(
-        quant_df,
-        use_container_width=True,
-        hide_index=True,
-    )
-
-    st.markdown("---")
+    st.subheader("Detail Fenotipe")
+    st.dataframe(pheno_df, use_container_width=True, hide_index=True)
 
     st.subheader("Insight Otomatis")
-
-    insight_list = generate_insights(
-        species=species,
-        breed=breed,
-        purpose=purpose,
-        sex=sex,
-        age_months=age_months,
-        age_stage=age_stage,
-        weight=estimated_weight,
-        target_min=target_min,
-        target_ideal=target_ideal,
-        bcs=bcs,
-        ideal_bcs=ideal_bcs,
-        height_cm=height_cm,
-        heart_girth_cm=heart_girth_cm,
-        body_length_cm=body_length_cm,
-        total_score=total_score,
-        category=category,
-        weight_position=weight_position,
-        frame_score=frame_score,
-        proportion=proportion,
-        health_score=health_score,
-        market_score=market_score,
-        quant_score=quant_score,
-        quant_details=quant_details,
-        qualitative_score=qualitative_score,
-        qualitative_details=qualitative_details,
-        price_per_kg=price_per_kg,
-        feed_cost_per_day=feed_cost_per_day,
-        desired_target_weight=desired_target_weight,
-        adg=adg,
-        dressing=dressing,
-        notes=notes,
-    )
-
-    for insight in insight_list:
+    for kind_insight, title, body in insights:
+        css_class = kind_insight if kind_insight in ["good", "warn", "bad"] else ""
         st.markdown(
             f"""
-<div class="insight-card {insight['type']}">
-    <strong>{insight['title']}</strong><br>
-    {insight['body']}
+<div class="insight {css_class}">
+<strong>{title}</strong><br>{body}
 </div>
 """,
             unsafe_allow_html=True,
         )
 
-    st.markdown("---")
-
-    save_col1, save_col2 = st.columns([1, 2])
-
-    with save_col1:
-        save_button = st.button("💾 Simpan ke Tabel Evaluasi", use_container_width=True)
-
-    if save_button:
-        st.session_state.records.append(
-            {
-                "Waktu": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "Kode Ternak": animal_id,
-                "Lokasi": location,
-                "Penilai": evaluator,
-                "Jenis": species,
-                "Bangsa": breed,
-                "Tujuan": purpose,
-                "Jenis Kelamin": sex,
-                "Umur Bulan": age_months,
-                "Fase Umur": age_stage,
-                "Lingkar Dada cm": heart_girth_cm,
-                "Panjang Badan cm": body_length_cm,
-                "Tinggi cm": height_cm,
-                "Kedalaman Dada cm": chest_depth_cm,
-                "Lebar Pinggul cm": rump_width_cm,
-                "Lingkar Tulang Kering cm": cannon_circumference_cm,
-                "Estimasi Bobot kg": estimated_weight,
-                "BCS": bcs,
-                "Warna Bulu": selected_color,
-                "Bentuk Wajah": selected_face,
-                "Tanduk": selected_horn,
-                "Telinga": selected_ear,
-                "Bentuk Tubuh": selected_body_build,
-                "Ciri Khas": ", ".join(selected_features),
-                "Skor Bobot": weight_score,
-                "Skor BCS": bcs_score,
-                "Skor Rangka": frame_score,
-                "Skor Proporsi": prop_score,
-                "Skor Kesehatan": health_score,
-                "Skor Pasar": market_score,
-                "Skor Kuantitatif": quant_score,
-                "Skor Kualitatif": qualitative_score,
-                "Skor Total": total_score,
-                "Kategori": category,
-                "Acuan SNI": sni_reference["standard_no"],
-                "Status SNI": sni_final_status if "sni_final_status" in locals() else "-",
-                "Kesesuaian SNI %": sni_compliance_percent if "sni_compliance_percent" in locals() else 0,
-                "Posisi Bobot": weight_position,
-                "Estimasi Karkas kg": carcass_estimate,
-                "Estimasi Daging kg": meat_estimate,
-                "Harga per kg": price_per_kg,
-                "Estimasi Nilai": estimated_value,
-            }
-        )
-        st.success("Data berhasil disimpan ke Tabel Evaluasi.")
+    if st.button("💾 Simpan ke Riwayat Evaluasi", use_container_width=True):
+        record = {
+            "Waktu": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Kode": animal_id,
+            "Lokasi": location,
+            "Jenis": species,
+            "Bangsa/Rumpun": breed,
+            "Mode": mode,
+            "Tujuan": purpose,
+            "Kelamin": sex,
+            "Umur bulan": age_months,
+            "Fase": age_stage,
+            "Bobot kg": round(weight, 3),
+            "Lingkar dada cm": girth,
+            "Panjang badan cm": length,
+            "Tinggi cm": height,
+            "BCS": bcs,
+            "Skor total": total_score,
+            "Kategori": category,
+            "Status SNI/acuan": sni_status_calc,
+            "Kesesuaian SNI %": sni_percent_calc,
+            "Laba/rugi kasar": profit,
+            "Rekomendasi akhir": decision,
+        }
+        st.session_state.records.append(record)
+        st.success("Data tersimpan ke riwayat.")
 
 
 # =========================================================
-# PHENOTYPE TAB
+# HISTORY
 # =========================================================
 
-with tab_pheno:
-    st.subheader("Evaluasi Ciri Bangsa / Fenotipe")
+with tab_history:
+    st.subheader("Riwayat Evaluasi dan Grafik")
 
-    p1, p2, p3 = st.columns(3)
+    upload = st.file_uploader("Upload CSV riwayat lama bila ada", type=["csv"])
 
-    with p1:
-        st.metric("Skor Kualitatif", f"{qualitative_score:.1f}/15")
-        st.caption("Berdasarkan warna, wajah, tanduk, telinga, tubuh, dan ciri khas.")
+    if upload is not None:
+        try:
+            uploaded_df = pd.read_csv(upload)
+            st.session_state.records.extend(uploaded_df.to_dict("records"))
+            st.success("CSV berhasil dimuat ke riwayat sementara.")
+        except Exception as exc:
+            st.error(f"Gagal membaca CSV: {exc}")
 
-    with p2:
-        st.metric("Skor Kuantitatif Tambahan", f"{quant_score:.1f}/10")
-        st.caption("Berdasarkan rasio dada, pinggul, dan tulang kering.")
+    if st.button("🧹 Reset Riwayat", use_container_width=True):
+        st.session_state.records = []
+        st.success("Riwayat sementara direset.")
+        st.rerun()
 
-    with p3:
-        conformity_pct = round((qualitative_score / 15) * 100, 1)
-        st.metric("Kesesuaian Fenotipe", f"{conformity_pct}%")
-        st.caption(f"Acuan: {breed}")
-
-    st.markdown("---")
-
-    qualitative_rows = []
-
-    for trait_name, trait_data in qualitative_details.items():
-        qualitative_rows.append(
-            [
-                trait_name,
-                trait_data["Input"],
-                trait_data["Status"],
-                trait_data["Skor"],
-                trait_data["Acuan"],
-            ]
-        )
-
-    qualitative_df = pd.DataFrame(
-        qualitative_rows,
-        columns=["Ciri", "Input", "Status", "Skor", "Acuan Bangsa"],
-    )
-
-    st.dataframe(
-        qualitative_df,
-        use_container_width=True,
-        hide_index=True,
-    )
-
-    st.markdown("---")
-    st.subheader("Interpretasi Praktis")
-
-    if qualitative_score >= 12:
-        st.success(
-            f"Ciri luar ternak relatif kuat mengarah ke bangsa {breed}. Ini bisa meningkatkan kepercayaan untuk tujuan bibit, jual beli, atau premium."
-        )
-    elif qualitative_score >= 8:
-        st.warning(
-            "Ciri luar masih sedang. Ternak bisa saja persilangan, kurang terawat, atau belum menunjukkan karakter penuh karena umur/jenis kelamin."
-        )
+    if not st.session_state.records:
+        st.info("Belum ada riwayat. Simpan hasil dari tab Hasil.")
     else:
-        st.error(
-            "Ciri luar kurang sesuai. Hindari membeli dengan harga premium hanya berdasarkan klaim bangsa tanpa bukti tambahan."
-        )
+        hist_df = pd.DataFrame(st.session_state.records)
+        st.dataframe(hist_df, use_container_width=True, hide_index=True)
 
-    st.info(
-        """
-Untuk penilaian bibit atau harga premium, ciri fenotipe sebaiknya dilengkapi dengan:
-riwayat induk-pejantan, catatan kelahiran, performa pertumbuhan, riwayat kesehatan,
-dan pengamatan langsung oleh orang yang berpengalaman.
-"""
-    )
-
-
-
-# =========================================================
-# SNI COMPARISON TAB
-# =========================================================
-
-with tab_sni:
-    st.subheader("Pembanding Hasil dengan Acuan SNI")
-
-    st.markdown(
-        """
-<div class="section-note">
-Fitur ini membandingkan hasil pengukuran ternak dengan acuan SNI yang dipetakan di aplikasi.
-Karena nilai SNI dapat berbeda menurut umur, jenis kelamin, dan kelas mutu, ambang di bawah ini
-bisa diedit agar sama dengan dokumen SNI resmi yang Anda gunakan.
-</div>
-""",
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("---")
-
-    if species == "Ayam Lokal Indonesia":
-        st.warning(
-            "Catatan ayam: SNI yang tersedia di aplikasi terutama memetakan DOC/kuri KUB. "
-            "Untuk ayam grower/dewasa, aktifkan 'Ubah ambang SNI secara manual' dan masukkan standar bobot/ukuran sesuai dokumen atau SOP yang digunakan."
-        )
-
-    sni_col1, sni_col2 = st.columns([1, 2])
-
-    with sni_col1:
-        st.metric("Nomor/Acuan SNI", sni_reference["standard_no"])
-        st.caption(sni_reference["standard_title"])
-
-    with sni_col2:
-        if sni_reference["coverage"] in ["bibit", "acuan_terdekat"]:
-            st.success(sni_reference["source_note"])
-        elif sni_reference["coverage"] in ["non_sni_direct", "doc_kuri"]:
-            st.warning(sni_reference["source_note"])
-        else:
-            st.error(sni_reference["source_note"])
-
-    st.markdown("### Ambang SNI yang digunakan untuk pembanding")
-
-    edit_sni_thresholds = st.toggle(
-        "Ubah ambang SNI secara manual",
-        value=False,
-        help="Aktifkan bila Anda memiliki dokumen SNI resmi dan ingin memasukkan nilai minimum sesuai umur, jenis kelamin, atau kelas mutu.",
-    )
-
-    threshold_col1, threshold_col2, threshold_col3 = st.columns(3)
-
-    if edit_sni_thresholds:
-        with threshold_col1:
-            sni_weight_min = st.number_input(
-                "SNI bobot hidup minimum (kg)",
-                min_value=0.0,
-                value=float(default_sni_thresholds["Bobot hidup minimum (kg)"]),
-                step=1.0,
-            )
-
-            sni_height_min = st.number_input(
-                "SNI tinggi pundak minimum (cm)",
-                min_value=0.0,
-                value=float(default_sni_thresholds["Tinggi pundak minimum (cm)"]),
-                step=1.0,
-            )
-
-        with threshold_col2:
-            sni_body_length_min = st.number_input(
-                "SNI panjang badan minimum (cm)",
-                min_value=0.0,
-                value=float(default_sni_thresholds["Panjang badan minimum (cm)"]),
-                step=1.0,
-            )
-
-            sni_heart_girth_min = st.number_input(
-                "SNI lingkar dada minimum (cm)",
-                min_value=0.0,
-                value=float(default_sni_thresholds["Lingkar dada minimum (cm)"]),
-                step=1.0,
-            )
-
-        with threshold_col3:
-            sni_bcs_min = st.number_input(
-                "BCS minimum",
-                min_value=1.0,
-                max_value=5.0,
-                value=float(default_sni_thresholds["BCS minimum"]),
-                step=0.1,
-            )
-
-            st.caption("Fenotipe minimal: 70% dan kesehatan minimal: 80%.")
-    else:
-        sni_weight_min = float(default_sni_thresholds["Bobot hidup minimum (kg)"])
-        sni_height_min = float(default_sni_thresholds["Tinggi pundak minimum (cm)"])
-        sni_body_length_min = float(default_sni_thresholds["Panjang badan minimum (cm)"])
-        sni_heart_girth_min = float(default_sni_thresholds["Lingkar dada minimum (cm)"])
-        sni_bcs_min = float(default_sni_thresholds["BCS minimum"])
-
-        threshold_df = pd.DataFrame(
-            [
-                ["Bobot hidup minimum", sni_weight_min, "kg"],
-                ["Tinggi pundak minimum", sni_height_min, "cm"],
-                ["Panjang badan minimum", sni_body_length_min, "cm"],
-                ["Lingkar dada minimum", sni_heart_girth_min, "cm"],
-                ["BCS minimum", sni_bcs_min, "skor"],
-                ["Kesesuaian fenotipe minimum", 70, "%"],
-                ["Kesehatan lapangan minimum", 80, "%"],
-            ],
-            columns=["Parameter", "Acuan", "Satuan"],
-        )
-        st.dataframe(threshold_df, use_container_width=True, hide_index=True)
-
-    active_sni_thresholds = {
-        "Bobot hidup minimum (kg)": sni_weight_min,
-        "Tinggi pundak minimum (cm)": sni_height_min,
-        "Panjang badan minimum (cm)": sni_body_length_min,
-        "Lingkar dada minimum (cm)": sni_heart_girth_min,
-        "BCS minimum": sni_bcs_min,
-    }
-
-    sni_checks, sni_compliance_percent, sni_final_status, sni_final_style = evaluate_sni_compliance(
-        sni_thresholds=active_sni_thresholds,
-        estimated_weight=estimated_weight,
-        height_cm=height_cm,
-        body_length_cm=body_length_cm,
-        heart_girth_cm=heart_girth_cm,
-        bcs=bcs,
-        qualitative_score=qualitative_score,
-        health_score=health_score,
-    )
-
-    st.markdown("---")
-    st.subheader("Hasil Perbandingan SNI")
-
-    result_col1, result_col2, result_col3 = st.columns(3)
-
-    with result_col1:
-        st.metric("Status SNI", sni_final_status)
-
-    with result_col2:
-        st.metric("Kesesuaian", f"{sni_compliance_percent:.1f}%")
-
-    with result_col3:
-        st.metric("Parameter lolos", f"{sum(1 for item in sni_checks if item['Status'] == 'Memenuhi')}/{len(sni_checks)}")
-
-    sni_df = pd.DataFrame(sni_checks)
-
-    st.dataframe(
-        sni_df,
-        use_container_width=True,
-        hide_index=True,
-    )
-
-    sni_gap_text = generate_sni_gap_text(sni_checks)
-
-    if sni_final_style == "good":
-        st.success(sni_gap_text)
-    elif sni_final_style == "warning":
-        st.warning(sni_gap_text)
-    else:
-        st.error(sni_gap_text)
-
-    st.markdown("---")
-    st.subheader("Acuan Kualitatif SNI / Bibit")
-
-    st.write("Ciri yang perlu dicek pada pemeriksaan lapangan:")
-
-    for item in sni_reference["qualitative_required"]:
-        st.markdown(f"- {item}")
-
-    st.info(
-        """
-Catatan: fitur ini bukan sertifikat SNI. Untuk sertifikasi atau Surat Keterangan Layak Bibit,
-gunakan dokumen SNI resmi dan pemeriksaan oleh pihak/instansi berwenang.
-"""
-    )
-
-
-
-# =========================================================
-# COMPARE TABLE
-# =========================================================
-
-with tab_compare:
-    st.subheader("Tabel Evaluasi Ternak")
-
-    reset_col, info_col = st.columns([1, 3])
-
-    with reset_col:
-        if st.button("🧹 Reset Data Evaluasi", use_container_width=True):
-            st.session_state.records = []
-            st.success("Data evaluasi sementara berhasil direset.")
-            st.rerun()
-
-    with info_col:
-        st.caption(
-            "Gunakan reset jika sebelumnya pernah menyimpan data dari versi lama "
-            "dan muncul error kolom saat perbandingan."
-        )
-
-    if len(st.session_state.records) == 0:
-        st.info("Belum ada data tersimpan. Simpan hasil dari tab **Hasil & Insight**.")
-    else:
-        records_df = pd.DataFrame(st.session_state.records)
-
-        st.dataframe(
-            records_df,
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        csv_data = records_df.to_csv(index=False).encode("utf-8-sig")
-
-        st.download_button(
-            label="⬇️ Download CSV Evaluasi",
-            data=csv_data,
-            file_name="evaluasi_ternak.csv",
-            mime="text/csv",
-            use_container_width=True,
-        )
+        csv = hist_df.to_csv(index=False).encode("utf-8-sig")
+        st.download_button("⬇️ Download CSV Riwayat", data=csv, file_name="riwayat_evaluasi_ternak.csv", mime="text/csv", use_container_width=True)
 
         st.markdown("---")
-        st.subheader("Ringkasan Perbandingan")
+        st.subheader("Grafik Perkembangan")
 
-        avg_score = records_df["Skor Total"].mean()
-        best_idx = records_df["Skor Total"].idxmax()
-        best_row = records_df.loc[best_idx]
+        if "Waktu" in hist_df.columns:
+            chart_df = hist_df.copy()
+            chart_df["Urutan"] = range(1, len(chart_df) + 1)
+            if "Bobot kg" in chart_df.columns:
+                st.line_chart(chart_df.set_index("Urutan")[["Bobot kg"]])
+            if "Skor total" in chart_df.columns:
+                st.line_chart(chart_df.set_index("Urutan")[["Skor total"]])
 
-        a, b, c = st.columns(3)
-
-        with a:
-            st.metric("Jumlah ternak dinilai", len(records_df))
-
-        with b:
-            st.metric("Rata-rata skor", f"{avg_score:.1f}")
-
-        with c:
-            st.metric(
-                "Ternak terbaik",
-                f"{best_row['Kode Ternak']}",
-                f"{best_row['Skor Total']:.1f}",
-            )
-
-        st.markdown("**Jumlah berdasarkan kategori:**")
-        category_count = (
-            records_df["Kategori"]
-            .value_counts()
-            .reset_index()
-        )
-        category_count.columns = ["Kategori", "Jumlah"]
-        st.dataframe(category_count, use_container_width=True, hide_index=True)
-
-        st.markdown("**Rata-rata skor per jenis dan bangsa:**")
-
-        # -------------------------------------------------
-        # FIX:
-        # Beberapa data lama di session_state mungkin belum
-        # memiliki kolom baru seperti Skor Kuantitatif dan
-        # Skor Kualitatif. Karena itu kolom dicek dulu agar
-        # tidak menimbulkan KeyError saat groupby.
-        # -------------------------------------------------
-        group_columns = ["Jenis", "Bangsa"]
-        score_columns = [
-            "Skor Total",
-            "Skor Kuantitatif",
-            "Skor Kualitatif",
-        ]
-
-        for col in group_columns:
-            if col not in records_df.columns:
-                records_df[col] = "-"
-
-        for col in score_columns:
-            if col not in records_df.columns:
-                records_df[col] = 0
-
-        available_score_columns = [
-            col
-            for col in score_columns
-            if col in records_df.columns
-        ]
-
-        group_df = (
-            records_df
-            .groupby(group_columns, as_index=False)[available_score_columns]
-            .mean(numeric_only=True)
-            .round(1)
-        )
-
-        st.dataframe(
-            group_df,
-            use_container_width=True,
-            hide_index=True,
-        )
+        st.markdown("---")
+        st.subheader("Ringkasan")
+        st.metric("Jumlah data", len(hist_df))
+        if "Skor total" in hist_df.columns:
+            st.metric("Rata-rata skor", f"{pd.to_numeric(hist_df['Skor total'], errors='coerce').mean():.1f}")
 
 
 # =========================================================
-# AI PROMPT
+# REPORT
 # =========================================================
 
-with tab_prompt:
-    st.subheader("Generator Prompt untuk AI Lain")
+with tab_report:
+    st.subheader("Laporan Ringkas")
 
-    ai_prompt = build_ai_prompt(
-        species=species,
-        breed=breed,
-        purpose=purpose,
-        sex=sex,
-        age_months=age_months,
-        age_stage=age_stage,
-        weight=estimated_weight,
-        target_min=target_min,
-        target_ideal=target_ideal,
-        bcs=bcs,
-        height_cm=height_cm,
-        heart_girth_cm=heart_girth_cm,
-        body_length_cm=body_length_cm,
-        chest_depth_cm=chest_depth_cm,
-        rump_width_cm=rump_width_cm,
-        cannon_circumference_cm=cannon_circumference_cm,
-        selected_color=selected_color,
-        selected_face=selected_face,
-        selected_horn=selected_horn,
-        selected_ear=selected_ear,
-        selected_body_build=selected_body_build,
-        selected_features=selected_features,
-        total_score=total_score,
-        category=category,
-        health_score=health_score,
-        market_score=market_score,
-        quant_score=quant_score,
-        qualitative_score=qualitative_score,
-        qualitative_details=qualitative_details,
-        price_per_kg=price_per_kg,
-        feed_cost_per_day=feed_cost_per_day,
-        notes=notes,
+    report_record = {
+        "Waktu": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "Kode": animal_id,
+        "Lokasi": location,
+        "Jenis": species,
+        "Bangsa/Rumpun": breed,
+        "Mode": mode,
+        "Tujuan": purpose,
+        "Kelamin": sex,
+        "Umur/Fase": f"{age_months} bulan / {age_stage}",
+        "Bobot": f"{weight:.3f} kg",
+        "BCS": bcs,
+        "Skor total": total_score,
+        "Kategori": category,
+        "Status SNI/acuan": sni_status_calc,
+        "Kesesuaian SNI/acuan": f"{sni_percent_calc:.1f}%",
+        "Rekomendasi akhir": decision,
+        "Estimasi laba/rugi kasar": rupiah(profit),
+        "Harga maksimal beli": rupiah(max_buy_price),
+    }
+
+    st.dataframe(
+        pd.DataFrame(list(report_record.items()), columns=["Item", "Nilai"]),
+        use_container_width=True,
+        hide_index=True,
     )
 
-    st.write(
-        "Prompt ini bisa disalin ke AI lain agar pengguna mendapat penjelasan lanjutan "
-        "berdasarkan hasil penilaian kuantitatif dan kualitatif."
-    )
-
-    st.text_area(
-        "Prompt siap pakai",
-        value=ai_prompt,
-        height=520,
-    )
+    html_report = make_report_html(report_record, insights)
 
     st.download_button(
-        label="⬇️ Download Prompt TXT",
-        data=ai_prompt.encode("utf-8"),
-        file_name="prompt_analisis_ternak.txt",
-        mime="text/plain",
+        "⬇️ Download Laporan HTML",
+        data=html_report.encode("utf-8"),
+        file_name=f"laporan_evaluasi_{animal_id}.html",
+        mime="text/html",
         use_container_width=True,
     )
 
@@ -4273,107 +1762,30 @@ with tab_prompt:
 # =========================================================
 
 with tab_guide:
-    st.subheader("Panduan Penilaian")
+    st.subheader("Panduan Fitur Baru")
 
     st.markdown(
         """
-### 1. Komponen yang dinilai
+### Fitur yang sudah ditambahkan
 
-| Komponen | Maksimum | Makna |
-|---|---:|---|
-| Bobot vs target bangsa | 20 | Menilai apakah bobot ternak sesuai target jenis/bangsa |
-| BCS | 15 | Menilai kondisi tubuh: kurus, ideal, atau terlalu gemuk |
-| Rangka dan tinggi | 10 | Menilai kesesuaian tinggi dengan karakter bangsa |
-| Proporsi tubuh | 8 | Membandingkan panjang badan dan lingkar dada |
-| Kesehatan lapangan | 15 | Menilai tanda kesehatan dasar dari pengamatan |
-| Kesiapan pasar | 7 | Menilai kesiapan sesuai tujuan jual, potong, bibit, atau perah |
-| Kuantitatif tambahan | 10 | Kedalaman dada, lebar pinggul, dan lingkar tulang kering |
-| Kualitatif/fenotipe bangsa | 15 | Warna bulu, wajah, tanduk, telinga, bentuk tubuh, dan ciri khas bangsa |
-
-### 2. Faktor kuantitatif tambahan
-
-| Faktor | Kegunaan praktis |
+| Fitur | Fungsi |
 |---|---|
-| Kedalaman dada | Indikasi kapasitas tubuh, volume organ, dan potensi penggemukan/perah |
-| Lebar pinggul/panggul | Indikasi rangka belakang, keseimbangan tubuh, dan reproduksi |
-| Lingkar tulang kering | Indikasi kasar kekuatan kaki/rangka |
-| Rasio terhadap tinggi | Membantu membandingkan ternak kecil dan besar secara lebih adil |
+| Form adaptif | Ruminansia dan ayam memakai input yang berbeda |
+| Mode pengguna | Insight berubah sesuai peternak, jagal, blantik, pembibit, atau ayam lokal |
+| Rekomendasi akhir | Memberi keputusan praktis layak/tunda/perbaikan |
+| SNI/acuan editable | Ambang bisa disesuaikan dengan dokumen resmi atau SOP |
+| Ekonomi lanjutan | Hitung BEP, laba/rugi, hari target, biaya pakan, dan harga maksimal beli |
+| Riwayat evaluasi | Simpan, upload CSV, download CSV, dan lihat grafik |
+| Laporan HTML | Download laporan ringkas per ternak |
+| Ayam lokal Indonesia | Termasuk Kampung, KUB-1, KUB Janaka, Sentul, Pelung, Kedu, Cemani, Nunukan, Merawang, Gaok, dan Kokok Balenggek |
 
-### 3. Faktor kualitatif/fenotipe
+### Catatan ayam
 
-| Faktor | Kegunaan praktis |
-|---|---|
-| Warna bulu | Membantu identifikasi bangsa/persilangan |
-| Bentuk wajah | Beberapa bangsa memiliki profil kepala khas |
-| Tanduk | Bentuk dan keberadaan tanduk dapat menjadi ciri pembeda |
-| Telinga | Penting pada Brahman Cross, PE, Boer, dan beberapa bangsa lain |
-| Bentuk tubuh | Membaca tipe pedaging, perah, dwiguna, atau kerja |
-| Ciri khas | Punuk, gelambir, ambing, ekor gemuk, paha penuh, punggung lebar, dan lain-lain |
+Untuk ayam, bobot dimasukkan langsung dari hasil timbang. Jangan memakai rumus estimasi bobot sapi/kambing.
+Untuk ayam penyanyi seperti Pelung, Gaok, dan Kokok Balenggek, nilai suara tetap perlu dinilai manual di luar skor bobot.
 
-### 4. Kategori hasil
+### Catatan SNI
 
-| Skor | Kategori | Arti praktis |
-|---:|---|---|
-| 85-100 | Sangat Layak | Ternak kuat untuk dipilih/dibeli/dipelihara |
-| 70-84 | Layak | Cukup baik, tetap perlu cek harga dan kesehatan |
-| 55-69 | Perlu Perbaikan | Perlu pakan, perawatan, atau pemeriksaan tambahan |
-| <55 | Risiko Tinggi | Tidak disarankan untuk keputusan besar tanpa pemeriksaan lanjut |
-
-### 5. Cara membaca hasil
-
-- **Peternak**: fokus pada bobot, BCS, kesehatan, target penggemukan, dan biaya pakan.
-- **Jagal**: fokus pada karkas, dada, paha, punggung, BCS, dan kesehatan.
-- **Blantik**: fokus pada selisih harga, tampilan, bangsa, umur, bobot, dan risiko klaim kualitas.
-- **Bibit/perah**: jangan hanya melihat bobot; perhatikan reproduksi, ambing, kaki, dan riwayat produksi.
-
-### 6. Catatan khusus Ayam Lokal Indonesia
-
-Untuk ayam lokal/asli Indonesia, aplikasi memakai bobot hidup aktual/estimasi timbang, bukan rumus estimasi bobot ruminansia.
-Faktor yang dinilai meliputi bobot hidup, panjang badan, lingkar dada, tinggi, kedalaman dada,
-lebar panggul, lingkar shank/kaki, warna bulu, jengger, kaki, postur, kesehatan, dan ciri khas rumpun.
-
-Rumpun yang tersedia mencakup Ayam Kampung, KUB-1, KUB Janaka Agrinak, Sentul, Pelung, Kedu Hitam,
-Cemani, Nunukan, Merawang, Gaok, dan Kokok Balenggek.
-
-### 7. Pembanding SNI
-
-Tab **Pembanding SNI** digunakan untuk membandingkan hasil ukur ternak dengan acuan minimum.
-Parameter yang dibandingkan meliputi bobot hidup, tinggi pundak, panjang badan, lingkar dada,
-BCS, kesesuaian fenotipe, dan kesehatan lapangan.
-
-Gunakan fitur **Ubah ambang SNI secara manual** bila Anda memiliki dokumen SNI resmi.
-Hal ini penting karena beberapa SNI membedakan syarat berdasarkan umur, jenis kelamin, kelas mutu,
-lingkar skrotum, panjang telinga, serta ciri reproduksi.
-
-### 8. Keterbatasan sistem
-
-Aplikasi ini menggunakan estimasi berbasis ukuran tubuh, ciri visual, dan parameter umum. 
-Hasil dapat berbeda dengan timbangan aktual, kondisi pasar, kualitas pakan, kesehatan tersembunyi, 
-umur sebenarnya, kemurnian bangsa, dokumen SNI terbaru, dan standar lokal masing-masing daerah.
-"""
-    )
-
-    st.markdown("---")
-    st.subheader("Catatan Tampilan")
-    st.markdown(
-        """
-Aplikasi sudah menggunakan desain adaptif untuk **light mode** dan **dark mode**.
-Warna kartu, tabel, input, badge status, dan insight dibuat menggunakan variabel tema agar tetap terbaca
-baik saat Streamlit memakai tema terang maupun gelap.
-"""
-    )
-
-    st.markdown("---")
-    st.subheader("Saran Pengembangan Lanjutan")
-
-    st.markdown(
-        """
-- Tambahkan upload foto ternak untuk dokumentasi visual.
-- Tambahkan database online untuk riwayat kandang.
-- Tambahkan grafik perkembangan bobot mingguan.
-- Tambahkan standar harga lokal berdasarkan wilayah.
-- Tambahkan rekomendasi ransum berdasarkan hijauan, konsentrat, dan target ADG.
-- Tambahkan mode verifikasi foto dengan catatan manual dari petugas.
-- Tambahkan template laporan PDF per ternak.
+Pembanding SNI/acuan pada aplikasi bukan sertifikasi resmi. Untuk keputusan bibit resmi, gunakan dokumen SNI lengkap dan pemeriksaan pihak berwenang.
 """
     )
