@@ -23,6 +23,11 @@ st.set_page_config(
     page_icon="🐄",
     layout="wide",
     initial_sidebar_state="expanded",
+    menu_items={
+        "Get help": None,
+        "Report a Bug": None,
+        "About": "Sistem Penilaian Ternak Pro - aplikasi evaluasi ternak berbasis kuantitatif, kualitatif, ekonomi, dan acuan SNI.",
+    },
 )
 
 
@@ -263,6 +268,132 @@ hr {
     border-color: var(--border);
     margin: 1.2rem 0;
 }
+
+/* =========================================================
+   WHITE-LABEL / STREAMLIT ONLINE CAMOUFLAGE
+   ========================================================= */
+
+#MainMenu {
+    visibility: hidden;
+    display: none;
+}
+
+footer {
+    visibility: hidden;
+    display: none;
+}
+
+header {
+    visibility: hidden;
+    display: none;
+}
+
+[data-testid="stHeader"] {
+    visibility: hidden;
+    display: none;
+}
+
+[data-testid="stToolbar"] {
+    visibility: hidden;
+    display: none;
+}
+
+[data-testid="stDecoration"] {
+    visibility: hidden;
+    display: none;
+}
+
+[data-testid="stStatusWidget"] {
+    visibility: hidden;
+    display: none;
+}
+
+[data-testid="manage-app-button"] {
+    visibility: hidden;
+    display: none;
+}
+
+.stDeployButton {
+    visibility: hidden;
+    display: none;
+}
+
+a[href*="streamlit.io"] {
+    visibility: hidden !important;
+    display: none !important;
+}
+
+.block-container {
+    padding-top: 1rem !important;
+}
+
+[data-testid="stAppViewContainer"] {
+    background:
+        radial-gradient(circle at top left, var(--bg2), transparent 34%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+}
+
+[data-testid="stSidebar"] {
+    border-right: 1px solid var(--border);
+}
+
+.app-shell-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+.app-shell-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-weight: 900;
+    color: var(--text);
+}
+
+.app-shell-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: .88rem;
+    font-weight: 700;
+}
+
+.app-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: var(--good);
+    box-shadow: 0 0 0 4px var(--good-soft);
+}
+
+.custom-footer {
+    margin-top: 24px;
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: .86rem;
+    text-align: center;
+}
+
+@media (max-width: 720px) {
+    .app-shell-topbar {
+        border-radius: 18px;
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
 </style>
 """
 
@@ -1398,6 +1529,10 @@ if "records" not in st.session_state:
 
 st.markdown(
     """
+<div class="app-shell-topbar">
+    <div class="app-shell-brand">🐄 Evaluasi Ternak Pro</div>
+    <div class="app-shell-status"><span class="app-dot"></span>Dashboard aktif</div>
+</div>
 <div class="hero">
     <div class="hero-title">🐄 Sistem Penilaian Ternak Pro</div>
     <div class="hero-subtitle">
@@ -1417,8 +1552,9 @@ st.markdown(
 )
 
 
-st.sidebar.title("🐄 Evaluasi Ternak Pro")
-st.sidebar.caption("Form adaptif, insight otomatis, ekonomi, SNI, dan riwayat evaluasi.")
+st.sidebar.markdown("### 🐄 Evaluasi Ternak Pro")
+st.sidebar.caption("Panel kontrol evaluasi ternak")
+st.sidebar.markdown("---")
 
 with st.sidebar.expander("Cara pakai", expanded=True):
     st.write(
@@ -2294,3 +2430,14 @@ Untuk ayam penyanyi seperti Pelung, Gaok, dan Kokok Balenggek, nilai suara tetap
 Pembanding SNI/acuan pada aplikasi bukan sertifikasi resmi. Untuk keputusan bibit resmi, gunakan dokumen SNI lengkap dan pemeriksaan pihak berwenang.
 """
     )
+
+
+st.markdown(
+    """
+<div class="custom-footer">
+    Sistem Penilaian Ternak Pro • Evaluasi kuantitatif, kualitatif, ekonomi, risiko, dan acuan standar
+</div>
+""",
+    unsafe_allow_html=True,
+)
+
