@@ -1946,6 +1946,7 @@ th {{
 </head>
 <body>
 <h1>Laporan Evaluasi Ternak</h1>
+<p><strong>Developed by Galuh Adi Insani</strong></p>
 <p class="badge">{record.get("Kategori", "-")}</p>
 <h2>Data Ringkas</h2>
 <table>{rows}</table>
@@ -1977,7 +1978,7 @@ st.markdown(
     """
 <div class="app-shell-topbar">
     <div class="app-shell-brand">🐄 Evaluasi Ternak Pro</div>
-    <div class="app-shell-status"><span class="app-dot"></span>Dashboard aktif</div>
+    <div class="app-shell-status"><span class="app-dot"></span>Dashboard aktif • Developed by Galuh Adi Insani</div>
 </div>
 <div class="hero">
     <div class="hero-title">🐄 Sistem Penilaian Ternak Pro</div>
@@ -1991,6 +1992,7 @@ st.markdown(
         <span class="badge badge-warn">🇮🇩 Pembanding SNI</span>
         <span class="badge">🌗 Light/Dark</span>
         <span class="badge">📈 Riwayat & grafik</span>
+        <span class="badge badge-primary">👤 Developed by Galuh Adi Insani</span>
     </div>
 </div>
 """,
@@ -2000,6 +2002,7 @@ st.markdown(
 
 st.sidebar.markdown("### 🐄 Evaluasi Ternak Pro")
 st.sidebar.caption("Panel kontrol evaluasi ternak")
+st.sidebar.markdown("**Developed by Galuh Adi Insani**")
 st.sidebar.markdown("---")
 
 with st.sidebar.expander("Cara pakai", expanded=True):
@@ -3049,7 +3052,7 @@ Pembanding SNI/acuan pada aplikasi bukan sertifikasi resmi. Untuk keputusan bibi
 st.markdown(
     """
 <div class="custom-footer">
-    Sistem Penilaian Ternak Pro • Evaluasi kuantitatif, kualitatif, ekonomi, risiko, dan acuan standar
+    Sistem Penilaian Ternak Pro • Evaluasi kuantitatif, kualitatif, ekonomi, risiko, dan acuan standar • Developed by Galuh Adi Insani
 </div>
 """,
     unsafe_allow_html=True,
