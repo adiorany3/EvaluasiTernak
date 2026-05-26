@@ -20,7 +20,7 @@ import streamlit as st
 
 
 st.set_page_config(
-    page_title="Sistem Penilaian Ternak Pro",
+    page_title="Sistem Penilaian Ternak Modern",
     page_icon="🐄",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -664,6 +664,295 @@ html {
 
     .dash-value {
         font-size: 1.05rem;
+    }
+}
+
+
+/* =========================================================
+   MODERN SYSTEMATIC UI UPGRADE
+   Cleaner app shell, step-by-step workflow, modern cards.
+   ========================================================= */
+
+:root {
+    --modern-gradient: linear-gradient(135deg, rgba(37, 99, 235, .14), rgba(22, 163, 74, .10));
+    --glass-highlight: inset 0 1px 0 rgba(255,255,255,.35);
+}
+
+.workflow-strip {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+    margin: 14px 0 18px 0;
+}
+
+.workflow-step {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)),
+        var(--surface);
+    box-shadow: var(--shadow), var(--glass-highlight);
+    padding: 13px 14px;
+    min-height: 92px;
+    position: relative;
+    overflow: hidden;
+}
+
+.workflow-step:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--modern-gradient);
+}
+
+.workflow-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.workflow-title {
+    font-size: .92rem;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.2;
+}
+
+.workflow-desc {
+    font-size: .78rem;
+    color: var(--muted);
+    margin-top: 5px;
+    line-height: 1.35;
+}
+
+.modern-section {
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at top right, var(--primary-soft), transparent 38%),
+        var(--surface);
+    box-shadow: var(--shadow);
+    padding: 18px;
+    margin-bottom: 16px;
+}
+
+.modern-section-title {
+    font-size: 1.08rem;
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 6px;
+}
+
+.modern-section-subtitle {
+    color: var(--muted);
+    font-size: .90rem;
+    line-height: 1.45;
+}
+
+.summary-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.clean-divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    margin: 14px 0;
+}
+
+.input-guide-card {
+    border: 1px dashed var(--border);
+    border-radius: 18px;
+    background: var(--surface2);
+    padding: 13px 15px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 14px;
+}
+
+.kpi-grid-modern {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr 1fr 1fr;
+    gap: 14px;
+    margin: 14px 0 16px 0;
+}
+
+.kpi-main {
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at top right, var(--primary-soft), transparent 42%),
+        var(--surface);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+    min-height: 150px;
+}
+
+.kpi-main .label {
+    color: var(--muted);
+    font-size: .85rem;
+    font-weight: 800;
+}
+
+.kpi-main .value {
+    color: var(--primary);
+    font-size: clamp(2.55rem, 5vw, 4rem);
+    font-weight: 950;
+    line-height: 1;
+    letter-spacing: -.07em;
+    margin-top: 8px;
+}
+
+.kpi-main .note {
+    color: var(--muted);
+    margin-top: 8px;
+    font-size: .86rem;
+}
+
+.kpi-small {
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    padding: 16px 17px;
+    min-height: 150px;
+}
+
+.kpi-small .label {
+    color: var(--muted);
+    font-size: .82rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.kpi-small .value {
+    color: var(--text);
+    font-size: 1.35rem;
+    font-weight: 900;
+    line-height: 1.15;
+}
+
+.kpi-small .note {
+    color: var(--muted);
+    margin-top: 8px;
+    font-size: .78rem;
+}
+
+.systematic-note {
+    border: 1px solid var(--border);
+    border-left: 6px solid var(--primary);
+    border-radius: 18px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+    line-height: 1.55;
+    color: var(--text);
+}
+
+.sidebar-flow {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    margin-bottom: 12px;
+}
+
+.sidebar-flow-item {
+    font-size: .86rem;
+    color: var(--muted);
+    margin: 8px 0;
+    line-height: 1.35;
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 42px;
+}
+
+.stTabs [data-baseweb="tab-list"] {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px;
+    background: var(--surface2);
+}
+
+.stTabs [data-baseweb="tab-highlight"] {
+    background: transparent !important;
+}
+
+/* More polished dataframe spacing */
+div[data-testid="stDataFrame"] {
+    margin-top: 8px;
+    margin-bottom: 14px;
+}
+
+/* Mobile improvements */
+@media (max-width: 1180px) {
+    .workflow-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .kpi-grid-modern {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .kpi-main {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 760px) {
+    .workflow-strip {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .workflow-step {
+        min-height: auto;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        column-gap: 10px;
+        align-items: center;
+    }
+
+    .workflow-number {
+        margin-bottom: 0;
+        grid-row: span 2;
+    }
+
+    .workflow-desc {
+        margin-top: 2px;
+    }
+
+    .kpi-grid-modern {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .kpi-main {
+        grid-column: span 1;
+        min-height: auto;
+    }
+
+    .kpi-small {
+        min-height: auto;
+    }
+
+    .stTabs [data-baseweb="tab-list"] {
+        border-radius: 18px;
+        padding: 5px;
     }
 }
 
@@ -2060,8 +2349,9 @@ st.markdown(
 <div class="hero">
     <div class="hero-title">🐄 Sistem Penilaian Ternak Pro</div>
     <div class="hero-subtitle">
-        Evaluasi sapi, kerbau, kambing, domba, dan ayam lokal Indonesia berdasarkan faktor kuantitatif,
-        kualitatif, kesehatan, ekonomi, mode pengguna, serta pembanding SNI/acuan minimum yang bisa diedit.
+        Dashboard evaluasi ternak yang sistematis, modern, dan responsif untuk sapi, kerbau,
+        kambing, domba, serta ayam lokal Indonesia. Penilaian mencakup kuantitatif, kualitatif,
+        kesehatan, ekonomi, risiko transaksi, mode pengguna, dan pembanding SNI/acuan yang dapat diedit.
     </div>
     <div style="margin-top:14px;">
         <span class="badge badge-primary">📊 Skor 100</span>
@@ -2078,6 +2368,19 @@ st.markdown(
 
 st.sidebar.markdown("### 🐄 Evaluasi Ternak Pro")
 st.sidebar.caption("Panel kontrol evaluasi ternak")
+st.sidebar.markdown(
+    """
+<div class="sidebar-flow">
+    <strong>Alur sistematis</strong>
+    <div class="sidebar-flow-item">① Input identitas & tujuan</div>
+    <div class="sidebar-flow-item">② Isi ukuran & fenotipe</div>
+    <div class="sidebar-flow-item">③ Lengkapi kesehatan & dokumen</div>
+    <div class="sidebar-flow-item">④ Analisis SNI, risiko, dan ekonomi</div>
+    <div class="sidebar-flow-item">⑤ Simpan laporan & riwayat</div>
+</div>
+""",
+    unsafe_allow_html=True,
+)
 st.sidebar.markdown("---")
 
 with st.sidebar.expander("Cara pakai", expanded=True):
@@ -2095,13 +2398,13 @@ st.sidebar.warning("Hasil adalah alat bantu. Untuk sertifikasi resmi, gunakan do
 
 tab_input, tab_result, tab_sni, tab_economy, tab_history, tab_report, tab_guide = st.tabs(
     [
-        "📝 Input",
-        "📊 Hasil",
-        "🇮🇩 SNI/Acuan",
-        "💰 Ekonomi",
-        "📈 Riwayat",
-        "📄 Laporan",
-        "📘 Panduan",
+        "① Input",
+        "② Hasil",
+        "③ SNI/Acuan",
+        "④ Ekonomi",
+        "⑤ Riwayat",
+        "⑥ Laporan",
+        "Panduan",
     ]
 )
 
@@ -2111,6 +2414,24 @@ tab_input, tab_result, tab_sni, tab_economy, tab_history, tab_report, tab_guide 
 # =========================================================
 
 with tab_input:
+    st.markdown(
+        """
+<div class="modern-section">
+    <div class="modern-section-title">📝 Input Evaluasi Ternak</div>
+    <div class="modern-section-subtitle">
+        Isi data secara berurutan. Aplikasi akan menyesuaikan form antara ruminansia dan ayam lokal,
+        lalu menghitung skor dasar, skor sesuai tujuan, risiko transaksi, SNI/acuan, ekonomi, dan rekomendasi akhir.
+    </div>
+    <div class="summary-chip-row">
+        <span class="badge badge-primary">Form adaptif</span>
+        <span class="badge">Validasi kelengkapan</span>
+        <span class="badge">Foto dokumentasi</span>
+        <span class="badge">Red flags otomatis</span>
+    </div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
     st.subheader("Input Identitas dan Tujuan")
 
     c1, c2, c3 = st.columns(3)
@@ -2776,34 +3097,33 @@ with tab_result:
         with st.expander("Lihat item data yang belum lengkap", expanded=False):
             st.write(", ".join(missing_items))
 
-    r1, r2, r3, r4 = st.columns(4)
-
-    with r1:
-        st.markdown(
-            f"""
-<div class="metric-card">
-<div class="muted">Skor Dasar</div>
-<div class="big-score">{total_score:.1f}</div>
-<div class="muted">dari 100</div>
+    st.markdown(
+        f"""
+<div class="kpi-grid-modern">
+    <div class="kpi-main">
+        <div class="label">Skor Sesuai Tujuan</div>
+        <div class="value">{purpose_score:.1f}</div>
+        <div class="note">Skor akhir berbasis mode <strong>{mode}</strong></div>
+    </div>
+    <div class="kpi-small">
+        <div class="label">Skor Dasar</div>
+        <div class="value">{total_score:.1f}/100</div>
+        <div class="note">Penilaian umum ternak</div>
+    </div>
+    <div class="kpi-small">
+        <div class="label">Risiko Transaksi</div>
+        <div class="value">{risk_status}</div>
+        <div class="note">{risk_score:.1f}/100</div>
+    </div>
+    <div class="kpi-small">
+        <div class="label">SNI/Acuan</div>
+        <div class="value">{sni_percent_calc:.1f}%</div>
+        <div class="note">{sni_status_calc}</div>
+    </div>
 </div>
 """,
-            unsafe_allow_html=True,
-        )
-
-    with r2:
-        st.markdown(
-            f"""
-<div class="metric-card">
-<div class="muted">Skor Sesuai Tujuan</div>
-<div class="big-score">{purpose_score:.1f}</div>
-<div class="muted">berbasis mode {mode}</div>
-</div>
-""",
-            unsafe_allow_html=True,
-        )
-
-    r3.metric("Risiko transaksi", risk_status, f"{risk_score:.1f}/100")
-    r4.metric("Kesesuaian SNI/acuan", f"{sni_percent_calc:.1f}%")
+        unsafe_allow_html=True,
+    )
 
     r5, r6, r7, r8 = st.columns(4)
     r5.metric("Estimasi/aktual bobot", f"{weight:.2f} kg")
@@ -3123,6 +3443,12 @@ with tab_guide:
 
     st.markdown(
         """
+### Prinsip desain sistematis dan modern
+
+Aplikasi ini disusun sebagai alur kerja berurutan: **Input → Hasil → SNI/Acuan → Ekonomi → Riwayat → Laporan**.
+Tampilan sudah dioptimalkan untuk desktop dan HP melalui kartu responsif, tab horizontal, grid adaptif,
+ringkasan eksekutif, red flags, dan export laporan.
+
 ### Fitur yang sudah ditambahkan
 
 | Fitur | Fungsi |
@@ -3181,7 +3507,7 @@ Pembanding SNI/acuan pada aplikasi bukan sertifikasi resmi. Untuk keputusan bibi
 st.markdown(
     """
 <div class="custom-footer">
-    Sistem Penilaian Ternak Pro • Evaluasi kuantitatif, kualitatif, ekonomi, risiko, dan acuan standar • Developed by Galuh Adi Insani
+    Sistem Penilaian Ternak Modern • Evaluasi kuantitatif, kualitatif, ekonomi, risiko, dan acuan standar • Developed by Galuh Adi Insani
 </div>
 """,
     unsafe_allow_html=True,
