@@ -32,80 +32,412 @@ st.set_page_config(
 
 CUSTOM_CSS = """
 <style>
+/* =========================================================
+   THEME-AWARE DESIGN SYSTEM
+   Works better in Streamlit light and dark mode.
+   ========================================================= */
+
 :root {
-    --card-radius: 18px;
+    color-scheme: light dark;
+
+    --app-bg-1: #f8fafc;
+    --app-bg-2: #eef2ff;
+    --app-bg-3: #ecfeff;
+
+    --surface: rgba(255, 255, 255, 0.88);
+    --surface-soft: rgba(255, 255, 255, 0.68);
+    --surface-strong: rgba(255, 255, 255, 0.96);
+
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --text-soft: #64748b;
+
+    --border: rgba(15, 23, 42, 0.12);
+    --border-strong: rgba(15, 23, 42, 0.18);
+
+    --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.08);
+    --shadow-md: 0 16px 40px rgba(15, 23, 42, 0.12);
+
+    --primary: #2563eb;
+    --primary-soft: rgba(37, 99, 235, 0.12);
+
+    --good: #16a34a;
+    --good-soft: rgba(22, 163, 74, 0.12);
+
+    --warning: #d97706;
+    --warning-soft: rgba(217, 119, 6, 0.14);
+
+    --danger: #dc2626;
+    --danger-soft: rgba(220, 38, 38, 0.12);
+
+    --info: #2563eb;
+    --info-soft: rgba(37, 99, 235, 0.12);
+
+    --card-radius: 20px;
+    --pill-radius: 999px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --app-bg-1: #020617;
+        --app-bg-2: #0f172a;
+        --app-bg-3: #111827;
+
+        --surface: rgba(15, 23, 42, 0.78);
+        --surface-soft: rgba(15, 23, 42, 0.58);
+        --surface-strong: rgba(15, 23, 42, 0.94);
+
+        --text-main: #e5e7eb;
+        --text-muted: #cbd5e1;
+        --text-soft: #94a3b8;
+
+        --border: rgba(226, 232, 240, 0.14);
+        --border-strong: rgba(226, 232, 240, 0.22);
+
+        --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.26);
+        --shadow-md: 0 18px 48px rgba(0, 0, 0, 0.34);
+
+        --primary: #60a5fa;
+        --primary-soft: rgba(96, 165, 250, 0.16);
+
+        --good: #4ade80;
+        --good-soft: rgba(74, 222, 128, 0.14);
+
+        --warning: #fbbf24;
+        --warning-soft: rgba(251, 191, 36, 0.16);
+
+        --danger: #f87171;
+        --danger-soft: rgba(248, 113, 113, 0.15);
+
+        --info: #60a5fa;
+        --info-soft: rgba(96, 165, 250, 0.16);
+    }
+}
+
+/* Streamlit base */
+.stApp {
+    background:
+        radial-gradient(circle at top left, var(--app-bg-2) 0, transparent 36%),
+        radial-gradient(circle at top right, var(--app-bg-3) 0, transparent 34%),
+        linear-gradient(135deg, var(--app-bg-1), var(--app-bg-2));
+    color: var(--text-main);
 }
 
 .main .block-container {
-    padding-top: 1.2rem;
-    padding-bottom: 2rem;
+    padding-top: 1.25rem;
+    padding-bottom: 2.25rem;
+    max-width: 1280px;
 }
 
+/* Better global text contrast */
+h1, h2, h3, h4, h5, h6,
+p, li, label, span, div {
+    color: inherit;
+}
+
+small, .small-text, .caption-text {
+    color: var(--text-soft);
+}
+
+/* Hero header */
+.app-hero {
+    border-radius: 28px;
+    padding: 28px 30px;
+    margin-bottom: 18px;
+    border: 1px solid var(--border);
+    background:
+        linear-gradient(135deg, var(--surface-strong), var(--surface-soft)),
+        radial-gradient(circle at top right, var(--primary-soft), transparent 42%);
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(18px);
+}
+
+.app-hero-title {
+    font-size: clamp(1.75rem, 2.5vw, 2.7rem);
+    font-weight: 850;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+
+.app-hero-subtitle {
+    font-size: 1rem;
+    color: var(--text-muted);
+    max-width: 880px;
+    line-height: 1.62;
+}
+
+.hero-chip-row {
+    margin-top: 16px;
+}
+
+/* Cards */
 .metric-card {
     border-radius: var(--card-radius);
-    padding: 18px 20px;
-    border: 1px solid rgba(128, 128, 128, 0.22);
-    background: rgba(255, 255, 255, 0.06);
-    box-shadow: 0 8px 26px rgba(0,0,0,0.06);
+    padding: 20px 22px;
+    border: 1px solid var(--border);
+    background:
+        linear-gradient(180deg, var(--surface-strong), var(--surface));
+    box-shadow: var(--shadow-sm);
     height: 100%;
+    backdrop-filter: blur(14px);
+}
+
+.metric-card:hover,
+.insight-card:hover,
+.section-note:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+    transition: all 160ms ease;
 }
 
 .insight-card {
     border-radius: var(--card-radius);
     padding: 18px 20px;
-    border-left: 6px solid #888;
-    background: rgba(128, 128, 128, 0.08);
+    border: 1px solid var(--border);
+    border-left: 7px solid var(--info);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
     margin-bottom: 14px;
+    line-height: 1.58;
+    color: var(--text-main);
+}
+
+.insight-card strong {
+    color: var(--text-main);
+    font-size: 1.02rem;
 }
 
 .good {
-    border-left-color: #16a34a;
+    border-left-color: var(--good);
+    background:
+        linear-gradient(90deg, var(--good-soft), transparent 34%),
+        var(--surface);
 }
 
 .warning {
-    border-left-color: #f59e0b;
+    border-left-color: var(--warning);
+    background:
+        linear-gradient(90deg, var(--warning-soft), transparent 34%),
+        var(--surface);
 }
 
 .danger {
-    border-left-color: #dc2626;
+    border-left-color: var(--danger);
+    background:
+        linear-gradient(90deg, var(--danger-soft), transparent 34%),
+        var(--surface);
 }
 
 .info {
-    border-left-color: #2563eb;
+    border-left-color: var(--info);
+    background:
+        linear-gradient(90deg, var(--info-soft), transparent 34%),
+        var(--surface);
+}
+
+.section-note {
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    color: var(--text-main);
+    line-height: 1.56;
 }
 
 .small-text {
     font-size: 0.88rem;
-    opacity: 0.85;
+    color: var(--text-soft);
 }
 
 .big-score {
-    font-size: 3rem;
-    font-weight: 800;
+    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    font-weight: 900;
     line-height: 1;
+    letter-spacing: -0.05em;
+    color: var(--primary);
 }
 
 .badge {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 999px;
-    border: 1px solid rgba(128,128,128,0.35);
-    background: rgba(128,128,128,0.10);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border-radius: var(--pill-radius);
+    border: 1px solid var(--border);
+    background: var(--surface-soft);
+    color: var(--text-muted);
     font-size: 0.88rem;
-    margin-right: 6px;
-    margin-bottom: 6px;
+    font-weight: 650;
+    margin-right: 7px;
+    margin-bottom: 8px;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
 }
 
-.section-note {
-    padding: 12px 14px;
-    border-radius: 14px;
-    border: 1px solid rgba(128,128,128,0.25);
-    background: rgba(128,128,128,0.07);
+.badge-primary {
+    color: var(--primary);
+    background: var(--primary-soft);
+    border-color: color-mix(in srgb, var(--primary) 28%, transparent);
 }
 
+.badge-good {
+    color: var(--good);
+    background: var(--good-soft);
+    border-color: color-mix(in srgb, var(--good) 28%, transparent);
+}
+
+.badge-warning {
+    color: var(--warning);
+    background: var(--warning-soft);
+    border-color: color-mix(in srgb, var(--warning) 28%, transparent);
+}
+
+/* Streamlit widgets */
+div[data-testid="stMetric"] {
+    border-radius: var(--card-radius);
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+}
+
+div[data-testid="stMetric"] label,
+div[data-testid="stMetric"] div {
+    color: var(--text-main);
+}
+
+div[data-testid="stMetric"] label {
+    color: var(--text-muted);
+}
+
+/* Inputs */
+.stTextInput input,
+.stNumberInput input,
+.stTextArea textarea,
+.stSelectbox div[data-baseweb="select"] > div,
+.stMultiSelect div[data-baseweb="select"] > div {
+    border-radius: 14px !important;
+    border-color: var(--border-strong) !important;
+    background-color: var(--surface-strong) !important;
+    color: var(--text-main) !important;
+}
+
+.stTextArea textarea {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    line-height: 1.55;
+}
+
+/* Buttons */
+.stButton button,
+.stDownloadButton button {
+    border-radius: 14px !important;
+    border: 1px solid var(--border-strong) !important;
+    background: linear-gradient(180deg, var(--surface-strong), var(--surface)) !important;
+    color: var(--text-main) !important;
+    box-shadow: var(--shadow-sm);
+    font-weight: 700;
+}
+
+.stButton button:hover,
+.stDownloadButton button:hover {
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+    transform: translateY(-1px);
+}
+
+/* Tabs */
+button[data-baseweb="tab"] {
+    border-radius: 999px !important;
+    padding: 8px 14px !important;
+    margin-right: 6px !important;
+    color: var(--text-muted) !important;
+}
+
+button[data-baseweb="tab"][aria-selected="true"] {
+    background: var(--primary-soft) !important;
+    color: var(--primary) !important;
+    font-weight: 800 !important;
+}
+
+/* Dataframe and tables */
+div[data-testid="stDataFrame"] {
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+table {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+thead tr th {
+    background: var(--surface-strong) !important;
+    color: var(--text-main) !important;
+}
+
+tbody tr td {
+    color: var(--text-main) !important;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background:
+        linear-gradient(180deg, var(--surface-strong), var(--surface)) !important;
+    border-right: 1px solid var(--border);
+}
+
+section[data-testid="stSidebar"] * {
+    color: var(--text-main);
+}
+
+/* Expander */
+.streamlit-expanderHeader {
+    border-radius: 14px !important;
+    color: var(--text-main) !important;
+}
+
+/* Alerts readability */
+div[data-testid="stAlert"] {
+    border-radius: 16px;
+    border: 1px solid var(--border);
+}
+
+/* Progress */
+.stProgress > div > div {
+    border-radius: 999px;
+}
+
+/* Divider */
 hr {
-    margin-top: 1.2rem;
-    margin-bottom: 1.2rem;
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    border-color: var(--border);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .main .block-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .app-hero {
+        padding: 22px 20px;
+        border-radius: 22px;
+    }
+
+    .metric-card {
+        padding: 16px 18px;
+    }
+
+    .insight-card {
+        padding: 15px 16px;
+    }
 }
 </style>
 """
@@ -2485,8 +2817,8 @@ if "records" not in st.session_state:
 # SIDEBAR
 # =========================================================
 
-st.sidebar.title("🐄 Sistem Penilaian Ternak")
-st.sidebar.caption("Kuantitatif + kualitatif berbasis jenis dan bangsa.")
+st.sidebar.title("🐄 Evaluasi Ternak")
+st.sidebar.caption("Kuantitatif, kualitatif, fenotipe, ekonomi, dan pembanding SNI.")
 
 with st.sidebar.expander("Cara pakai singkat", expanded=True):
     st.write(
@@ -2507,9 +2839,23 @@ st.sidebar.warning(
 # HEADER
 # =========================================================
 
-st.title("🐄 Sistem Penilaian Ternak Berbasis Kuantitatif & Kualitatif")
-st.caption(
-    "Menilai ternak berdasarkan jenis, bangsa, ukuran tubuh, BCS, kesehatan, ciri fenotipe, dan tujuan pasar."
+st.markdown(
+    """
+<div class="app-hero">
+    <div class="app-hero-title">🐄 Sistem Penilaian Ternak Berbasis Kuantitatif, Kualitatif & SNI</div>
+    <div class="app-hero-subtitle">
+        Menilai sapi, kerbau, kambing, domba, dan ayam lokal Indonesia berdasarkan ukuran tubuh,
+        BCS, kesehatan, ciri fenotipe, tujuan pasar, serta pembanding acuan SNI yang dapat diedit.
+    </div>
+    <div class="hero-chip-row">
+        <span class="badge badge-primary">📊 Skor 100</span>
+        <span class="badge badge-good">🧬 Ciri bangsa</span>
+        <span class="badge badge-warning">🇮🇩 Pembanding SNI</span>
+        <span class="badge">🌗 Light/Dark ready</span>
+    </div>
+</div>
+""",
+    unsafe_allow_html=True,
 )
 
 
@@ -2532,6 +2878,15 @@ tab_input, tab_result, tab_pheno, tab_sni, tab_compare, tab_prompt, tab_guide = 
 
 with tab_input:
     st.subheader("Input Identitas Ternak")
+    st.markdown(
+        """
+<div class="section-note">
+Isi data dari atas ke bawah. Untuk ruminansia, bobot dihitung dari lingkar dada dan panjang badan.
+Untuk ayam lokal Indonesia, bobot dimasukkan langsung dari hasil timbang agar evaluasi lebih realistis.
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
     col_a, col_b, col_c = st.columns(3)
 
@@ -2905,7 +3260,18 @@ additional_feed_cost = days_to_desired * feed_cost_per_day
 # =========================================================
 
 with tab_result:
-    st.subheader("Hasil Penilaian")
+    st.subheader("Ringkasan Hasil Penilaian")
+
+    status_badge_class = "badge-good" if category in ["Sangat Layak", "Layak"] else ("badge-warning" if category == "Perlu Perbaikan" else "")
+    st.markdown(
+        f"""
+<span class="badge {{status_badge_class}}">Kategori: {category}</span>
+<span class="badge badge-primary">Jenis: {species}</span>
+<span class="badge">Bangsa: {breed}</span>
+<span class="badge">Tujuan: {purpose}</span>
+""",
+        unsafe_allow_html=True,
+    )
 
     col1, col2, col3, col4 = st.columns(4)
 
@@ -3651,6 +4017,16 @@ lingkar skrotum, panjang telinga, serta ciri reproduksi.
 Aplikasi ini menggunakan estimasi berbasis ukuran tubuh, ciri visual, dan parameter umum. 
 Hasil dapat berbeda dengan timbangan aktual, kondisi pasar, kualitas pakan, kesehatan tersembunyi, 
 umur sebenarnya, kemurnian bangsa, dokumen SNI terbaru, dan standar lokal masing-masing daerah.
+"""
+    )
+
+    st.markdown("---")
+    st.subheader("Catatan Tampilan")
+    st.markdown(
+        """
+Aplikasi sudah menggunakan desain adaptif untuk **light mode** dan **dark mode**.
+Warna kartu, tabel, input, badge status, dan insight dibuat menggunakan variabel tema agar tetap terbaca
+baik saat Streamlit memakai tema terang maupun gelap.
 """
     )
 
