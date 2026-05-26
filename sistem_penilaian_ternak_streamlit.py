@@ -1053,6 +1053,214 @@ def sni_compare(thresholds, weight, height, length, girth, bcs, pheno_score, hea
     return df, percent, status
 
 
+
+def score_checklist(checks, max_score):
+    if not checks:
+        return 0
+    return round((sum(1 for value in checks.values() if value) / len(checks)) * max_score, 1)
+
+
+def score_dental_age(kind, age_months, dental_status):
+    if kind == "poultry":
+        return 10, "Tidak digunakan untuk ayam", "Ayam tidak dievaluasi dengan status poel/gigi."
+
+    mapping = {
+        "Gigi susu / belum poel": (0, 18),
+        "Poel 1": (18, 30),
+        "Poel 2": (30, 42),
+        "Poel 3": (42, 54),
+        "Poel 4": (54, 72),
+        "Gigi mulai aus": (72, 120),
+        "Gigi tua/aus berat": (96, 240),
+        "Tidak diperiksa": (0, 240),
+    }
+
+    low, high = mapping.get(dental_status, (0, 240))
+
+    if dental_status == "Tidak diperiksa":
+        return 5, "Belum pasti", "Umur berdasarkan gigi belum diperiksa."
+
+    if low <= age_months <= high:
+        return 10, "Sesuai", f"Umur input relatif sesuai dengan status gigi {dental_status}."
+
+    if abs(age_months - low) <= 8 or abs(age_months - high) <= 8:
+        return 7, "Mendekati", f"Umur input masih mendekati status gigi {dental_status}."
+
+    return 3, "Tidak sesuai", "Ada indikasi umur input tidak sejalan dengan kondisi gigi. Perlu verifikasi langsung."
+
+
+def calculate_actual_adg(current_weight, previous_weight, days_interval):
+    if previous_weight <= 0 or days_interval <= 0:
+        return None
+    return round((current_weight - previous_weight) / days_interval, 3)
+
+
+def score_actual_adg(actual_adg, expected_adg):
+    if actual_adg is None:
+        return 5, "Belum ada data", "ADG aktual belum dihitung karena data bobot awal/tanggal belum lengkap."
+
+    if actual_adg >= expected_adg:
+        return 10, "Sangat baik", f"ADG aktual {actual_adg:.3f} kg/hari mencapai atau melebihi acuan {expected_adg:.3f} kg/hari."
+
+    if actual_adg >= expected_adg * 0.75:
+        return 8, "Baik", f"ADG aktual {actual_adg:.3f} kg/hari masih mendekati target."
+
+    if actual_adg >= expected_adg * 0.5:
+        return 5, "Rendah", f"ADG aktual {actual_adg:.3f} kg/hari masih rendah. Evaluasi pakan dan kesehatan."
+
+    return 2, "Sangat rendah", f"ADG aktual {actual_adg:.3f} kg/hari jauh di bawah target."
+
+
+def score_reproduction(kind, sex, purpose, mode, repro_checks):
+    if kind == "poultry":
+        return score_checklist(repro_checks, 10), "Reproduksi unggas dinilai dari kesiapan produksi/telur dan kondisi fisik."
+
+    if purpose != "Bibit / Breeding" and mode != "Pembibit":
+        return 7, "Mode bukan pembibit, skor reproduksi tidak dibuat dominan."
+
+    return score_checklist(repro_checks, 10), "Skor reproduksi penting untuk mode pembibit."
+
+
+def calculate_risk_score(
+    health_history_score,
+    vaccine_score,
+    foot_score,
+    document_score,
+    dental_score,
+    sni_percent,
+    pheno_score,
+    market_price_status,
+):
+    risk = 0
+
+    risk += max(0, 10 - health_history_score) * 2.0
+    risk += max(0, 10 - vaccine_score) * 1.5
+    risk += max(0, 10 - foot_score) * 1.5
+    risk += max(0, 10 - document_score) * 1.2
+    risk += max(0, 10 - dental_score) * 1.0
+
+    if sni_percent < 70:
+        risk += 15
+    elif sni_percent < 85:
+        risk += 8
+
+    if pheno_score < 8:
+        risk += 12
+    elif pheno_score < 11:
+        risk += 6
+
+    if market_price_status == "Terlalu mahal":
+        risk += 15
+    elif market_price_status == "Agak mahal":
+        risk += 8
+
+    risk = round(clamp(risk, 0, 100), 1)
+
+    if risk < 30:
+        status = "Risiko rendah"
+    elif risk < 60:
+        status = "Risiko sedang"
+    else:
+        status = "Risiko tinggi"
+
+    return risk, status
+
+
+def classify_market_price(offer_price, market_min, market_avg, market_max):
+    if offer_price <= 0 or market_avg <= 0:
+        return "Belum dinilai", "Masukkan harga penawaran dan harga pasar untuk menilai kewajaran harga."
+
+    if market_max > 0 and offer_price > market_max:
+        return "Terlalu mahal", "Harga penawaran berada di atas harga pasar maksimum."
+
+    if offer_price > market_avg * 1.08:
+        return "Agak mahal", "Harga penawaran di atas rata-rata pasar. Perlu negosiasi."
+
+    if market_min > 0 and offer_price < market_min:
+        return "Murah/di bawah pasar", "Harga lebih rendah dari pasar minimum. Periksa kemungkinan risiko tersembunyi."
+
+    return "Wajar", "Harga penawaran masih dalam rentang wajar."
+
+
+def purpose_weighted_score(
+    base_score,
+    sni_percent,
+    economic_profit,
+    risk_score,
+    mode,
+    purpose,
+    pheno_score,
+    health_score,
+    carcass_score,
+    reproduction_score,
+    poultry_special_score,
+):
+    economic_score = 10 if economic_profit > 0 else 5 if economic_profit == 0 else 2
+    risk_component = max(0, 10 - risk_score / 10)
+
+    if mode == "Jagal" or purpose == "Jagal":
+        weighted = (
+            base_score * 0.45
+            + health_score / 15 * 100 * 0.15
+            + carcass_score * 10 * 0.25
+            + risk_component * 10 * 0.15
+        )
+    elif mode == "Blantik / Jual Beli":
+        weighted = (
+            base_score * 0.35
+            + economic_score * 10 * 0.30
+            + risk_component * 10 * 0.25
+            + pheno_score / 15 * 100 * 0.10
+        )
+    elif mode == "Pembibit" or purpose == "Bibit / Breeding":
+        weighted = (
+            base_score * 0.30
+            + sni_percent * 0.25
+            + pheno_score / 15 * 100 * 0.20
+            + reproduction_score * 10 * 0.15
+            + health_score / 15 * 100 * 0.10
+        )
+    elif mode == "Ayam Lokal" or purpose in ["Petelur", "Hias / Kontes", "Pelestarian Rumpun"]:
+        weighted = (
+            base_score * 0.35
+            + pheno_score / 15 * 100 * 0.25
+            + poultry_special_score * 10 * 0.20
+            + health_score / 15 * 100 * 0.10
+            + risk_component * 10 * 0.10
+        )
+    else:
+        weighted = (
+            base_score * 0.45
+            + health_score / 15 * 100 * 0.20
+            + economic_score * 10 * 0.15
+            + sni_percent * 0.10
+            + risk_component * 10 * 0.10
+        )
+
+    return round(clamp(weighted, 0, 100), 1)
+
+
+def advanced_decision(final_score, risk_status, mode, purpose):
+    if risk_status == "Risiko tinggi":
+        return "❌ Tunda atau hindari transaksi besar. Risiko masih tinggi."
+
+    if final_score >= 85:
+        if mode == "Pembibit" or purpose == "Bibit / Breeding":
+            return "✅ Sangat layak sebagai kandidat bibit, lanjutkan verifikasi reproduksi dan dokumen."
+        if mode == "Jagal":
+            return "✅ Sangat layak untuk potong, cek harga akhir dan kondisi karkas."
+        if mode == "Blantik / Jual Beli":
+            return "✅ Layak untuk transaksi, margin dan risiko relatif aman."
+        return "✅ Sangat layak dipelihara atau dibeli."
+
+    if final_score >= 70:
+        return "⚠️ Layak bersyarat. Perlu negosiasi harga dan pemeriksaan lapangan."
+
+    if final_score >= 55:
+        return "⚠️ Perlu perbaikan 7–30 hari sebelum dijadikan pilihan utama."
+
+    return "❌ Tidak disarankan untuk harga premium atau keputusan besar."
+
 def make_insights(
     kind,
     species,
@@ -1349,7 +1557,159 @@ with tab_input:
         "Parasit": check_parasite,
     }
 
-    st.success("Input selesai. Buka tab Hasil, SNI/Acuan, dan Ekonomi.")
+    st.markdown("---")
+    st.subheader("Evaluasi Lanjutan sebagai Acuan Lapangan")
+
+    with st.expander("1. Umur berdasarkan gigi / fase biologis", expanded=False):
+        if kind == "poultry":
+            dental_status = "Tidak digunakan untuk ayam"
+            st.info("Ayam tidak memakai penilaian poel/gigi. Gunakan umur minggu/bulan dan fase produksi.")
+        else:
+            dental_status = st.selectbox(
+                "Status gigi",
+                [
+                    "Tidak diperiksa",
+                    "Gigi susu / belum poel",
+                    "Poel 1",
+                    "Poel 2",
+                    "Poel 3",
+                    "Poel 4",
+                    "Gigi mulai aus",
+                    "Gigi tua/aus berat",
+                ],
+            )
+
+    with st.expander("2. Kaki, kuku, dan postur berdiri", expanded=False):
+        foot_front = st.checkbox("Kaki depan lurus/normal", True)
+        foot_back = st.checkbox("Kaki belakang normal", True)
+        hoof_normal = st.checkbox("Kuku/shank tidak bermasalah", True)
+        joint_normal = st.checkbox("Tidak ada bengkak sendi", True)
+        stand_balance = st.checkbox("Postur berdiri seimbang", True)
+
+        foot_checks = {
+            "Kaki depan": foot_front,
+            "Kaki belakang": foot_back,
+            "Kuku/shank": hoof_normal,
+            "Sendi": joint_normal,
+            "Postur berdiri": stand_balance,
+        }
+
+    with st.expander("3. Reproduksi / bibit", expanded=False):
+        if kind == "poultry":
+            repro_1 = st.checkbox("Kondisi tubuh mendukung produksi", True)
+            repro_2 = st.checkbox("Untuk betina: area kloaka/perut tampak normal", True)
+            repro_3 = st.checkbox("Untuk jantan: postur dan vitalitas baik", True)
+            repro_4 = st.checkbox("Tidak tampak cacat reproduksi", True)
+            repro_5 = st.checkbox("Riwayat produksi/telur/suara tersedia atau dapat diamati", False)
+        elif sex == "Betina":
+            repro_1 = st.checkbox("Pernah/siap reproduksi sesuai umur", True)
+            repro_2 = st.checkbox("Ambing dan puting normal", True)
+            repro_3 = st.checkbox("Tidak tampak mastitis/luka ambing", True)
+            repro_4 = st.checkbox("Riwayat birahi/kawin diketahui", False)
+            repro_5 = st.checkbox("Tidak tampak gangguan reproduksi", True)
+        else:
+            repro_1 = st.checkbox("Testis/skrotum tampak normal", True)
+            repro_2 = st.checkbox("Testis simetris", True)
+            repro_3 = st.checkbox("Libido/aktivitas jantan baik", False)
+            repro_4 = st.checkbox("Kaki kuat untuk kawin", True)
+            repro_5 = st.checkbox("Tidak tampak cacat reproduksi", True)
+
+        repro_checks = {
+            "Repro 1": repro_1,
+            "Repro 2": repro_2,
+            "Repro 3": repro_3,
+            "Repro 4": repro_4,
+            "Repro 5": repro_5,
+        }
+
+    with st.expander("4. Riwayat kesehatan, vaksin, dan biosekuriti", expanded=False):
+        no_sick_history = st.checkbox("Tidak ada riwayat sakit berat", True)
+        no_diarrhea_history = st.checkbox("Tidak ada riwayat diare berat", True)
+        no_cough_history = st.checkbox("Tidak ada riwayat batuk/napas berat", True)
+        dewormed = st.checkbox("Sudah obat cacing/antisipasi parasit", False)
+        vaccinated = st.checkbox("Vaksin sesuai kebutuhan wilayah/jenis ternak", False)
+        quarantined = st.checkbox("Karantina setelah masuk kandang", False)
+        clean_pen = st.checkbox("Kandang bersih dan ventilasi baik", True)
+
+        health_history_checks = {
+            "Tidak sakit berat": no_sick_history,
+            "Tidak diare berat": no_diarrhea_history,
+            "Tidak batuk berat": no_cough_history,
+        }
+
+        vaccine_biosecurity_checks = {
+            "Obat cacing": dewormed,
+            "Vaksin": vaccinated,
+            "Karantina": quarantined,
+            "Kandang baik": clean_pen,
+        }
+
+    with st.expander("5. Pakan dan ADG aktual", expanded=False):
+        forage_ok = st.checkbox("Pakan utama/hijauan tersedia cukup", True)
+        concentrate_ok = st.checkbox("Konsentrat/pakan tambahan tersedia", False)
+        water_ok = st.checkbox("Air minum cukup dan bersih", True)
+        mineral_ok = st.checkbox("Mineral/vitamin tersedia", False)
+        appetite_feed_ok = st.checkbox("Nafsu makan stabil", True)
+
+        feed_checks = {
+            "Pakan utama": forage_ok,
+            "Konsentrat": concentrate_ok,
+            "Air": water_ok,
+            "Mineral/vitamin": mineral_ok,
+            "Nafsu makan": appetite_feed_ok,
+        }
+
+        previous_weight = st.number_input(
+            "Bobot awal/pengukuran sebelumnya (kg)",
+            min_value=0.0,
+            value=0.0,
+            step=0.1,
+            help="Isi 0 bila belum ada data.",
+        )
+
+        days_interval = st.number_input(
+            "Jarak hari dari bobot awal ke sekarang",
+            min_value=0,
+            value=0,
+            step=1,
+            help="Isi 0 bila belum ada data.",
+        )
+
+    with st.expander("6. Karkas, harga pasar, dokumen, dan faktor khusus ayam", expanded=False):
+        carcass_chest = st.slider("Isi dada / lebar dada", 1, 5, 3)
+        carcass_thigh = st.slider("Isi paha / otot belakang", 1, 5, 3)
+        carcass_back = st.slider("Punggung / kepadatan otot", 1, 5, 3)
+        carcass_fat = st.slider("Kesesuaian lemak", 1, 5, 3)
+
+        market_min_price = st.number_input("Harga pasar minimum total/ekor (Rp)", min_value=0, value=0, step=5000)
+        market_avg_price = st.number_input("Harga pasar rata-rata total/ekor (Rp)", min_value=0, value=0, step=5000)
+        market_max_price = st.number_input("Harga pasar maksimum total/ekor (Rp)", min_value=0, value=0, step=5000)
+        seller_offer_price = st.number_input("Harga penawaran penjual total/ekor (Rp)", min_value=0, value=0, step=5000)
+
+        doc_health = st.checkbox("Ada surat/keterangan kesehatan atau bukti pemeriksaan", False)
+        doc_origin = st.checkbox("Ada bukti asal ternak/rumpun", False)
+        doc_vaccine = st.checkbox("Ada catatan vaksin/obat", False)
+        doc_breeding = st.checkbox("Ada catatan induk-pejantan/produksi", False)
+
+        document_checks = {
+            "Kesehatan": doc_health,
+            "Asal ternak": doc_origin,
+            "Vaksin/obat": doc_vaccine,
+            "Induk/produksi": doc_breeding,
+        }
+
+        if kind == "poultry":
+            poultry_egg = st.slider("Potensi produksi telur / riwayat telur", 1, 5, 3)
+            poultry_color = st.slider("Kemurnian warna/ciri rumpun", 1, 5, 3)
+            poultry_voice = st.slider("Kualitas suara/kokok untuk rumpun penyanyi", 1, 5, 3)
+            poultry_uniform = st.slider("Keseragaman ukuran dan postur", 1, 5, 3)
+        else:
+            poultry_egg = 3
+            poultry_color = 3
+            poultry_voice = 3
+            poultry_uniform = 3
+
+    st.success("Input selesai. Buka tab Hasil, SNI/Acuan, Ekonomi, dan Laporan.")
 
 
 # =========================================================
@@ -1380,6 +1740,41 @@ total_score = round(
 )
 total_score = clamp(total_score, 0, 100)
 category, cat_style = classify_score(total_score)
+
+# Advanced evaluation calculations
+dental_score, dental_status_result, dental_note = score_dental_age(
+    kind,
+    age_months,
+    dental_status,
+)
+
+foot_score = score_checklist(foot_checks, 10)
+health_history_score = score_checklist(health_history_checks, 10)
+vaccine_biosecurity_score = score_checklist(vaccine_biosecurity_checks, 10)
+feed_score = score_checklist(feed_checks, 10)
+actual_adg = calculate_actual_adg(weight, previous_weight, days_interval)
+adg_score, adg_status, adg_note = score_actual_adg(actual_adg, data["adg"])
+reproduction_score, reproduction_note = score_reproduction(
+    kind,
+    sex,
+    purpose,
+    mode,
+    repro_checks,
+)
+
+carcass_score = round((carcass_chest + carcass_thigh + carcass_back + carcass_fat) / 4, 1)
+document_score = score_checklist(document_checks, 10)
+poultry_special_score = round(
+    (poultry_egg + poultry_color + poultry_voice + poultry_uniform) / 4,
+    1,
+)
+
+market_price_status, market_price_note = classify_market_price(
+    seller_offer_price,
+    market_min_price,
+    market_avg_price,
+    market_max_price,
+)
 
 # SNI thresholds default
 sni_default = data["sni"].copy()
@@ -1516,6 +1911,17 @@ sni_df_calc, sni_percent_calc, sni_status_calc = sni_compare(
     health_score,
 )
 
+risk_score, risk_status = calculate_risk_score(
+    health_history_score=health_history_score,
+    vaccine_score=vaccine_biosecurity_score,
+    foot_score=foot_score,
+    document_score=document_score,
+    dental_score=dental_score,
+    sni_percent=sni_percent_calc,
+    pheno_score=pheno_score,
+    market_price_status=market_price_status,
+)
+
 # These ekonomi variables might not exist before tab render in some cases,
 # so define safe defaults.
 if "buy_price" not in locals():
@@ -1541,7 +1947,21 @@ if "bep_price_per_kg" not in locals():
 if "max_buy_price" not in locals():
     max_buy_price = max(estimated_sell_value - total_operational_cost, 0)
 
-decision = final_decision(total_score, sni_percent_calc, health_score, purpose, mode, kind)
+purpose_score = purpose_weighted_score(
+    base_score=total_score,
+    sni_percent=sni_percent_calc,
+    economic_profit=profit,
+    risk_score=risk_score,
+    mode=mode,
+    purpose=purpose,
+    pheno_score=pheno_score,
+    health_score=health_score,
+    carcass_score=carcass_score,
+    reproduction_score=reproduction_score,
+    poultry_special_score=poultry_special_score,
+)
+
+decision = advanced_decision(purpose_score, risk_status, mode, purpose)
 
 insights = make_insights(
     kind,
@@ -1582,7 +2002,7 @@ with tab_result:
         st.markdown(
             f"""
 <div class="metric-card">
-<div class="muted">Skor Total</div>
+<div class="muted">Skor Dasar</div>
 <div class="big-score">{total_score:.1f}</div>
 <div class="muted">dari 100</div>
 </div>
@@ -1590,9 +2010,26 @@ with tab_result:
             unsafe_allow_html=True,
         )
 
-    r2.metric("Estimasi/aktual bobot", f"{weight:.2f} kg")
-    r3.metric("Kesesuaian SNI/acuan", f"{sni_percent_calc:.1f}%")
-    r4.metric("Estimasi karkas", f"{weight * data['dressing'] / 100:.2f} kg")
+    with r2:
+        st.markdown(
+            f"""
+<div class="metric-card">
+<div class="muted">Skor Sesuai Tujuan</div>
+<div class="big-score">{purpose_score:.1f}</div>
+<div class="muted">berbasis mode {mode}</div>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
+
+    r3.metric("Risiko transaksi", risk_status, f"{risk_score:.1f}/100")
+    r4.metric("Kesesuaian SNI/acuan", f"{sni_percent_calc:.1f}%")
+
+    r5, r6, r7, r8 = st.columns(4)
+    r5.metric("Estimasi/aktual bobot", f"{weight:.2f} kg")
+    r6.metric("Estimasi karkas", f"{weight * data['dressing'] / 100:.2f} kg")
+    r7.metric("ADG aktual", "-" if actual_adg is None else f"{actual_adg:.3f} kg/hari")
+    r8.metric("Status harga", market_price_status)
 
     st.markdown(
         f"""
@@ -1619,6 +2056,35 @@ with tab_result:
 
     st.dataframe(score_df, use_container_width=True, hide_index=True)
     st.progress(int(clamp(total_score, 0, 100)))
+
+    st.subheader("Skor Lanjutan sebagai Acuan Evaluasi")
+    advanced_df = pd.DataFrame(
+        [
+            ["Umur berdasarkan gigi/fase", dental_score, 10, dental_status_result],
+            ["Kaki, kuku, dan postur", foot_score, 10, "-"],
+            ["Reproduksi/bibit", reproduction_score, 10, reproduction_note],
+            ["Riwayat kesehatan", health_history_score, 10, "-"],
+            ["Vaksin dan biosekuriti", vaccine_biosecurity_score, 10, "-"],
+            ["Pakan", feed_score, 10, "-"],
+            ["ADG aktual", adg_score, 10, adg_status],
+            ["Karkas/otot", carcass_score, 5, "-"],
+            ["Dokumen pendukung", document_score, 10, "-"],
+            ["Faktor khusus ayam", poultry_special_score, 5, "-" if kind == "poultry" else "Tidak dominan"],
+        ],
+        columns=["Komponen Lanjutan", "Skor", "Maksimum", "Catatan"],
+    )
+    st.dataframe(advanced_df, use_container_width=True, hide_index=True)
+
+    st.markdown(
+        f"""
+<div class="card">
+<strong>Catatan umur/gigi:</strong> {dental_note}<br>
+<strong>Catatan ADG:</strong> {adg_note}<br>
+<strong>Catatan harga:</strong> {market_price_note}
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
     st.subheader("Detail Fenotipe")
     st.dataframe(pheno_df, use_container_width=True, hide_index=True)
@@ -1652,10 +2118,20 @@ with tab_result:
             "Panjang badan cm": length,
             "Tinggi cm": height,
             "BCS": bcs,
-            "Skor total": total_score,
+            "Skor dasar": total_score,
+            "Skor sesuai tujuan": purpose_score,
+            "Skor total": purpose_score,
             "Kategori": category,
             "Status SNI/acuan": sni_status_calc,
             "Kesesuaian SNI %": sni_percent_calc,
+            "Risiko transaksi": risk_status,
+            "Skor risiko": risk_score,
+            "Status harga": market_price_status,
+            "ADG aktual": actual_adg if actual_adg is not None else "-",
+            "Skor kaki": foot_score,
+            "Skor reproduksi": reproduction_score,
+            "Skor pakan": feed_score,
+            "Skor dokumen": document_score,
             "Laba/rugi kasar": profit,
             "Rekomendasi akhir": decision,
         }
@@ -1731,10 +2207,18 @@ with tab_report:
         "Umur/Fase": f"{age_months} bulan / {age_stage}",
         "Bobot": f"{weight:.3f} kg",
         "BCS": bcs,
-        "Skor total": total_score,
+        "Skor dasar": total_score,
+        "Skor sesuai tujuan": purpose_score,
         "Kategori": category,
         "Status SNI/acuan": sni_status_calc,
         "Kesesuaian SNI/acuan": f"{sni_percent_calc:.1f}%",
+        "Risiko transaksi": f"{risk_status} ({risk_score:.1f}/100)",
+        "Status harga": market_price_status,
+        "ADG aktual": "-" if actual_adg is None else f"{actual_adg:.3f} kg/hari",
+        "Skor kaki/kuku": foot_score,
+        "Skor reproduksi": reproduction_score,
+        "Skor pakan": feed_score,
+        "Skor dokumen": document_score,
         "Rekomendasi akhir": decision,
         "Estimasi laba/rugi kasar": rupiah(profit),
         "Harga maksimal beli": rupiah(max_buy_price),
@@ -1778,6 +2262,27 @@ with tab_guide:
 | Riwayat evaluasi | Simpan, upload CSV, download CSV, dan lihat grafik |
 | Laporan HTML | Download laporan ringkas per ternak |
 | Ayam lokal Indonesia | Termasuk Kampung, KUB-1, KUB Janaka, Sentul, Pelung, Kedu, Cemani, Nunukan, Merawang, Gaok, dan Kokok Balenggek |
+| Umur berdasarkan gigi | Membandingkan umur input dengan status gigi/poel untuk ruminansia |
+| Kaki dan kuku | Menilai kaki depan, kaki belakang, kuku/shank, sendi, dan postur berdiri |
+| Reproduksi | Menilai kesiapan betina, pejantan, atau unggas untuk tujuan bibit/produksi |
+| Riwayat kesehatan | Memasukkan riwayat sakit, diare, batuk, parasit, vaksin, dan karantina |
+| Pakan dan ADG | Menilai pakan, air, mineral, bobot awal, dan pertambahan bobot harian aktual |
+| Karkas dan harga pasar | Menilai dada, paha, punggung, lemak, kewajaran harga, dan risiko transaksi |
+| Dokumen pendukung | Mengecek surat kesehatan, asal ternak, vaksin/obat, dan riwayat induk/produksi |
+| Risiko transaksi | Menghasilkan status risiko rendah, sedang, atau tinggi |
+| Skor sesuai tujuan | Bobot penilaian berubah sesuai mode jagal, blantik, pembibit, ayam lokal, atau peternak |
+
+### Skor sesuai tujuan
+
+Aplikasi sekarang menampilkan dua skor:
+- **Skor dasar**, yaitu skor umum dari bobot, BCS, kesehatan, fenotipe, SNI/acuan, dan kesiapan pasar.
+- **Skor sesuai tujuan**, yaitu skor akhir yang bobotnya berubah mengikuti mode pengguna.
+
+Contoh:
+- Mode Jagal lebih menekankan karkas, otot, kesehatan, dan risiko.
+- Mode Blantik lebih menekankan margin, harga pasar, risiko, dan tampilan.
+- Mode Pembibit lebih menekankan SNI/acuan, fenotipe, reproduksi, dan kesehatan.
+- Mode Ayam Lokal lebih menekankan rumpun, warna, postur, suara/telur, dan kesehatan.
 
 ### Catatan ayam
 
