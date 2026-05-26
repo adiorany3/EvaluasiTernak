@@ -5,6 +5,15 @@ from datetime import datetime
 import pandas as pd
 import streamlit as st
 
+try:
+    import gspread
+    from google.oauth2.service_account import Credentials
+    GSHEETS_AVAILABLE = True
+except Exception:
+    gspread = None
+    Credentials = None
+    GSHEETS_AVAILABLE = False
+
 
 # =========================================================
 # SISTEM PENILAIAN TERNAK PRO
@@ -2240,6 +2249,154 @@ def build_json_payload(report_record, insights, red_flags, action_plan):
 
     return json.dumps(payload, ensure_ascii=False, indent=2)
 
+
+# =========================================================
+# GOOGLE SHEETS INTEGRATION
+# =========================================================
+
+GSHEET_COLUMNS = [
+    "Waktu",
+    "Kode",
+    "Lokasi",
+    "Jenis",
+    "Bangsa/Rumpun",
+    "Mode",
+    "Tujuan",
+    "Kelamin",
+    "Pemilik",
+    "Asal ternak",
+    "Evaluator",
+    "Tanggal evaluasi",
+    "Jumlah foto",
+    "Kelengkapan data %",
+    "Red flag",
+    "Umur bulan",
+    "Fase",
+    "Bobot kg",
+    "Lingkar dada cm",
+    "Panjang badan cm",
+    "Tinggi cm",
+    "BCS",
+    "Skor dasar",
+    "Skor sesuai tujuan",
+    "Skor total",
+    "Kategori",
+    "Status SNI/acuan",
+    "Kesesuaian SNI %",
+    "Risiko transaksi",
+    "Skor risiko",
+    "Status harga",
+    "ADG aktual",
+    "Skor kaki",
+    "Skor reproduksi",
+    "Skor pakan",
+    "Skor dokumen",
+    "Laba/rugi kasar",
+    "Rekomendasi akhir",
+    "Red flags detail",
+    "Rencana tindak lanjut",
+    "Ringkasan eksekutif",
+]
+
+
+def is_gsheet_configured():
+    try:
+        has_service = "gcp_service_account" in st.secrets
+        has_sheet = "google_sheet" in st.secrets
+        if not has_service or not has_sheet:
+            return False
+
+        sheet_id = st.secrets["google_sheet"].get("sheet_id", "")
+        return bool(sheet_id)
+    except Exception:
+        return False
+
+
+@st.cache_resource(show_spinner=False)
+def connect_to_google_sheet():
+    if not GSHEETS_AVAILABLE:
+        raise RuntimeError(
+            "Library Google Sheets belum tersedia. Pastikan requirements.txt berisi gspread dan google-auth."
+        )
+
+    if not is_gsheet_configured():
+        raise RuntimeError(
+            "Google Sheets belum dikonfigurasi. Isi Streamlit Secrets dengan google_sheet dan gcp_service_account."
+        )
+
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive",
+    ]
+
+    credentials = Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"],
+        scopes=scopes,
+    )
+
+    client = gspread.authorize(credentials)
+    spreadsheet = client.open_by_key(st.secrets["google_sheet"]["sheet_id"])
+
+    worksheet_name = st.secrets["google_sheet"].get("worksheet_name", "evaluasi_ternak")
+
+    try:
+        worksheet = spreadsheet.worksheet(worksheet_name)
+    except Exception:
+        worksheet = spreadsheet.add_worksheet(
+            title=worksheet_name,
+            rows=1000,
+            cols=len(GSHEET_COLUMNS) + 5,
+        )
+
+    return worksheet
+
+
+def ensure_google_sheet_header(worksheet):
+    existing_values = worksheet.get_all_values()
+
+    if not existing_values:
+        worksheet.append_row(GSHEET_COLUMNS, value_input_option="USER_ENTERED")
+        return
+
+    first_row = existing_values[0]
+
+    if first_row[:len(GSHEET_COLUMNS)] != GSHEET_COLUMNS:
+        worksheet.update(
+            range_name="A1",
+            values=[GSHEET_COLUMNS],
+        )
+
+
+def record_to_sheet_row(record):
+    return [
+        record.get(column, "")
+        for column in GSHEET_COLUMNS
+    ]
+
+
+def save_record_to_google_sheet(record):
+    worksheet = connect_to_google_sheet()
+    ensure_google_sheet_header(worksheet)
+    worksheet.append_row(
+        record_to_sheet_row(record),
+        value_input_option="USER_ENTERED",
+    )
+
+
+def load_records_from_google_sheet():
+    worksheet = connect_to_google_sheet()
+    ensure_google_sheet_header(worksheet)
+    records = worksheet.get_all_records()
+    return pd.DataFrame(records)
+
+
+def google_sheet_status_message():
+    if not GSHEETS_AVAILABLE:
+        return "Library gspread/google-auth belum tersedia."
+    if not is_gsheet_configured():
+        return "Belum terhubung. Isi Streamlit Secrets untuk mengaktifkan Google Sheets."
+    return "Siap terhubung ke Google Sheets."
+
 def make_report_html(record, insights):
     insight_html = "".join(
         f"<li><strong>{title}:</strong> {body}</li>"
@@ -2395,15 +2552,20 @@ with st.sidebar.expander("Cara pakai", expanded=True):
 
 st.sidebar.warning("Hasil adalah alat bantu. Untuk sertifikasi resmi, gunakan dokumen SNI dan petugas berwenang.")
 
+st.sidebar.markdown("---")
+st.sidebar.caption("Status Google Sheets")
+st.sidebar.info(google_sheet_status_message())
 
-tab_input, tab_result, tab_sni, tab_economy, tab_history, tab_report, tab_guide = st.tabs(
+
+tab_input, tab_result, tab_sni, tab_economy, tab_history, tab_gsheet, tab_report, tab_guide = st.tabs(
     [
         "① Input",
         "② Hasil",
         "③ SNI/Acuan",
         "④ Ekonomi",
         "⑤ Riwayat",
-        "⑥ Laporan",
+        "⑥ Google Sheets",
+        "⑦ Laporan",
         "Panduan",
     ]
 )
@@ -3271,7 +3433,16 @@ with tab_result:
             "Ringkasan eksekutif": " | ".join(executive_summary),
         }
         st.session_state.records.append(record)
-        st.success("Data tersimpan ke riwayat.")
+        st.success("Data tersimpan ke riwayat lokal.")
+
+        if is_gsheet_configured():
+            try:
+                save_record_to_google_sheet(record)
+                st.success("Data juga berhasil disimpan ke Google Sheets.")
+            except Exception as exc:
+                st.error(f"Gagal menyimpan ke Google Sheets: {exc}")
+        else:
+            st.info("Google Sheets belum dikonfigurasi. Data hanya tersimpan di riwayat lokal sementara.")
 
 
 # =========================================================
@@ -3291,10 +3462,22 @@ with tab_history:
         except Exception as exc:
             st.error(f"Gagal membaca CSV: {exc}")
 
-    if st.button("🧹 Reset Riwayat", use_container_width=True):
-        st.session_state.records = []
-        st.success("Riwayat sementara direset.")
-        st.rerun()
+    hsync1, hsync2 = st.columns(2)
+
+    with hsync1:
+        if st.button("🔄 Muat Riwayat dari Google Sheets", use_container_width=True):
+            try:
+                sheet_df = load_records_from_google_sheet()
+                st.session_state.records = sheet_df.to_dict("records")
+                st.success(f"Berhasil memuat {len(sheet_df)} data dari Google Sheets.")
+            except Exception as exc:
+                st.error(f"Gagal memuat Google Sheets: {exc}")
+
+    with hsync2:
+        if st.button("🧹 Reset Riwayat", use_container_width=True):
+            st.session_state.records = []
+            st.success("Riwayat sementara direset.")
+            st.rerun()
 
     if not st.session_state.records:
         st.info("Belum ada riwayat. Simpan hasil dari tab Hasil.")
@@ -3354,6 +3537,130 @@ with tab_history:
         st.metric("Jumlah data tampil", len(filtered_df))
         if "Skor total" in filtered_df.columns and len(filtered_df) > 0:
             st.metric("Rata-rata skor", f"{pd.to_numeric(filtered_df['Skor total'], errors='coerce').mean():.1f}")
+
+
+
+# =========================================================
+# GOOGLE SHEETS
+# =========================================================
+
+with tab_gsheet:
+    st.subheader("Google Sheets Database")
+
+    st.markdown(
+        """
+<div class="modern-section">
+    <div class="modern-section-title">⑥ Integrasi Google Sheets</div>
+    <div class="modern-section-subtitle">
+        Gunakan Google Sheets sebagai database online sederhana. Data evaluasi dapat disimpan,
+        dimuat kembali, difilter, dan diunduh tanpa bergantung pada session browser.
+    </div>
+    <div class="summary-chip-row">
+        <span class="badge badge-primary">Online database</span>
+        <span class="badge">Service account</span>
+        <span class="badge">Streamlit Secrets</span>
+        <span class="badge">CSV backup</span>
+    </div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+    status_text = google_sheet_status_message()
+
+    if is_gsheet_configured():
+        st.success(status_text)
+    else:
+        st.warning(status_text)
+
+    with st.expander("Panduan konfigurasi Google Sheets", expanded=not is_gsheet_configured()):
+        st.markdown(
+            """
+### Langkah konfigurasi
+
+1. Buat Google Spreadsheet baru.
+2. Buat sheet/tab bernama **evaluasi_ternak**.
+3. Buat Google Cloud Service Account.
+4. Download JSON credential service account.
+5. Share Google Spreadsheet ke email `client_email` service account sebagai **Editor**.
+6. Masukkan credential ke **Streamlit Cloud → Manage app → Settings → Secrets**.
+7. Deploy ulang aplikasi.
+
+### Format Secrets
+
+```toml
+[google_sheet]
+sheet_id = "ISI_ID_SPREADSHEET_ANDA"
+worksheet_name = "evaluasi_ternak"
+
+[gcp_service_account]
+type = "service_account"
+project_id = "..."
+private_key_id = "..."
+private_key = "-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n"
+client_email = "nama-service-account@project-id.iam.gserviceaccount.com"
+client_id = "..."
+auth_uri = "https://accounts.google.com/o/oauth2/auth"
+token_uri = "https://oauth2.googleapis.com/token"
+auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs"
+client_x509_cert_url = "..."
+```
+"""
+        )
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        if st.button("🔌 Tes Koneksi", use_container_width=True):
+            try:
+                worksheet = connect_to_google_sheet()
+                ensure_google_sheet_header(worksheet)
+                st.success(f"Koneksi berhasil. Worksheet: {worksheet.title}")
+            except Exception as exc:
+                st.error(f"Koneksi gagal: {exc}")
+
+    with c2:
+        if st.button("🔄 Muat Data dari Google Sheets", use_container_width=True):
+            try:
+                sheet_df = load_records_from_google_sheet()
+                st.session_state.records = sheet_df.to_dict("records")
+                st.success(f"Berhasil memuat {len(sheet_df)} data dari Google Sheets.")
+                st.dataframe(sheet_df, use_container_width=True, hide_index=True)
+            except Exception as exc:
+                st.error(f"Gagal memuat data: {exc}")
+
+    with c3:
+        if st.button("⬆️ Sinkron Riwayat Lokal ke Google Sheets", use_container_width=True):
+            if not st.session_state.records:
+                st.warning("Riwayat lokal masih kosong.")
+            else:
+                try:
+                    for item in st.session_state.records:
+                        save_record_to_google_sheet(item)
+                    st.success(f"Berhasil mengirim {len(st.session_state.records)} data lokal ke Google Sheets.")
+                except Exception as exc:
+                    st.error(f"Gagal sinkron: {exc}")
+
+    st.markdown("---")
+    st.subheader("Preview Data Google Sheets")
+
+    if st.button("👁️ Tampilkan Preview Database", use_container_width=True):
+        try:
+            preview_df = load_records_from_google_sheet()
+            st.dataframe(preview_df, use_container_width=True, hide_index=True)
+
+            if not preview_df.empty:
+                csv_data = preview_df.to_csv(index=False).encode("utf-8-sig")
+                st.download_button(
+                    "⬇️ Download CSV dari Google Sheets",
+                    data=csv_data,
+                    file_name="database_google_sheets_evaluasi_ternak.csv",
+                    mime="text/csv",
+                    use_container_width=True,
+                )
+        except Exception as exc:
+            st.error(f"Gagal menampilkan preview: {exc}")
+
 
 
 # =========================================================
@@ -3443,6 +3750,16 @@ with tab_guide:
 
     st.markdown(
         """
+### Integrasi Google Sheets
+
+Versi ini sudah mendukung Google Sheets sebagai database online. Data dapat disimpan otomatis saat tombol simpan ditekan, dimuat kembali dari tab Google Sheets, dan disinkronkan dari riwayat lokal ke spreadsheet.
+
+Yang dibutuhkan:
+- Google Spreadsheet
+- Service account Google Cloud
+- Google Sheet dibagikan ke email service account sebagai Editor
+- Credential dimasukkan ke Streamlit Secrets
+
 ### Prinsip desain sistematis dan modern
 
 Aplikasi ini disusun sebagai alur kerja berurutan: **Input → Hasil → SNI/Acuan → Ekonomi → Riwayat → Laporan**.
