@@ -6,15 +6,15 @@ import streamlit as st
 
 
 # =========================================================
-# SISTEM PENILAIAN TERNAK BERBASIS JENIS DAN BANGSA TERNAK
-# Streamlit Online App
+# SISTEM PENILAIAN TERNAK
+# Faktor kuantitatif + kualitatif berbasis jenis dan bangsa
 # =========================================================
 # Catatan:
 # - Aplikasi ini adalah alat bantu estimasi awal.
+# - Parameter dapat disesuaikan dengan standar lokal, pasar,
+#   pengalaman peternak, dan hasil validasi lapangan.
 # - Hasil bukan pengganti pemeriksaan dokter hewan, ahli nutrisi,
-#   petugas teknis, atau penilaian langsung di lapangan.
-# - Parameter target dapat disesuaikan dengan kondisi daerah,
-#   sistem pemeliharaan, pasar, dan standar internal pengguna.
+#   inseminator, petugas teknis, jagal profesional, atau penilai ternak.
 # =========================================================
 
 
@@ -96,6 +96,13 @@ CUSTOM_CSS = """
     margin-bottom: 6px;
 }
 
+.section-note {
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(128,128,128,0.25);
+    background: rgba(128,128,128,0.07);
+}
+
 hr {
     margin-top: 1.2rem;
     margin-bottom: 1.2rem;
@@ -121,6 +128,24 @@ BREED_DATA = {
             "height_max": 130,
             "adg": 0.55,
             "dressing": 50,
+            "quant": {
+                "chest_depth_ratio": (0.42, 0.53),
+                "rump_width_ratio": (0.20, 0.30),
+                "cannon_ratio": (0.10, 0.16),
+            },
+            "phenotype": {
+                "colors": ["Merah bata", "Cokelat kemerahan", "Hitam pada jantan dewasa"],
+                "faces": ["Lurus", "Pendek agak lebar"],
+                "horns": ["Bertanduk", "Tanduk kecil", "Tanduk melengkung"],
+                "ears": ["Sedang", "Tegak sedang"],
+                "body_builds": ["Kompak", "Padat", "Rangka sedang"],
+                "features": [
+                    "Garis punggung relatif lurus",
+                    "Kaki kuat",
+                    "Paha cukup berisi",
+                    "Kulit dan bulu tampak bersih",
+                ],
+            },
             "notes": "Tahan lingkungan tropis, efisien pakan, cocok untuk pasar lokal dan penggemukan sedang.",
         },
         "Peranakan Ongole / PO": {
@@ -132,6 +157,24 @@ BREED_DATA = {
             "height_max": 145,
             "adg": 0.65,
             "dressing": 49,
+            "quant": {
+                "chest_depth_ratio": (0.42, 0.55),
+                "rump_width_ratio": (0.20, 0.31),
+                "cannon_ratio": (0.10, 0.17),
+            },
+            "phenotype": {
+                "colors": ["Putih", "Abu-abu muda", "Abu-abu tua"],
+                "faces": ["Panjang", "Cembung ringan", "Lurus"],
+                "horns": ["Bertanduk", "Tanduk kecil", "Tanduk melengkung"],
+                "ears": ["Sedang", "Agak menggantung"],
+                "body_builds": ["Rangka besar", "Tinggi", "Panjang"],
+                "features": [
+                    "Punuk terlihat",
+                    "Gelambir berkembang",
+                    "Kaki kuat",
+                    "Dada cukup dalam",
+                ],
+            },
             "notes": "Adaptif, rangka cukup besar, umum dipakai untuk kerja, bibit, dan penggemukan.",
         },
         "Madura": {
@@ -143,6 +186,24 @@ BREED_DATA = {
             "height_max": 125,
             "adg": 0.50,
             "dressing": 49,
+            "quant": {
+                "chest_depth_ratio": (0.40, 0.52),
+                "rump_width_ratio": (0.19, 0.29),
+                "cannon_ratio": (0.10, 0.15),
+            },
+            "phenotype": {
+                "colors": ["Cokelat kemerahan", "Merah bata", "Cokelat"],
+                "faces": ["Pendek agak lebar", "Lurus"],
+                "horns": ["Bertanduk", "Tanduk kecil"],
+                "ears": ["Kecil", "Sedang"],
+                "body_builds": ["Kompak", "Rangka sedang", "Padat"],
+                "features": [
+                    "Kaki kuat",
+                    "Tubuh kompak",
+                    "Paha cukup berisi",
+                    "Bulu mengilap",
+                ],
+            },
             "notes": "Ukuran relatif kompak, tahan lingkungan, cocok untuk sistem rakyat.",
         },
         "Brahman Cross": {
@@ -154,6 +215,25 @@ BREED_DATA = {
             "height_max": 150,
             "adg": 0.85,
             "dressing": 51,
+            "quant": {
+                "chest_depth_ratio": (0.43, 0.56),
+                "rump_width_ratio": (0.21, 0.32),
+                "cannon_ratio": (0.11, 0.18),
+            },
+            "phenotype": {
+                "colors": ["Abu-abu", "Putih keabu-abuan", "Merah kecokelatan", "Cokelat"],
+                "faces": ["Panjang", "Cembung ringan"],
+                "horns": ["Bertanduk", "Tanduk kecil", "Tidak bertanduk/polled"],
+                "ears": ["Menggantung/lebar", "Panjang menggantung"],
+                "body_builds": ["Rangka besar", "Panjang", "Berotot sedang"],
+                "features": [
+                    "Punuk jelas",
+                    "Gelambir berkembang",
+                    "Kulit longgar",
+                    "Telinga menggantung",
+                    "Dada dalam",
+                ],
+            },
             "notes": "Rangka besar, tahan panas, potensi penggemukan tinggi jika pakan dan manajemen baik.",
         },
         "Simmental Cross": {
@@ -165,6 +245,25 @@ BREED_DATA = {
             "height_max": 155,
             "adg": 0.95,
             "dressing": 53,
+            "quant": {
+                "chest_depth_ratio": (0.44, 0.57),
+                "rump_width_ratio": (0.22, 0.34),
+                "cannon_ratio": (0.11, 0.18),
+            },
+            "phenotype": {
+                "colors": ["Cokelat putih", "Merah putih", "Krem putih", "Cokelat muda"],
+                "faces": ["Lebar", "Lurus", "Pendek agak lebar"],
+                "horns": ["Bertanduk", "Tidak bertanduk/polled", "Tanduk kecil"],
+                "ears": ["Sedang", "Tegak sedang"],
+                "body_builds": ["Rangka besar", "Berotot", "Panjang dan dalam"],
+                "features": [
+                    "Dada dalam",
+                    "Punggung lebar",
+                    "Paha penuh",
+                    "Kaki kokoh",
+                    "Warna belang khas",
+                ],
+            },
             "notes": "Pertumbuhan cepat, rangka besar, cocok untuk penggemukan intensif.",
         },
         "Limousin Cross": {
@@ -176,6 +275,25 @@ BREED_DATA = {
             "height_max": 155,
             "adg": 0.95,
             "dressing": 54,
+            "quant": {
+                "chest_depth_ratio": (0.43, 0.56),
+                "rump_width_ratio": (0.22, 0.35),
+                "cannon_ratio": (0.11, 0.18),
+            },
+            "phenotype": {
+                "colors": ["Cokelat keemasan", "Merah kecokelatan", "Cokelat muda"],
+                "faces": ["Panjang", "Lurus"],
+                "horns": ["Bertanduk", "Tidak bertanduk/polled", "Tanduk kecil"],
+                "ears": ["Sedang", "Tegak sedang"],
+                "body_builds": ["Berotot", "Rangka besar", "Punggung panjang"],
+                "features": [
+                    "Paha sangat berisi",
+                    "Punggung lebar",
+                    "Dada dalam",
+                    "Otot tampak jelas",
+                    "Kaki kokoh",
+                ],
+            },
             "notes": "Potensi daging tinggi, cocok untuk pasar premium dan sistem pakan intensif.",
         },
     },
@@ -189,6 +307,25 @@ BREED_DATA = {
             "height_max": 150,
             "adg": 0.70,
             "dressing": 47,
+            "quant": {
+                "chest_depth_ratio": (0.42, 0.55),
+                "rump_width_ratio": (0.21, 0.33),
+                "cannon_ratio": (0.09, 0.16),
+            },
+            "phenotype": {
+                "colors": ["Hitam putih", "Putih hitam", "Belang hitam putih"],
+                "faces": ["Panjang", "Lurus"],
+                "horns": ["Tidak bertanduk/polled", "Bertanduk", "Tanduk kecil"],
+                "ears": ["Sedang", "Tegak sedang"],
+                "body_builds": ["Tinggi", "Panjang", "Bentuk tubuh perah"],
+                "features": [
+                    "Ambing proporsional",
+                    "Vena susu tampak baik",
+                    "Punggung relatif lurus",
+                    "Kaki dan kuku kuat",
+                    "Rangka panjang",
+                ],
+            },
             "notes": "Fokus utama produksi susu. Penilaian perlu memperhatikan BCS, ambing, dan kondisi laktasi.",
         },
         "Jersey": {
@@ -200,6 +337,24 @@ BREED_DATA = {
             "height_max": 140,
             "adg": 0.55,
             "dressing": 46,
+            "quant": {
+                "chest_depth_ratio": (0.40, 0.53),
+                "rump_width_ratio": (0.20, 0.31),
+                "cannon_ratio": (0.09, 0.15),
+            },
+            "phenotype": {
+                "colors": ["Cokelat muda", "Cokelat kekuningan", "Abu-cokelat"],
+                "faces": ["Panjang", "Halus", "Lurus"],
+                "horns": ["Tidak bertanduk/polled", "Bertanduk", "Tanduk kecil"],
+                "ears": ["Sedang", "Tegak sedang"],
+                "body_builds": ["Kompak", "Bentuk tubuh perah", "Rangka sedang"],
+                "features": [
+                    "Ambing proporsional",
+                    "Tubuh ramping perah",
+                    "Kaki kuat",
+                    "Bulu halus",
+                ],
+            },
             "notes": "Ukuran lebih kecil dari FH, dikenal efisien dan susu berlemak relatif tinggi.",
         },
         "Peranakan FH": {
@@ -211,6 +366,24 @@ BREED_DATA = {
             "height_max": 145,
             "adg": 0.65,
             "dressing": 46,
+            "quant": {
+                "chest_depth_ratio": (0.41, 0.54),
+                "rump_width_ratio": (0.20, 0.32),
+                "cannon_ratio": (0.09, 0.16),
+            },
+            "phenotype": {
+                "colors": ["Hitam putih", "Putih hitam", "Belang tidak seragam"],
+                "faces": ["Panjang", "Lurus"],
+                "horns": ["Tidak bertanduk/polled", "Bertanduk", "Tanduk kecil"],
+                "ears": ["Sedang", "Tegak sedang"],
+                "body_builds": ["Panjang", "Rangka sedang", "Bentuk tubuh perah"],
+                "features": [
+                    "Ambing proporsional",
+                    "Rangka cukup panjang",
+                    "Kaki kuat",
+                    "Punggung relatif lurus",
+                ],
+            },
             "notes": "Adaptasi lebih beragam, penilaian perlu melihat garis keturunan dan performa produksi.",
         },
     },
@@ -224,6 +397,24 @@ BREED_DATA = {
             "height_max": 145,
             "adg": 0.55,
             "dressing": 45,
+            "quant": {
+                "chest_depth_ratio": (0.42, 0.56),
+                "rump_width_ratio": (0.22, 0.34),
+                "cannon_ratio": (0.11, 0.18),
+            },
+            "phenotype": {
+                "colors": ["Abu-abu gelap", "Hitam keabu-abuan", "Cokelat kehitaman"],
+                "faces": ["Panjang", "Lebar"],
+                "horns": ["Tanduk besar", "Tanduk melengkung", "Bertanduk"],
+                "ears": ["Sedang", "Agak menggantung"],
+                "body_builds": ["Rangka besar", "Dada dalam", "Kuat"],
+                "features": [
+                    "Tanduk melengkung ke belakang/samping",
+                    "Kulit tebal",
+                    "Kaki kuat",
+                    "Tubuh lebar",
+                ],
+            },
             "notes": "Kuat, adaptif, cocok untuk daerah basah dan sistem tradisional.",
         },
         "Murrah": {
@@ -235,6 +426,25 @@ BREED_DATA = {
             "height_max": 150,
             "adg": 0.70,
             "dressing": 46,
+            "quant": {
+                "chest_depth_ratio": (0.43, 0.57),
+                "rump_width_ratio": (0.22, 0.35),
+                "cannon_ratio": (0.11, 0.18),
+            },
+            "phenotype": {
+                "colors": ["Hitam", "Hitam mengilap", "Hitam keabu-abuan"],
+                "faces": ["Panjang", "Halus"],
+                "horns": ["Tanduk melingkar", "Tanduk kecil melengkung", "Bertanduk"],
+                "ears": ["Sedang", "Agak menggantung"],
+                "body_builds": ["Rangka besar", "Dada dalam", "Bentuk tubuh perah"],
+                "features": [
+                    "Tanduk melingkar rapat",
+                    "Ambing proporsional",
+                    "Kulit hitam mengilap",
+                    "Dada dalam",
+                    "Kaki kuat",
+                ],
+            },
             "notes": "Potensi susu baik, ukuran tubuh besar, perlu manajemen pakan dan kesehatan lebih intensif.",
         },
     },
@@ -248,6 +458,24 @@ BREED_DATA = {
             "height_max": 60,
             "adg": 0.06,
             "dressing": 43,
+            "quant": {
+                "chest_depth_ratio": (0.35, 0.49),
+                "rump_width_ratio": (0.16, 0.27),
+                "cannon_ratio": (0.07, 0.13),
+            },
+            "phenotype": {
+                "colors": ["Cokelat", "Hitam", "Putih", "Belang"],
+                "faces": ["Pendek", "Lurus"],
+                "horns": ["Bertanduk", "Tanduk kecil"],
+                "ears": ["Kecil", "Tegak"],
+                "body_builds": ["Kompak", "Kecil", "Lincah"],
+                "features": [
+                    "Tubuh kompak",
+                    "Kaki kuat",
+                    "Bulu bersih",
+                    "Gerak lincah",
+                ],
+            },
             "notes": "Adaptif, ukuran kecil, cocok untuk pasar lokal dan sistem pemeliharaan sederhana.",
         },
         "Peranakan Etawa / PE": {
@@ -259,6 +487,25 @@ BREED_DATA = {
             "height_max": 90,
             "adg": 0.10,
             "dressing": 44,
+            "quant": {
+                "chest_depth_ratio": (0.36, 0.50),
+                "rump_width_ratio": (0.17, 0.29),
+                "cannon_ratio": (0.07, 0.13),
+            },
+            "phenotype": {
+                "colors": ["Putih hitam", "Putih cokelat", "Belang", "Cokelat putih"],
+                "faces": ["Cembung", "Roman nose", "Panjang"],
+                "horns": ["Bertanduk", "Tanduk kecil"],
+                "ears": ["Panjang menggantung", "Menggantung/lebar"],
+                "body_builds": ["Tinggi", "Panjang", "Dwiguna"],
+                "features": [
+                    "Telinga panjang menggantung",
+                    "Profil wajah cembung",
+                    "Ambing proporsional",
+                    "Kaki tinggi",
+                    "Rangka panjang",
+                ],
+            },
             "notes": "Dwiguna, potensi susu dan daging. Perhatikan ambing, bentuk tubuh, dan reproduksi.",
         },
         "Boer": {
@@ -270,6 +517,25 @@ BREED_DATA = {
             "height_max": 80,
             "adg": 0.15,
             "dressing": 48,
+            "quant": {
+                "chest_depth_ratio": (0.38, 0.53),
+                "rump_width_ratio": (0.19, 0.32),
+                "cannon_ratio": (0.08, 0.14),
+            },
+            "phenotype": {
+                "colors": ["Putih kepala cokelat", "Putih cokelat", "Cokelat putih"],
+                "faces": ["Cembung ringan", "Lebar", "Roman nose"],
+                "horns": ["Bertanduk", "Tanduk kecil", "Melengkung ke belakang"],
+                "ears": ["Menggantung/lebar", "Sedang menggantung"],
+                "body_builds": ["Berotot", "Dada lebar", "Paha penuh"],
+                "features": [
+                    "Kepala cokelat",
+                    "Badan putih dominan",
+                    "Paha penuh",
+                    "Dada lebar",
+                    "Tubuh padat",
+                ],
+            },
             "notes": "Tipe pedaging, pertumbuhan cepat, cocok untuk penggemukan dan bakalan premium.",
         },
         "Saanen": {
@@ -281,6 +547,25 @@ BREED_DATA = {
             "height_max": 90,
             "adg": 0.10,
             "dressing": 42,
+            "quant": {
+                "chest_depth_ratio": (0.36, 0.50),
+                "rump_width_ratio": (0.17, 0.29),
+                "cannon_ratio": (0.07, 0.13),
+            },
+            "phenotype": {
+                "colors": ["Putih", "Krem muda", "Putih bersih"],
+                "faces": ["Panjang", "Lurus", "Halus"],
+                "horns": ["Tidak bertanduk/polled", "Bertanduk", "Tanduk kecil"],
+                "ears": ["Tegak", "Sedang"],
+                "body_builds": ["Tinggi", "Ramping perah", "Panjang"],
+                "features": [
+                    "Warna putih/krem dominan",
+                    "Ambing proporsional",
+                    "Tubuh perah",
+                    "Kaki kuat",
+                    "Bulu halus",
+                ],
+            },
             "notes": "Tipe perah, penilaian lebih kuat pada kesehatan, ambing, dan performa susu.",
         },
     },
@@ -294,6 +579,25 @@ BREED_DATA = {
             "height_max": 75,
             "adg": 0.12,
             "dressing": 47,
+            "quant": {
+                "chest_depth_ratio": (0.36, 0.51),
+                "rump_width_ratio": (0.18, 0.30),
+                "cannon_ratio": (0.08, 0.14),
+            },
+            "phenotype": {
+                "colors": ["Putih", "Hitam", "Cokelat", "Belang"],
+                "faces": ["Sedang", "Lurus"],
+                "horns": ["Tanduk besar", "Tanduk melingkar", "Bertanduk"],
+                "ears": ["Kecil", "Sedang"],
+                "body_builds": ["Berotot", "Kompak", "Dada lebar"],
+                "features": [
+                    "Tanduk kuat/melingkar pada jantan",
+                    "Dada lebar",
+                    "Punggung kuat",
+                    "Paha berisi",
+                    "Kaki kokoh",
+                ],
+            },
             "notes": "Potensi pedaging dan kontes, rangka baik menjadi nilai tambah.",
         },
         "Domba Ekor Tipis": {
@@ -305,6 +609,24 @@ BREED_DATA = {
             "height_max": 65,
             "adg": 0.08,
             "dressing": 44,
+            "quant": {
+                "chest_depth_ratio": (0.34, 0.49),
+                "rump_width_ratio": (0.16, 0.28),
+                "cannon_ratio": (0.07, 0.13),
+            },
+            "phenotype": {
+                "colors": ["Putih", "Cokelat", "Hitam", "Belang"],
+                "faces": ["Sedang", "Lurus"],
+                "horns": ["Bertanduk", "Tidak bertanduk/polled", "Tanduk kecil"],
+                "ears": ["Kecil", "Sedang"],
+                "body_builds": ["Kecil sedang", "Kompak", "Adaptif"],
+                "features": [
+                    "Ekor tipis",
+                    "Tubuh kompak",
+                    "Kaki kuat",
+                    "Bulu bersih",
+                ],
+            },
             "notes": "Adaptif, banyak dipelihara rakyat, cocok untuk pasar lokal.",
         },
         "Domba Ekor Gemuk": {
@@ -316,6 +638,24 @@ BREED_DATA = {
             "height_max": 70,
             "adg": 0.09,
             "dressing": 45,
+            "quant": {
+                "chest_depth_ratio": (0.35, 0.50),
+                "rump_width_ratio": (0.17, 0.29),
+                "cannon_ratio": (0.07, 0.13),
+            },
+            "phenotype": {
+                "colors": ["Putih", "Cokelat", "Hitam", "Belang"],
+                "faces": ["Sedang", "Lurus"],
+                "horns": ["Bertanduk", "Tidak bertanduk/polled", "Tanduk kecil"],
+                "ears": ["Sedang", "Kecil"],
+                "body_builds": ["Kompak", "Dada cukup lebar", "Padat"],
+                "features": [
+                    "Ekor gemuk",
+                    "Cadangan lemak ekor jelas",
+                    "Kaki kuat",
+                    "Punggung relatif lurus",
+                ],
+            },
             "notes": "Cadangan lemak di ekor perlu diperhatikan saat menilai komposisi tubuh.",
         },
         "Merino Cross": {
@@ -327,6 +667,24 @@ BREED_DATA = {
             "height_max": 80,
             "adg": 0.12,
             "dressing": 46,
+            "quant": {
+                "chest_depth_ratio": (0.36, 0.51),
+                "rump_width_ratio": (0.18, 0.31),
+                "cannon_ratio": (0.08, 0.14),
+            },
+            "phenotype": {
+                "colors": ["Putih", "Krem", "Putih krem"],
+                "faces": ["Sedang", "Lurus"],
+                "horns": ["Bertanduk", "Tidak bertanduk/polled", "Tanduk kecil"],
+                "ears": ["Sedang", "Kecil"],
+                "body_builds": ["Rangka sedang besar", "Panjang", "Berbulu tebal"],
+                "features": [
+                    "Bulu/wol lebih tebal",
+                    "Rangka panjang",
+                    "Dada dalam",
+                    "Kaki kuat",
+                ],
+            },
             "notes": "Rangka lebih besar, perlu manajemen pakan baik untuk mencapai performa optimal.",
         },
     },
@@ -376,6 +734,115 @@ PURPOSE_OPTIONS = [
 ]
 
 
+COLOR_OPTIONS = [
+    "Merah bata",
+    "Cokelat kemerahan",
+    "Hitam pada jantan dewasa",
+    "Putih",
+    "Abu-abu muda",
+    "Abu-abu tua",
+    "Cokelat",
+    "Abu-abu",
+    "Putih keabu-abuan",
+    "Merah kecokelatan",
+    "Cokelat putih",
+    "Merah putih",
+    "Krem putih",
+    "Cokelat muda",
+    "Cokelat keemasan",
+    "Hitam putih",
+    "Putih hitam",
+    "Belang hitam putih",
+    "Cokelat kekuningan",
+    "Abu-cokelat",
+    "Belang tidak seragam",
+    "Abu-abu gelap",
+    "Hitam keabu-abuan",
+    "Cokelat kehitaman",
+    "Hitam",
+    "Hitam mengilap",
+    "Putih cokelat",
+    "Belang",
+    "Putih kepala cokelat",
+    "Krem muda",
+    "Putih bersih",
+    "Krem",
+    "Putih krem",
+    "Lainnya / tidak sesuai",
+    "Tidak yakin",
+]
+
+
+FACE_OPTIONS = [
+    "Lurus",
+    "Panjang",
+    "Pendek",
+    "Pendek agak lebar",
+    "Lebar",
+    "Halus",
+    "Cembung",
+    "Cembung ringan",
+    "Roman nose",
+    "Sedang",
+    "Tidak yakin",
+]
+
+
+HORN_OPTIONS = [
+    "Bertanduk",
+    "Tidak bertanduk/polled",
+    "Tanduk kecil",
+    "Tanduk melengkung",
+    "Tanduk besar",
+    "Tanduk melingkar",
+    "Tanduk kecil melengkung",
+    "Melengkung ke belakang",
+    "Tidak yakin",
+]
+
+
+EAR_OPTIONS = [
+    "Kecil",
+    "Sedang",
+    "Tegak",
+    "Tegak sedang",
+    "Agak menggantung",
+    "Menggantung/lebar",
+    "Panjang menggantung",
+    "Sedang menggantung",
+    "Tidak yakin",
+]
+
+
+BODY_BUILD_OPTIONS = [
+    "Kompak",
+    "Padat",
+    "Rangka sedang",
+    "Rangka besar",
+    "Tinggi",
+    "Panjang",
+    "Berotot",
+    "Berotot sedang",
+    "Panjang dan dalam",
+    "Punggung panjang",
+    "Bentuk tubuh perah",
+    "Dwiguna",
+    "Dada lebar",
+    "Paha penuh",
+    "Ramping perah",
+    "Dada dalam",
+    "Kuat",
+    "Kecil",
+    "Lincah",
+    "Kecil sedang",
+    "Adaptif",
+    "Rangka sedang besar",
+    "Berbulu tebal",
+    "Lainnya / tidak sesuai",
+    "Tidak yakin",
+]
+
+
 # =========================================================
 # UTILITY FUNCTIONS
 # =========================================================
@@ -384,18 +851,19 @@ def clamp(value, low, high):
     return max(low, min(high, value))
 
 
+def rupiah(value):
+    try:
+        return f"Rp{value:,.0f}".replace(",", ".")
+    except Exception:
+        return "-"
+
+
 def estimate_weight(species, heart_girth_cm, body_length_cm):
-    """
-    Estimasi bobot hidup berbasis lingkar dada dan panjang badan.
-    Rumus disederhanakan agar mudah digunakan di lapangan.
-    """
     formula_type = SPECIES_CONFIG[species]["formula"]
 
     if formula_type == "large":
-        # Umum dipakai untuk sapi/kerbau: LD^2 x PB / 10840
         weight = (heart_girth_cm ** 2 * body_length_cm) / 10840
     else:
-        # Pendekatan praktis untuk kambing/domba: LD^2 x PB / 10000
         weight = (heart_girth_cm ** 2 * body_length_cm) / 10000
 
     return round(weight, 2)
@@ -410,68 +878,74 @@ def get_age_stage(species, age_months):
         if age_months < 36:
             return "Dewasa muda/siap produksi"
         return "Dewasa"
-    else:
-        if age_months < 4:
-            return "Cempe/anak"
-        if age_months < 10:
-            return "Muda/tumbuh"
-        if age_months < 24:
-            return "Dewasa muda/siap produksi"
-        return "Dewasa"
+
+    if age_months < 4:
+        return "Cempe/anak"
+    if age_months < 10:
+        return "Muda/tumbuh"
+    if age_months < 24:
+        return "Dewasa muda/siap produksi"
+    return "Dewasa"
 
 
 def score_weight(weight, target_min, target_ideal):
+    max_score = 20
+
     if weight <= 0:
         return 0
 
     if weight < target_min:
         ratio = weight / target_min
-        return round(clamp(ratio * 22, 0, 22), 1)
+        return round(clamp(ratio * 15, 0, 15), 1)
 
     if target_min <= weight <= target_ideal:
         ratio = (weight - target_min) / max(target_ideal - target_min, 1)
-        return round(22 + ratio * 8, 1)
+        return round(15 + ratio * 5, 1)
 
-    # Di atas ideal belum tentu buruk, tetapi bisa terlalu berat/boros pakan.
     excess_ratio = (weight - target_ideal) / target_ideal
-    penalty = min(excess_ratio * 10, 5)
-    return round(30 - penalty, 1)
+    penalty = min(excess_ratio * 8, 4)
+    return round(max_score - penalty, 1)
 
 
 def score_bcs(bcs, ideal_low, ideal_high, purpose):
+    max_score = 15
+
     if ideal_low <= bcs <= ideal_high:
-        base = 25
+        base = max_score
     else:
         distance = min(abs(bcs - ideal_low), abs(bcs - ideal_high))
-        base = 25 - distance * 8
+        base = max_score - distance * 5
 
     if purpose == "Perah" and bcs > 3.75:
-        base -= 2
+        base -= 1.5
     if purpose == "Jagal" and bcs < 3.0:
-        base -= 3
+        base -= 2
     if purpose == "Bibit / Breeding" and (bcs < 2.75 or bcs > 4.0):
-        base -= 3
+        base -= 2
 
-    return round(clamp(base, 0, 25), 1)
+    return round(clamp(base, 0, max_score), 1)
 
 
 def score_frame(height_cm, height_min, height_max):
+    max_score = 10
+
     if height_min <= height_cm <= height_max:
-        return 15
+        return max_score
 
     if height_cm < height_min:
         ratio = height_cm / height_min
-        return round(clamp(ratio * 13, 0, 13), 1)
+        return round(clamp(ratio * 8, 0, 8), 1)
 
-    # Tinggi di atas rentang masih bisa baik, tetapi perlu dicek proporsi.
     excess_ratio = (height_cm - height_max) / height_max
-    penalty = min(excess_ratio * 8, 3)
-    return round(15 - penalty, 1)
+    penalty = min(excess_ratio * 6, 2.5)
+    return round(max_score - penalty, 1)
 
 
 def score_proportion(heart_girth_cm, body_length_cm, species):
+    max_score = 8
+
     if heart_girth_cm <= 0:
-        return 0
+        return 0, 0
 
     proportion = body_length_cm / heart_girth_cm
 
@@ -481,54 +955,226 @@ def score_proportion(heart_girth_cm, body_length_cm, species):
         low, high = 0.80, 1.20
 
     if low <= proportion <= high:
-        return 10, proportion
+        return max_score, proportion
 
     distance = min(abs(proportion - low), abs(proportion - high))
-    score = 10 - distance * 20
-    return round(clamp(score, 0, 10), 1), proportion
+    score = max_score - distance * 15
+    return round(clamp(score, 0, max_score), 1), proportion
 
 
 def score_health(health_checks):
+    max_score = 15
     total = len(health_checks)
+
     if total == 0:
         return 0
+
     positive = sum(1 for value in health_checks.values() if value)
-    return round((positive / total) * 20, 1)
+    return round((positive / total) * max_score, 1)
 
 
 def score_market_readiness(weight, target_min, bcs, health_score, purpose):
+    max_score = 7
     score = 0
 
     if weight >= target_min:
-        score += 4
-    elif weight >= target_min * 0.9:
         score += 3
+    elif weight >= target_min * 0.9:
+        score += 2.3
     elif weight >= target_min * 0.8:
-        score += 2
+        score += 1.6
     else:
-        score += 1
+        score += 0.8
 
     if purpose in ["Jagal", "Penggemukan / Potong", "Blantik / Jual Beli"]:
         if 3.0 <= bcs <= 4.0:
-            score += 3
-        elif 2.5 <= bcs < 3.0 or 4.0 < bcs <= 4.5:
             score += 2
+        elif 2.5 <= bcs < 3.0 or 4.0 < bcs <= 4.5:
+            score += 1.2
         else:
-            score += 1
+            score += 0.5
     else:
         if 2.75 <= bcs <= 3.75:
-            score += 3
+            score += 2
         else:
-            score += 1
+            score += 0.8
 
-    if health_score >= 18:
-        score += 3
-    elif health_score >= 14:
+    if health_score >= 13:
         score += 2
+    elif health_score >= 10:
+        score += 1.2
     else:
-        score += 1
+        score += 0.5
 
-    return round(clamp(score, 0, 10), 1)
+    return round(clamp(score, 0, max_score), 1)
+
+
+def score_ratio(value, target_range, max_score):
+    low, high = target_range
+
+    if value <= 0:
+        return 0
+
+    if low <= value <= high:
+        return max_score
+
+    if value < low:
+        gap = low - value
+    else:
+        gap = value - high
+
+    tolerance = max((high - low), 0.01)
+    penalty = min((gap / tolerance) * max_score, max_score)
+    return round(max_score - penalty, 1)
+
+
+def score_quantitative_traits(
+    chest_depth_cm,
+    rump_width_cm,
+    cannon_circumference_cm,
+    height_cm,
+    breed_info,
+):
+    max_score = 10
+
+    if height_cm <= 0:
+        return 0, {
+            "Rasio kedalaman dada": 0,
+            "Rasio lebar pinggul": 0,
+            "Rasio lingkar tulang kering": 0,
+        }
+
+    chest_ratio = chest_depth_cm / height_cm
+    rump_ratio = rump_width_cm / height_cm
+    cannon_ratio = cannon_circumference_cm / height_cm
+
+    quant = breed_info["quant"]
+
+    chest_score = score_ratio(
+        chest_ratio,
+        quant["chest_depth_ratio"],
+        4,
+    )
+
+    rump_score = score_ratio(
+        rump_ratio,
+        quant["rump_width_ratio"],
+        3,
+    )
+
+    cannon_score = score_ratio(
+        cannon_ratio,
+        quant["cannon_ratio"],
+        3,
+    )
+
+    total = round(chest_score + rump_score + cannon_score, 1)
+
+    details = {
+        "Rasio kedalaman dada": round(chest_ratio, 3),
+        "Rasio lebar pinggul": round(rump_ratio, 3),
+        "Rasio lingkar tulang kering": round(cannon_ratio, 3),
+        "Skor kedalaman dada": chest_score,
+        "Skor lebar pinggul": rump_score,
+        "Skor tulang kering": cannon_score,
+    }
+
+    return clamp(total, 0, max_score), details
+
+
+def match_score(selected_value, expected_values, max_score):
+    if selected_value == "Tidak yakin":
+        return round(max_score * 0.45, 1), "Tidak yakin"
+
+    if selected_value == "Lainnya / tidak sesuai":
+        return 0, "Tidak sesuai"
+
+    if selected_value in expected_values:
+        return max_score, "Sesuai"
+
+    return round(max_score * 0.35, 1), "Kurang sesuai"
+
+
+def score_qualitative_traits(
+    selected_color,
+    selected_face,
+    selected_horn,
+    selected_ear,
+    selected_body_build,
+    selected_features,
+    breed_info,
+):
+    pheno = breed_info["phenotype"]
+
+    color_score, color_status = match_score(selected_color, pheno["colors"], 3)
+    face_score, face_status = match_score(selected_face, pheno["faces"], 2)
+    horn_score, horn_status = match_score(selected_horn, pheno["horns"], 2)
+    ear_score, ear_status = match_score(selected_ear, pheno["ears"], 2)
+    body_score, body_status = match_score(selected_body_build, pheno["body_builds"], 2.5)
+
+    expected_features = pheno["features"]
+
+    if len(expected_features) == 0:
+        feature_score = 3.5
+    else:
+        matched_features = [
+            feature
+            for feature in selected_features
+            if feature in expected_features
+        ]
+        feature_score = 3.5 * (len(matched_features) / len(expected_features))
+        feature_score = clamp(feature_score, 0, 3.5)
+
+    total = round(
+        color_score
+        + face_score
+        + horn_score
+        + ear_score
+        + body_score
+        + feature_score,
+        1,
+    )
+
+    details = {
+        "Warna bulu": {
+            "Input": selected_color,
+            "Status": color_status,
+            "Skor": color_score,
+            "Acuan": ", ".join(pheno["colors"]),
+        },
+        "Bentuk wajah": {
+            "Input": selected_face,
+            "Status": face_status,
+            "Skor": face_score,
+            "Acuan": ", ".join(pheno["faces"]),
+        },
+        "Tanduk": {
+            "Input": selected_horn,
+            "Status": horn_status,
+            "Skor": horn_score,
+            "Acuan": ", ".join(pheno["horns"]),
+        },
+        "Telinga": {
+            "Input": selected_ear,
+            "Status": ear_status,
+            "Skor": ear_score,
+            "Acuan": ", ".join(pheno["ears"]),
+        },
+        "Bentuk tubuh": {
+            "Input": selected_body_build,
+            "Status": body_status,
+            "Skor": body_score,
+            "Acuan": ", ".join(pheno["body_builds"]),
+        },
+        "Ciri khas bangsa": {
+            "Input": ", ".join(selected_features) if selected_features else "-",
+            "Status": f"{len(selected_features)} dipilih",
+            "Skor": round(feature_score, 1),
+            "Acuan": ", ".join(expected_features),
+        },
+    }
+
+    return clamp(total, 0, 15), details
 
 
 def classify_total_score(total_score):
@@ -553,13 +1199,6 @@ def classify_weight_position(weight, target_min, target_ideal):
     return "Terlalu berat untuk target umum"
 
 
-def rupiah(value):
-    try:
-        return f"Rp{value:,.0f}".replace(",", ".")
-    except Exception:
-        return "-"
-
-
 def generate_insights(
     species,
     breed,
@@ -582,6 +1221,10 @@ def generate_insights(
     proportion,
     health_score,
     market_score,
+    quant_score,
+    quant_details,
+    qualitative_score,
+    qualitative_details,
     price_per_kg,
     feed_cost_per_day,
     desired_target_weight,
@@ -595,7 +1238,6 @@ def generate_insights(
     deficit_to_desired = max(desired_target_weight - weight, 0)
     days_to_target = math.ceil(deficit_to_desired / adg) if adg > 0 and deficit_to_desired > 0 else 0
 
-    # Insight utama
     if category in ["Sangat Layak", "Layak"]:
         insights.append(
             {
@@ -614,8 +1256,8 @@ def generate_insights(
                 "type": "warning",
                 "title": "Kesimpulan utama",
                 "body": (
-                    f"Ternak masih **perlu perbaikan** sebelum dijadikan pilihan utama. "
-                    f"Fokus evaluasi ada pada bobot, BCS, proporsi tubuh, dan kesehatan lapangan."
+                    "Ternak masih **perlu perbaikan** sebelum dijadikan pilihan utama. "
+                    "Fokus evaluasi ada pada bobot, BCS, proporsi tubuh, kesehatan, dan kesesuaian fenotipe bangsa."
                 ),
             }
         )
@@ -625,13 +1267,12 @@ def generate_insights(
                 "type": "danger",
                 "title": "Kesimpulan utama",
                 "body": (
-                    f"Ternak masuk kategori **risiko tinggi**. Sebaiknya tidak langsung dibeli, "
-                    f"dijual sebagai premium, atau dijadikan bibit sebelum dilakukan pemeriksaan lanjutan."
+                    "Ternak masuk kategori **risiko tinggi**. Sebaiknya tidak langsung dibeli, "
+                    "dijual sebagai premium, atau dijadikan bibit sebelum dilakukan pemeriksaan lanjutan."
                 ),
             }
         )
 
-    # Insight berdasarkan bobot
     if weight < target_min:
         insights.append(
             {
@@ -667,7 +1308,6 @@ def generate_insights(
             }
         )
 
-    # Insight BCS
     if bcs < ideal_bcs[0]:
         insights.append(
             {
@@ -703,7 +1343,92 @@ def generate_insights(
             }
         )
 
-    # Insight proporsi
+    if quant_score >= 8:
+        insights.append(
+            {
+                "type": "good",
+                "title": "Faktor kuantitatif tambahan baik",
+                "body": (
+                    f"Skor kuantitatif tambahan **{quant_score}/10**. "
+                    "Rasio kedalaman dada, lebar pinggul, dan lingkar tulang kering relatif sesuai acuan bangsa."
+                ),
+            }
+        )
+    elif quant_score >= 5.5:
+        insights.append(
+            {
+                "type": "warning",
+                "title": "Faktor kuantitatif tambahan cukup",
+                "body": (
+                    f"Skor kuantitatif tambahan **{quant_score}/10**. "
+                    "Masih perlu dicek apakah dada cukup dalam, pinggul cukup lebar, dan kaki cukup kuat untuk tujuan ternak."
+                ),
+            }
+        )
+    else:
+        insights.append(
+            {
+                "type": "danger",
+                "title": "Faktor kuantitatif tambahan lemah",
+                "body": (
+                    f"Skor kuantitatif tambahan **{quant_score}/10**. "
+                    "Indikasi rangka, kapasitas tubuh, atau kekuatan kaki belum mendukung performa optimal."
+                ),
+            }
+        )
+
+    if qualitative_score >= 12:
+        insights.append(
+            {
+                "type": "good",
+                "title": "Kesesuaian ciri bangsa tinggi",
+                "body": (
+                    f"Skor kualitatif/fenotipe **{qualitative_score}/15**. "
+                    f"Ciri luar ternak cukup sesuai dengan karakter bangsa {breed}."
+                ),
+            }
+        )
+    elif qualitative_score >= 8:
+        insights.append(
+            {
+                "type": "warning",
+                "title": "Kesesuaian ciri bangsa sedang",
+                "body": (
+                    f"Skor kualitatif/fenotipe **{qualitative_score}/15**. "
+                    "Masih ada ciri yang kurang kuat. Untuk transaksi bibit atau premium, minta riwayat keturunan atau bukti asal ternak."
+                ),
+            }
+        )
+    else:
+        insights.append(
+            {
+                "type": "danger",
+                "title": "Kesesuaian ciri bangsa rendah",
+                "body": (
+                    f"Skor kualitatif/fenotipe **{qualitative_score}/15**. "
+                    "Jangan langsung menganggap ternak murni atau premium hanya dari klaim penjual. Gunakan sebagai bahan negosiasi harga."
+                ),
+            }
+        )
+
+    mismatches = []
+    for trait_name, trait_data in qualitative_details.items():
+        if trait_data["Status"] in ["Kurang sesuai", "Tidak sesuai"]:
+            mismatches.append(f"{trait_name}: {trait_data['Input']}")
+
+    if mismatches:
+        insights.append(
+            {
+                "type": "warning",
+                "title": "Ciri kualitatif yang perlu dicermati",
+                "body": (
+                    "Beberapa ciri kurang sesuai dengan acuan bangsa: "
+                    + "; ".join(mismatches)
+                    + ". Ini bisa disebabkan persilangan, umur, jenis kelamin, kondisi perawatan, atau salah identifikasi bangsa."
+                ),
+            }
+        )
+
     if proportion < 0.8:
         prop_msg = "Panjang badan relatif pendek dibanding lingkar dada. Cek kembali pengukuran, umur, dan tipe genetik."
         prop_type = "warning"
@@ -720,30 +1445,29 @@ def generate_insights(
             "title": "Proporsi tubuh",
             "body": (
                 f"Indeks panjang/lingkar dada = **{proportion:.2f}**. {prop_msg} "
-                f"Skor rangka/tinggi: **{frame_score}/15**."
+                f"Skor rangka/tinggi: **{frame_score}/10**."
             ),
         }
     )
 
-    # Insight kesehatan
-    if health_score < 14:
+    if health_score < 10:
         insights.append(
             {
                 "type": "danger",
                 "title": "Kesehatan lapangan perlu diperiksa",
                 "body": (
-                    f"Skor kesehatan hanya **{health_score}/20**. Jangan hanya mengejar bobot. "
+                    f"Skor kesehatan hanya **{health_score}/15**. Jangan hanya mengejar bobot. "
                     "Periksa nafsu makan, pernapasan, mata-hidung, feses, pincang, luka, dan tanda parasit."
                 ),
             }
         )
-    elif health_score < 18:
+    elif health_score < 13:
         insights.append(
             {
                 "type": "warning",
                 "title": "Kesehatan cukup, tetapi belum optimal",
                 "body": (
-                    f"Skor kesehatan **{health_score}/20**. Ternak masih bisa dipertimbangkan, "
+                    f"Skor kesehatan **{health_score}/15**. Ternak masih bisa dipertimbangkan, "
                     "namun perlu pemeriksaan lapangan sebelum transaksi."
                 ),
             }
@@ -754,13 +1478,12 @@ def generate_insights(
                 "type": "good",
                 "title": "Kesehatan lapangan baik",
                 "body": (
-                    f"Skor kesehatan **{health_score}/20**. Kondisi ini mendukung keputusan beli/pelihara, "
+                    f"Skor kesehatan **{health_score}/15**. Kondisi ini mendukung keputusan beli/pelihara, "
                     "selama tidak ada penyakit tersembunyi."
                 ),
             }
         )
 
-    # Insight berdasarkan tujuan
     if purpose == "Jagal":
         carcass = weight * dressing / 100
         meat = carcass * 0.70
@@ -782,7 +1505,7 @@ def generate_insights(
                 "title": "Insight untuk blantik",
                 "body": (
                     "Nilai tawar utama ada pada kombinasi bobot, tampilan tubuh, bangsa, umur, kesehatan, dan momentum pasar. "
-                    "Ternak yang bobotnya belum mencapai target tetapi rangkanya bagus bisa menarik sebagai bakalan."
+                    "Ciri bangsa yang kuat dapat menaikkan nilai jual, sedangkan ciri yang meragukan bisa menjadi bahan negosiasi."
                 ),
             }
         )
@@ -792,9 +1515,9 @@ def generate_insights(
                 "type": "info",
                 "title": "Insight penggemukan",
                 "body": (
-                    f"Potensi penggemukan dipengaruhi bangsa {breed}, pakan, kesehatan, dan umur. "
+                    f"Potensi penggemukan dipengaruhi bangsa {breed}, pakan, kesehatan, umur, dan kapasitas rangka. "
                     f"Asumsi ADG sistem ini: **{adg:.2f} kg/hari**. "
-                    "Pilih ternak dengan rangka cukup besar, sehat, dan belum terlalu gemuk."
+                    "Pilih ternak dengan rangka cukup besar, sehat, belum terlalu gemuk, dan dada/pinggul berkembang."
                 ),
             }
         )
@@ -815,17 +1538,14 @@ def generate_insights(
                 "type": "info",
                 "title": "Insight bibit/breeding",
                 "body": (
-                    "Untuk bibit, prioritaskan kesehatan, struktur kaki, alat reproduksi, riwayat keturunan, "
-                    "umur produktif, dan BCS yang tidak terlalu kurus atau terlalu gemuk."
+                    "Untuk bibit, ciri bangsa dan struktur tubuh penting. Prioritaskan kesehatan, kaki, alat reproduksi, "
+                    "riwayat keturunan, umur produktif, BCS sedang, serta bentuk tubuh yang sesuai tujuan produksi."
                 ),
             }
         )
 
-    # Insight ekonomi sederhana
     if price_per_kg > 0:
         estimated_value = weight * price_per_kg
-        carcass_value_basis = (weight * dressing / 100) * price_per_kg
-
         insights.append(
             {
                 "type": "info",
@@ -862,7 +1582,6 @@ def generate_insights(
             }
         )
 
-    # Catatan bangsa
     insights.append(
         {
             "type": "info",
@@ -888,14 +1607,35 @@ def build_ai_prompt(
     height_cm,
     heart_girth_cm,
     body_length_cm,
+    chest_depth_cm,
+    rump_width_cm,
+    cannon_circumference_cm,
+    selected_color,
+    selected_face,
+    selected_horn,
+    selected_ear,
+    selected_body_build,
+    selected_features,
     total_score,
     category,
     health_score,
     market_score,
+    quant_score,
+    qualitative_score,
+    qualitative_details,
     price_per_kg,
     feed_cost_per_day,
     notes,
 ):
+    mismatch_lines = []
+
+    for trait_name, trait_data in qualitative_details.items():
+        mismatch_lines.append(
+            f"- {trait_name}: input {trait_data['Input']} | status {trait_data['Status']} | acuan {trait_data['Acuan']}"
+        )
+
+    feature_text = ", ".join(selected_features) if selected_features else "-"
+
     prompt = f"""
 Anda adalah konsultan peternakan, jagal, dan perdagangan ternak.
 Analisis data ternak berikut secara detail, praktis, dan berbasis keputusan lapangan.
@@ -907,30 +1647,55 @@ DATA TERNAK:
 - Jenis kelamin: {sex}
 - Umur: {age_months} bulan
 - Fase umur: {age_stage}
+
+DATA KUANTITATIF:
 - Lingkar dada: {heart_girth_cm} cm
 - Panjang badan: {body_length_cm} cm
 - Tinggi badan: {height_cm} cm
+- Kedalaman dada: {chest_depth_cm} cm
+- Lebar pinggul/panggul: {rump_width_cm} cm
+- Lingkar tulang kering/metacarpus: {cannon_circumference_cm} cm
 - Estimasi bobot hidup: {weight:.2f} kg
 - Target bobot minimum bangsa ini: {target_min} kg
 - Target bobot ideal bangsa ini: {target_ideal} kg
 - BCS: {bcs}
-- Skor kesehatan lapangan: {health_score}/20
-- Skor kesiapan pasar: {market_score}/10
+
+DATA KUALITATIF / FENOTIPE:
+- Warna bulu: {selected_color}
+- Bentuk wajah/profil kepala: {selected_face}
+- Tanduk: {selected_horn}
+- Bentuk telinga: {selected_ear}
+- Bentuk tubuh umum: {selected_body_build}
+- Ciri khas yang tampak: {feature_text}
+
+KESESUAIAN CIRI BANGSA:
+{chr(10).join(mismatch_lines)}
+
+HASIL SKOR:
+- Skor kesehatan lapangan: {health_score}/15
+- Skor kesiapan pasar: {market_score}/7
+- Skor kuantitatif tambahan: {quant_score}/10
+- Skor kualitatif/fenotipe: {qualitative_score}/15
 - Skor total: {total_score}/100
 - Kategori hasil: {category}
+
+EKONOMI:
 - Harga per kg bobot hidup: Rp{price_per_kg:,.0f}
 - Biaya pakan per hari: Rp{feed_cost_per_day:,.0f}
-- Catatan bangsa: {notes}
+
+CATATAN BANGSA:
+{notes}
 
 TUGAS ANALISIS:
 1. Berikan kesimpulan kelayakan ternak.
-2. Jelaskan kekuatan dan kelemahannya.
-3. Berikan rekomendasi untuk peternak.
-4. Berikan insight untuk jagal.
-5. Berikan insight untuk blantik ternak.
-6. Berikan strategi negosiasi harga yang wajar.
-7. Berikan tindakan perbaikan 7-30 hari.
-8. Jelaskan risiko yang harus diperiksa langsung di lapangan.
+2. Jelaskan kekuatan dan kelemahannya dari sisi kuantitatif.
+3. Jelaskan kesesuaian kualitatif/fenotipe terhadap bangsa ternak.
+4. Berikan rekomendasi untuk peternak.
+5. Berikan insight untuk jagal.
+6. Berikan insight untuk blantik ternak.
+7. Berikan strategi negosiasi harga yang wajar.
+8. Berikan tindakan perbaikan 7-30 hari.
+9. Jelaskan risiko yang harus diperiksa langsung di lapangan.
 
 Gunakan bahasa Indonesia yang praktis, mudah dipahami, dan tidak terlalu teoritis.
 """.strip()
@@ -951,13 +1716,13 @@ if "records" not in st.session_state:
 # =========================================================
 
 st.sidebar.title("🐄 Sistem Penilaian Ternak")
-st.sidebar.caption("Berbasis jenis, bangsa, bobot estimasi, BCS, kesehatan, dan tujuan pasar.")
+st.sidebar.caption("Kuantitatif + kualitatif berbasis jenis dan bangsa.")
 
 with st.sidebar.expander("Cara pakai singkat", expanded=True):
     st.write(
         """
 1. Pilih jenis dan bangsa ternak.  
-2. Masukkan umur, ukuran tubuh, BCS, dan kesehatan.  
+2. Masukkan ukuran tubuh, BCS, kesehatan, dan ciri luar/fenotipe.  
 3. Buka tab hasil untuk melihat skor, evaluasi, insight, dan prompt AI.  
 4. Simpan data ke tabel evaluasi bila ingin membandingkan beberapa ternak.
 """
@@ -972,9 +1737,9 @@ st.sidebar.warning(
 # HEADER
 # =========================================================
 
-st.title("🐄 Sistem Penilaian Ternak dan Evaluasi Berbasis Jenis & Bangsa")
+st.title("🐄 Sistem Penilaian Ternak Berbasis Kuantitatif & Kualitatif")
 st.caption(
-    "Aplikasi Streamlit untuk membantu peternak, jagal, dan blantik menilai kelayakan ternak secara lebih sistematis."
+    "Menilai ternak berdasarkan jenis, bangsa, ukuran tubuh, BCS, kesehatan, ciri fenotipe, dan tujuan pasar."
 )
 
 
@@ -982,10 +1747,11 @@ st.caption(
 # INPUT AREA
 # =========================================================
 
-tab_input, tab_result, tab_compare, tab_prompt, tab_guide = st.tabs(
+tab_input, tab_result, tab_pheno, tab_compare, tab_prompt, tab_guide = st.tabs(
     [
         "📝 Input Penilaian",
         "📊 Hasil & Insight",
+        "🧬 Ciri Bangsa",
         "📋 Tabel Evaluasi",
         "🤖 Prompt AI",
         "📘 Panduan",
@@ -994,7 +1760,7 @@ tab_input, tab_result, tab_compare, tab_prompt, tab_guide = st.tabs(
 
 
 with tab_input:
-    st.subheader("Input Data Ternak")
+    st.subheader("Input Identitas Ternak")
 
     col_a, col_b, col_c = st.columns(3)
 
@@ -1015,6 +1781,9 @@ with tab_input:
             PURPOSE_OPTIONS,
             index=0,
         )
+
+    breed_info = BREED_DATA[species][breed]
+    pheno = breed_info["phenotype"]
 
     with col_b:
         sex = st.selectbox(
@@ -1058,11 +1827,8 @@ with tab_input:
         )
 
     st.markdown("---")
-    st.subheader("Ukuran Tubuh")
+    st.subheader("Faktor Kuantitatif: Ukuran Tubuh")
 
-    breed_info = BREED_DATA[species][breed]
-
-    default_weight = breed_info["target_market_min"]
     default_height = int((breed_info["height_min"] + breed_info["height_max"]) / 2)
 
     col_m1, col_m2, col_m3 = st.columns(3)
@@ -1093,6 +1859,101 @@ with tab_input:
             value=float(default_height),
             step=0.5,
         )
+
+    q1, q2, q3 = st.columns(3)
+
+    with q1:
+        chest_depth_cm = st.number_input(
+            "Kedalaman dada (cm)",
+            min_value=1.0,
+            max_value=150.0,
+            value=60.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else 28.0,
+            step=0.5,
+            help="Diukur dari bagian atas punggung/gumba ke bagian bawah dada secara vertikal.",
+        )
+
+    with q2:
+        rump_width_cm = st.number_input(
+            "Lebar pinggul / panggul (cm)",
+            min_value=1.0,
+            max_value=150.0,
+            value=35.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else 16.0,
+            step=0.5,
+            help="Menggambarkan kapasitas rangka belakang, penting untuk daging, reproduksi, dan keseimbangan tubuh.",
+        )
+
+    with q3:
+        cannon_circumference_cm = st.number_input(
+            "Lingkar tulang kering / kaki depan (cm)",
+            min_value=1.0,
+            max_value=80.0,
+            value=18.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else 7.0,
+            step=0.5,
+            help="Indikator kasar kekuatan kaki/rangka. Jangan dinilai sendiri tanpa melihat postur dan kesehatan kuku.",
+        )
+
+    st.markdown(
+        """
+<div class="section-note">
+<strong>Faktor kuantitatif tambahan</strong> membantu membaca kapasitas tubuh: dada dalam untuk volume tubuh,
+pinggul lebar untuk rangka belakang/reproduksi, dan tulang kering untuk indikasi kekuatan kaki.
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("---")
+    st.subheader("Faktor Kualitatif: Ciri Luar / Fenotipe Bangsa")
+
+    k1, k2, k3 = st.columns(3)
+
+    with k1:
+        selected_color = st.selectbox(
+            "Warna bulu dominan",
+            COLOR_OPTIONS,
+            index=COLOR_OPTIONS.index(pheno["colors"][0]) if pheno["colors"][0] in COLOR_OPTIONS else 0,
+        )
+
+        selected_face = st.selectbox(
+            "Bentuk wajah / profil kepala",
+            FACE_OPTIONS,
+            index=FACE_OPTIONS.index(pheno["faces"][0]) if pheno["faces"][0] in FACE_OPTIONS else 0,
+        )
+
+    with k2:
+        selected_horn = st.selectbox(
+            "Kondisi tanduk",
+            HORN_OPTIONS,
+            index=HORN_OPTIONS.index(pheno["horns"][0]) if pheno["horns"][0] in HORN_OPTIONS else 0,
+        )
+
+        selected_ear = st.selectbox(
+            "Bentuk telinga",
+            EAR_OPTIONS,
+            index=EAR_OPTIONS.index(pheno["ears"][0]) if pheno["ears"][0] in EAR_OPTIONS else 0,
+        )
+
+    with k3:
+        selected_body_build = st.selectbox(
+            "Bentuk tubuh umum",
+            BODY_BUILD_OPTIONS,
+            index=BODY_BUILD_OPTIONS.index(pheno["body_builds"][0]) if pheno["body_builds"][0] in BODY_BUILD_OPTIONS else 0,
+        )
+
+        selected_features = st.multiselect(
+            "Ciri khas yang tampak",
+            options=pheno["features"],
+            default=pheno["features"][:2],
+        )
+
+    with st.expander("Acuan ciri bangsa yang sedang dipilih", expanded=False):
+        st.write(f"**Bangsa:** {breed}")
+        st.write(f"**Warna acuan:** {', '.join(pheno['colors'])}")
+        st.write(f"**Wajah acuan:** {', '.join(pheno['faces'])}")
+        st.write(f"**Tanduk acuan:** {', '.join(pheno['horns'])}")
+        st.write(f"**Telinga acuan:** {', '.join(pheno['ears'])}")
+        st.write(f"**Bentuk tubuh acuan:** {', '.join(pheno['body_builds'])}")
+        st.write(f"**Ciri khas:** {', '.join(pheno['features'])}")
 
     st.markdown("---")
     st.subheader("Kesehatan Lapangan")
@@ -1171,7 +2032,6 @@ height_max = breed_info["height_max"]
 adg = breed_info["adg"]
 dressing = breed_info["dressing"]
 notes = breed_info["notes"]
-
 ideal_bcs = SPECIES_CONFIG[species]["ideal_bcs"]
 
 estimated_weight = estimate_weight(species, heart_girth_cm, body_length_cm)
@@ -1190,15 +2050,37 @@ market_score = score_market_readiness(
     purpose,
 )
 
+quant_score, quant_details = score_quantitative_traits(
+    chest_depth_cm=chest_depth_cm,
+    rump_width_cm=rump_width_cm,
+    cannon_circumference_cm=cannon_circumference_cm,
+    height_cm=height_cm,
+    breed_info=breed_info,
+)
+
+qualitative_score, qualitative_details = score_qualitative_traits(
+    selected_color=selected_color,
+    selected_face=selected_face,
+    selected_horn=selected_horn,
+    selected_ear=selected_ear,
+    selected_body_build=selected_body_build,
+    selected_features=selected_features,
+    breed_info=breed_info,
+)
+
 total_score = round(
     weight_score
     + bcs_score
     + frame_score
     + prop_score
     + health_score
-    + market_score,
+    + market_score
+    + quant_score
+    + qualitative_score,
     1,
 )
+
+total_score = round(clamp(total_score, 0, 100), 1)
 
 category, category_style = classify_total_score(total_score)
 weight_position = classify_weight_position(estimated_weight, target_min, target_ideal)
@@ -1251,12 +2133,14 @@ with tab_result:
 
     score_df = pd.DataFrame(
         [
-            ["Bobot vs target bangsa", weight_score, 30],
-            ["BCS / kondisi tubuh", bcs_score, 25],
-            ["Rangka dan tinggi", frame_score, 15],
-            ["Proporsi tubuh", prop_score, 10],
-            ["Kesehatan lapangan", health_score, 20],
-            ["Kesiapan pasar", market_score, 10],
+            ["Bobot vs target bangsa", weight_score, 20],
+            ["BCS / kondisi tubuh", bcs_score, 15],
+            ["Rangka dan tinggi", frame_score, 10],
+            ["Proporsi tubuh", prop_score, 8],
+            ["Kesehatan lapangan", health_score, 15],
+            ["Kesiapan pasar", market_score, 7],
+            ["Kuantitatif tambahan", quant_score, 10],
+            ["Kualitatif / fenotipe bangsa", qualitative_score, 15],
         ],
         columns=["Komponen", "Skor", "Maksimum"],
     )
@@ -1289,7 +2173,7 @@ Bobot dewasa acuan: {adult_min}-{adult_max} kg
 BCS: {bcs:.1f}  
 BCS ideal: {ideal_bcs[0]}-{ideal_bcs[1]}  
 Fase umur: {age_stage}  
-Indeks proporsi: {proportion:.2f}
+Indeks panjang/lingkar dada: {proportion:.2f}
 """
         )
 
@@ -1303,6 +2187,43 @@ Estimasi waktu ke target: {days_to_desired} hari
 Biaya pakan tambahan: {rupiah(additional_feed_cost) if feed_cost_per_day > 0 else "-"}
 """
         )
+
+    st.markdown("---")
+
+    st.subheader("Ringkasan Kuantitatif Tambahan")
+
+    quant_df = pd.DataFrame(
+        [
+            [
+                "Kedalaman dada / tinggi",
+                quant_details["Rasio kedalaman dada"],
+                f"{breed_info['quant']['chest_depth_ratio'][0]} - {breed_info['quant']['chest_depth_ratio'][1]}",
+                quant_details["Skor kedalaman dada"],
+                4,
+            ],
+            [
+                "Lebar pinggul / tinggi",
+                quant_details["Rasio lebar pinggul"],
+                f"{breed_info['quant']['rump_width_ratio'][0]} - {breed_info['quant']['rump_width_ratio'][1]}",
+                quant_details["Skor lebar pinggul"],
+                3,
+            ],
+            [
+                "Lingkar tulang kering / tinggi",
+                quant_details["Rasio lingkar tulang kering"],
+                f"{breed_info['quant']['cannon_ratio'][0]} - {breed_info['quant']['cannon_ratio'][1]}",
+                quant_details["Skor tulang kering"],
+                3,
+            ],
+        ],
+        columns=["Indikator", "Nilai", "Acuan Rasio", "Skor", "Maksimum"],
+    )
+
+    st.dataframe(
+        quant_df,
+        use_container_width=True,
+        hide_index=True,
+    )
 
     st.markdown("---")
 
@@ -1330,6 +2251,10 @@ Biaya pakan tambahan: {rupiah(additional_feed_cost) if feed_cost_per_day > 0 els
         proportion=proportion,
         health_score=health_score,
         market_score=market_score,
+        quant_score=quant_score,
+        quant_details=quant_details,
+        qualitative_score=qualitative_score,
+        qualitative_details=qualitative_details,
         price_per_kg=price_per_kg,
         feed_cost_per_day=feed_cost_per_day,
         desired_target_weight=desired_target_weight,
@@ -1372,14 +2297,25 @@ Biaya pakan tambahan: {rupiah(additional_feed_cost) if feed_cost_per_day > 0 els
                 "Lingkar Dada cm": heart_girth_cm,
                 "Panjang Badan cm": body_length_cm,
                 "Tinggi cm": height_cm,
+                "Kedalaman Dada cm": chest_depth_cm,
+                "Lebar Pinggul cm": rump_width_cm,
+                "Lingkar Tulang Kering cm": cannon_circumference_cm,
                 "Estimasi Bobot kg": estimated_weight,
                 "BCS": bcs,
+                "Warna Bulu": selected_color,
+                "Bentuk Wajah": selected_face,
+                "Tanduk": selected_horn,
+                "Telinga": selected_ear,
+                "Bentuk Tubuh": selected_body_build,
+                "Ciri Khas": ", ".join(selected_features),
                 "Skor Bobot": weight_score,
                 "Skor BCS": bcs_score,
                 "Skor Rangka": frame_score,
                 "Skor Proporsi": prop_score,
                 "Skor Kesehatan": health_score,
                 "Skor Pasar": market_score,
+                "Skor Kuantitatif": quant_score,
+                "Skor Kualitatif": qualitative_score,
                 "Skor Total": total_score,
                 "Kategori": category,
                 "Posisi Bobot": weight_position,
@@ -1390,6 +2326,79 @@ Biaya pakan tambahan: {rupiah(additional_feed_cost) if feed_cost_per_day > 0 els
             }
         )
         st.success("Data berhasil disimpan ke Tabel Evaluasi.")
+
+
+# =========================================================
+# PHENOTYPE TAB
+# =========================================================
+
+with tab_pheno:
+    st.subheader("Evaluasi Ciri Bangsa / Fenotipe")
+
+    p1, p2, p3 = st.columns(3)
+
+    with p1:
+        st.metric("Skor Kualitatif", f"{qualitative_score:.1f}/15")
+        st.caption("Berdasarkan warna, wajah, tanduk, telinga, tubuh, dan ciri khas.")
+
+    with p2:
+        st.metric("Skor Kuantitatif Tambahan", f"{quant_score:.1f}/10")
+        st.caption("Berdasarkan rasio dada, pinggul, dan tulang kering.")
+
+    with p3:
+        conformity_pct = round((qualitative_score / 15) * 100, 1)
+        st.metric("Kesesuaian Fenotipe", f"{conformity_pct}%")
+        st.caption(f"Acuan: {breed}")
+
+    st.markdown("---")
+
+    qualitative_rows = []
+
+    for trait_name, trait_data in qualitative_details.items():
+        qualitative_rows.append(
+            [
+                trait_name,
+                trait_data["Input"],
+                trait_data["Status"],
+                trait_data["Skor"],
+                trait_data["Acuan"],
+            ]
+        )
+
+    qualitative_df = pd.DataFrame(
+        qualitative_rows,
+        columns=["Ciri", "Input", "Status", "Skor", "Acuan Bangsa"],
+    )
+
+    st.dataframe(
+        qualitative_df,
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.markdown("---")
+    st.subheader("Interpretasi Praktis")
+
+    if qualitative_score >= 12:
+        st.success(
+            f"Ciri luar ternak relatif kuat mengarah ke bangsa {breed}. Ini bisa meningkatkan kepercayaan untuk tujuan bibit, jual beli, atau premium."
+        )
+    elif qualitative_score >= 8:
+        st.warning(
+            "Ciri luar masih sedang. Ternak bisa saja persilangan, kurang terawat, atau belum menunjukkan karakter penuh karena umur/jenis kelamin."
+        )
+    else:
+        st.error(
+            "Ciri luar kurang sesuai. Hindari membeli dengan harga premium hanya berdasarkan klaim bangsa tanpa bukti tambahan."
+        )
+
+    st.info(
+        """
+Untuk penilaian bibit atau harga premium, ciri fenotipe sebaiknya dilengkapi dengan:
+riwayat induk-pejantan, catatan kelahiran, performa pertumbuhan, riwayat kesehatan,
+dan pengamatan langsung oleh orang yang berpengalaman.
+"""
+    )
 
 
 # =========================================================
@@ -1451,6 +2460,17 @@ with tab_compare:
         category_count.columns = ["Kategori", "Jumlah"]
         st.dataframe(category_count, use_container_width=True, hide_index=True)
 
+        st.markdown("**Rata-rata skor per jenis dan bangsa:**")
+        group_df = (
+            records_df
+            .groupby(["Jenis", "Bangsa"], as_index=False)[
+                ["Skor Total", "Skor Kuantitatif", "Skor Kualitatif"]
+            ]
+            .mean()
+            .round(1)
+        )
+        st.dataframe(group_df, use_container_width=True, hide_index=True)
+
 
 # =========================================================
 # AI PROMPT
@@ -1473,10 +2493,22 @@ with tab_prompt:
         height_cm=height_cm,
         heart_girth_cm=heart_girth_cm,
         body_length_cm=body_length_cm,
+        chest_depth_cm=chest_depth_cm,
+        rump_width_cm=rump_width_cm,
+        cannon_circumference_cm=cannon_circumference_cm,
+        selected_color=selected_color,
+        selected_face=selected_face,
+        selected_horn=selected_horn,
+        selected_ear=selected_ear,
+        selected_body_build=selected_body_build,
+        selected_features=selected_features,
         total_score=total_score,
         category=category,
         health_score=health_score,
         market_score=market_score,
+        quant_score=quant_score,
+        qualitative_score=qualitative_score,
+        qualitative_details=qualitative_details,
         price_per_kg=price_per_kg,
         feed_cost_per_day=feed_cost_per_day,
         notes=notes,
@@ -1484,13 +2516,13 @@ with tab_prompt:
 
     st.write(
         "Prompt ini bisa disalin ke AI lain agar pengguna mendapat penjelasan lanjutan "
-        "berdasarkan hasil penilaian."
+        "berdasarkan hasil penilaian kuantitatif dan kualitatif."
     )
 
     st.text_area(
         "Prompt siap pakai",
         value=ai_prompt,
-        height=420,
+        height=520,
     )
 
     st.download_button(
@@ -1515,14 +2547,36 @@ with tab_guide:
 
 | Komponen | Maksimum | Makna |
 |---|---:|---|
-| Bobot vs target bangsa | 30 | Menilai apakah bobot ternak sesuai target jenis/bangsa |
-| BCS | 25 | Menilai kondisi tubuh: kurus, ideal, atau terlalu gemuk |
-| Rangka dan tinggi | 15 | Menilai kesesuaian tinggi dengan karakter bangsa |
-| Proporsi tubuh | 10 | Membandingkan panjang badan dan lingkar dada |
-| Kesehatan lapangan | 20 | Menilai tanda kesehatan dasar dari pengamatan |
-| Kesiapan pasar | 10 | Menilai kesiapan sesuai tujuan jual, potong, bibit, atau perah |
+| Bobot vs target bangsa | 20 | Menilai apakah bobot ternak sesuai target jenis/bangsa |
+| BCS | 15 | Menilai kondisi tubuh: kurus, ideal, atau terlalu gemuk |
+| Rangka dan tinggi | 10 | Menilai kesesuaian tinggi dengan karakter bangsa |
+| Proporsi tubuh | 8 | Membandingkan panjang badan dan lingkar dada |
+| Kesehatan lapangan | 15 | Menilai tanda kesehatan dasar dari pengamatan |
+| Kesiapan pasar | 7 | Menilai kesiapan sesuai tujuan jual, potong, bibit, atau perah |
+| Kuantitatif tambahan | 10 | Kedalaman dada, lebar pinggul, dan lingkar tulang kering |
+| Kualitatif/fenotipe bangsa | 15 | Warna bulu, wajah, tanduk, telinga, bentuk tubuh, dan ciri khas bangsa |
 
-### 2. Kategori hasil
+### 2. Faktor kuantitatif tambahan
+
+| Faktor | Kegunaan praktis |
+|---|---|
+| Kedalaman dada | Indikasi kapasitas tubuh, volume organ, dan potensi penggemukan/perah |
+| Lebar pinggul/panggul | Indikasi rangka belakang, keseimbangan tubuh, dan reproduksi |
+| Lingkar tulang kering | Indikasi kasar kekuatan kaki/rangka |
+| Rasio terhadap tinggi | Membantu membandingkan ternak kecil dan besar secara lebih adil |
+
+### 3. Faktor kualitatif/fenotipe
+
+| Faktor | Kegunaan praktis |
+|---|---|
+| Warna bulu | Membantu identifikasi bangsa/persilangan |
+| Bentuk wajah | Beberapa bangsa memiliki profil kepala khas |
+| Tanduk | Bentuk dan keberadaan tanduk dapat menjadi ciri pembeda |
+| Telinga | Penting pada Brahman Cross, PE, Boer, dan beberapa bangsa lain |
+| Bentuk tubuh | Membaca tipe pedaging, perah, dwiguna, atau kerja |
+| Ciri khas | Punuk, gelambir, ambing, ekor gemuk, paha penuh, punggung lebar, dan lain-lain |
+
+### 4. Kategori hasil
 
 | Skor | Kategori | Arti praktis |
 |---:|---|---|
@@ -1531,18 +2585,18 @@ with tab_guide:
 | 55-69 | Perlu Perbaikan | Perlu pakan, perawatan, atau pemeriksaan tambahan |
 | <55 | Risiko Tinggi | Tidak disarankan untuk keputusan besar tanpa pemeriksaan lanjut |
 
-### 3. Cara membaca insight
+### 5. Cara membaca hasil
 
-- **Peternak**: fokus pada pakan, kesehatan, BCS, dan target bobot.
-- **Jagal**: fokus pada karkas, kondisi daging, paha, dada, punggung, dan kesehatan.
-- **Blantik**: fokus pada selisih harga, potensi naik bobot, tampilan, bangsa, dan risiko transaksi.
+- **Peternak**: fokus pada bobot, BCS, kesehatan, target penggemukan, dan biaya pakan.
+- **Jagal**: fokus pada karkas, dada, paha, punggung, BCS, dan kesehatan.
+- **Blantik**: fokus pada selisih harga, tampilan, bangsa, umur, bobot, dan risiko klaim kualitas.
 - **Bibit/perah**: jangan hanya melihat bobot; perhatikan reproduksi, ambing, kaki, dan riwayat produksi.
 
-### 4. Keterbatasan sistem
+### 6. Keterbatasan sistem
 
-Aplikasi ini menggunakan estimasi berbasis ukuran tubuh dan parameter umum. 
+Aplikasi ini menggunakan estimasi berbasis ukuran tubuh, ciri visual, dan parameter umum. 
 Hasil dapat berbeda dengan timbangan aktual, kondisi pasar, kualitas pakan, kesehatan tersembunyi, 
-dan standar lokal masing-masing daerah.
+umur sebenarnya, kemurnian bangsa, dan standar lokal masing-masing daerah.
 """
     )
 
@@ -1551,11 +2605,12 @@ dan standar lokal masing-masing daerah.
 
     st.markdown(
         """
-- Tambahkan login admin dan database online.
-- Tambahkan upload foto ternak untuk dokumentasi.
-- Tambahkan grafik perkembangan bobot per minggu.
-- Tambahkan mode kandang kolektif untuk membandingkan banyak ternak.
+- Tambahkan upload foto ternak untuk dokumentasi visual.
+- Tambahkan database online untuk riwayat kandang.
+- Tambahkan grafik perkembangan bobot mingguan.
 - Tambahkan standar harga lokal berdasarkan wilayah.
 - Tambahkan rekomendasi ransum berdasarkan hijauan, konsentrat, dan target ADG.
+- Tambahkan mode verifikasi foto dengan catatan manual dari petugas.
+- Tambahkan template laporan PDF per ternak.
 """
     )
