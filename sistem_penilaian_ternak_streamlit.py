@@ -691,6 +691,396 @@ BREED_DATA = {
 }
 
 
+
+# =========================================================
+# REFERENSI SNI / ACUAN PEMBANDING
+# =========================================================
+# Keterangan penting:
+# - Nomor SNI disesuaikan dengan katalog BSN yang tersedia.
+# - Angka default di bawah ini adalah acuan awal aplikasi agar fitur
+#   pembanding dapat berjalan. Untuk sertifikasi/resmi, pengguna harus
+#   mengganti nilai minimum sesuai dokumen SNI resmi, karena SNI dapat
+#   membedakan umur, jenis kelamin, kelas mutu, lingkar skrotum, panjang
+#   telinga, sifat reproduksi, dan syarat khusus lain.
+# - Aplikasi menyediakan mode "ubah manual" agar nilai dapat disesuaikan
+#   dengan dokumen SNI yang dimiliki pengguna.
+# =========================================================
+
+SNI_REFERENCE_DATA = {
+    "Sapi Potong": {
+        "Bali": {
+            "standard_no": "SNI 7651-4:2023",
+            "standard_title": "Bibit sapi potong - Bagian 4: Bali",
+            "coverage": "bibit",
+            "source_note": "Katalog BSN mencantumkan SNI 7651-4:2023 untuk bibit sapi potong Bali.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 280,
+                "Tinggi pundak minimum (cm)": 115,
+                "Panjang badan minimum (cm)": 110,
+                "Lingkar dada minimum (cm)": 145,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Warna bulu sesuai karakter bangsa",
+                "Sehat dan tidak cacat",
+                "Kaki kuat",
+                "Bentuk tubuh sesuai rumpun",
+            ],
+        },
+        "Peranakan Ongole / PO": {
+            "standard_no": "SNI 7651-5:2022",
+            "standard_title": "Bibit sapi potong - Bagian 5: Peranakan ongole",
+            "coverage": "bibit",
+            "source_note": "Katalog BSN mencantumkan SNI 7651-5:2022 untuk bibit sapi potong Peranakan Ongole.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 320,
+                "Tinggi pundak minimum (cm)": 125,
+                "Panjang badan minimum (cm)": 120,
+                "Lingkar dada minimum (cm)": 150,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Warna tubuh putih/abu-abu sesuai karakter PO",
+                "Punuk/gelambir sesuai tipe zebu",
+                "Sehat dan tidak cacat",
+                "Kaki kuat",
+            ],
+        },
+        "Madura": {
+            "standard_no": "SNI 7651-2:2023",
+            "standard_title": "Bibit sapi potong - Bagian 2: Madura",
+            "coverage": "bibit",
+            "source_note": "Katalog BSN mencantumkan SNI 7651-2:2023 untuk bibit sapi potong Madura.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 250,
+                "Tinggi pundak minimum (cm)": 110,
+                "Panjang badan minimum (cm)": 105,
+                "Lingkar dada minimum (cm)": 135,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Warna cokelat/merah bata sesuai karakter Madura",
+                "Tubuh kompak",
+                "Sehat dan tidak cacat",
+                "Kaki kuat",
+            ],
+        },
+        "Simmental Cross": {
+            "standard_no": "SNI 7651-8:2022",
+            "standard_title": "Bibit sapi potong - Bagian 8: Simmental Indonesia",
+            "coverage": "bibit",
+            "source_note": "Katalog BSN mencantumkan SNI 7651-8:2022 untuk bibit sapi potong Simmental Indonesia.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 450,
+                "Tinggi pundak minimum (cm)": 135,
+                "Panjang badan minimum (cm)": 130,
+                "Lingkar dada minimum (cm)": 165,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Warna/tipe tubuh sesuai Simmental Indonesia",
+                "Rangka besar",
+                "Sehat dan tidak cacat",
+                "Kaki kuat",
+            ],
+        },
+        "Limousin Cross": {
+            "standard_no": "SNI 7651-9:2022",
+            "standard_title": "Bibit sapi potong - Bagian 9: Limousin Indonesia",
+            "coverage": "bibit",
+            "source_note": "Katalog BSN mencantumkan SNI 7651-9:2022 untuk bibit sapi potong Limousin Indonesia.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 450,
+                "Tinggi pundak minimum (cm)": 135,
+                "Panjang badan minimum (cm)": 130,
+                "Lingkar dada minimum (cm)": 165,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Warna/tipe tubuh sesuai Limousin Indonesia",
+                "Otot dan paha berkembang",
+                "Sehat dan tidak cacat",
+                "Kaki kuat",
+            ],
+        },
+        "Brahman Cross": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk Brahman Cross pada katalog yang digunakan.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 400,
+                "Tinggi pundak minimum (cm)": 130,
+                "Panjang badan minimum (cm)": 125,
+                "Lingkar dada minimum (cm)": 160,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Ciri zebu/Brahman tampak",
+                "Punuk/gelambir sesuai tipe",
+                "Sehat dan tidak cacat",
+                "Kaki kuat",
+            ],
+        },
+    },
+    "Sapi Perah": {
+        "Friesian Holstein / FH": {
+            "standard_no": "SNI 2735:2022 / Ralat1:2023",
+            "standard_title": "Bibit sapi perah friesian holstein Indonesia",
+            "coverage": "bibit",
+            "source_note": "Katalog BSN mencantumkan SNI 2735:2022 dan ralat 2023 untuk bibit sapi perah FH Indonesia.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 400,
+                "Tinggi pundak minimum (cm)": 130,
+                "Panjang badan minimum (cm)": 125,
+                "Lingkar dada minimum (cm)": 160,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Warna hitam-putih/putih-hitam sesuai FH",
+                "Bentuk tubuh perah",
+                "Ambing proporsional untuk betina",
+                "Sehat dan tidak cacat",
+            ],
+        },
+        "Peranakan FH": {
+            "standard_no": "SNI 2735:2022 / Ralat1:2023",
+            "standard_title": "Bibit sapi perah friesian holstein Indonesia",
+            "coverage": "acuan_terdekat",
+            "source_note": "Peranakan FH menggunakan acuan terdekat FH Indonesia dan perlu verifikasi dokumen resmi.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 350,
+                "Tinggi pundak minimum (cm)": 125,
+                "Panjang badan minimum (cm)": 120,
+                "Lingkar dada minimum (cm)": 150,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Tipe tubuh perah",
+                "Warna dominan FH/PFH",
+                "Ambing proporsional untuk betina",
+                "Sehat dan tidak cacat",
+            ],
+        },
+        "Jersey": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk Jersey.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 300,
+                "Tinggi pundak minimum (cm)": 120,
+                "Panjang badan minimum (cm)": 115,
+                "Lingkar dada minimum (cm)": 140,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Tipe tubuh perah",
+                "Warna cokelat/krem sesuai Jersey",
+                "Ambing proporsional untuk betina",
+                "Sehat dan tidak cacat",
+            ],
+        },
+    },
+    "Kerbau": {
+        "Kerbau Lumpur / Rawa": {
+            "standard_no": "SNI 7706:2023",
+            "standard_title": "Bibit kerbau lumpur",
+            "coverage": "bibit",
+            "source_note": "Katalog BSN mencantumkan SNI 7706:2023 untuk bibit kerbau lumpur.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 350,
+                "Tinggi pundak minimum (cm)": 125,
+                "Panjang badan minimum (cm)": 120,
+                "Lingkar dada minimum (cm)": 160,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Warna kulit sesuai kerbau lumpur",
+                "Tanduk sesuai karakter kerbau lumpur",
+                "Sehat dan tidak cacat",
+                "Kaki kuat",
+            ],
+        },
+        "Murrah": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk Murrah.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 450,
+                "Tinggi pundak minimum (cm)": 130,
+                "Panjang badan minimum (cm)": 125,
+                "Lingkar dada minimum (cm)": 170,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Warna hitam mengilap",
+                "Tanduk melingkar sesuai Murrah",
+                "Ambing proporsional untuk betina",
+                "Sehat dan tidak cacat",
+            ],
+        },
+    },
+    "Kambing": {
+        "Peranakan Etawa / PE": {
+            "standard_no": "SNI 7352-1:2022",
+            "standard_title": "Bibit kambing - Bagian 1: Peranakan Etawah",
+            "coverage": "bibit",
+            "source_note": "Katalog BSN mencantumkan SNI 7352-1:2022; penelitian SNI PE menyebut parameter tinggi pundak, panjang badan, lingkar dada, panjang telinga, dan lingkar skrotum.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 35,
+                "Tinggi pundak minimum (cm)": 65,
+                "Panjang badan minimum (cm)": 62,
+                "Lingkar dada minimum (cm)": 70,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Warna putih/hitam/cokelat atau kombinasinya",
+                "Telinga panjang menggantung",
+                "Profil muka cembung",
+                "Sehat dan tidak cacat",
+            ],
+        },
+        "Kacang": {
+            "standard_no": "SNI 7352-2:2018 Konfirmasi 2024",
+            "standard_title": "Bibit kambing - Bagian 2: Kacang",
+            "coverage": "bibit",
+            "source_note": "Katalog BSN mencantumkan SNI 7352-2:2018 dan konfirmasi 2024 untuk bibit kambing Kacang.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 18,
+                "Tinggi pundak minimum (cm)": 45,
+                "Panjang badan minimum (cm)": 42,
+                "Lingkar dada minimum (cm)": 50,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Tubuh kompak",
+                "Telinga kecil/tegak",
+                "Sehat dan tidak cacat",
+                "Kaki kuat",
+            ],
+        },
+        "Saanen": {
+            "standard_no": "SNI 7352-4:2022",
+            "standard_title": "Bibit kambing - Bagian 4: Saanen Indonesia",
+            "coverage": "bibit",
+            "source_note": "Katalog BSN mencantumkan SNI 7352-4:2022 untuk bibit kambing Saanen Indonesia.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 35,
+                "Tinggi pundak minimum (cm)": 70,
+                "Panjang badan minimum (cm)": 65,
+                "Lingkar dada minimum (cm)": 72,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Warna putih/krem dominan",
+                "Tipe tubuh perah",
+                "Ambing proporsional untuk betina",
+                "Sehat dan tidak cacat",
+            ],
+        },
+        "Boer": {
+            "standard_no": "SNI 7352-8:2024",
+            "standard_title": "Bibit kambing - Bagian 8: Boer",
+            "coverage": "bibit",
+            "source_note": "Katalog BSN mencantumkan SNI 7352-8:2024 untuk bibit kambing Boer.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 35,
+                "Tinggi pundak minimum (cm)": 60,
+                "Panjang badan minimum (cm)": 58,
+                "Lingkar dada minimum (cm)": 70,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Kepala cokelat/badan putih atau pola Boer",
+                "Tubuh pedaging berotot",
+                "Telinga menggantung",
+                "Sehat dan tidak cacat",
+            ],
+        },
+    },
+    "Domba": {
+        "Domba Garut": {
+            "standard_no": "SNI 7532.1:2015",
+            "standard_title": "Bibit domba - Bagian 1: Garut",
+            "coverage": "bibit",
+            "source_note": "Katalog BSN mencantumkan SNI 7532.1:2015 untuk bibit domba Garut.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 30,
+                "Tinggi pundak minimum (cm)": 55,
+                "Panjang badan minimum (cm)": 50,
+                "Lingkar dada minimum (cm)": 65,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Tipe domba Garut",
+                "Dada lebar",
+                "Kaki kuat",
+                "Sehat dan tidak cacat",
+            ],
+        },
+        "Domba Ekor Tipis": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk domba ekor tipis.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 20,
+                "Tinggi pundak minimum (cm)": 45,
+                "Panjang badan minimum (cm)": 42,
+                "Lingkar dada minimum (cm)": 55,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Ekor tipis",
+                "Tubuh kompak",
+                "Sehat dan tidak cacat",
+                "Kaki kuat",
+            ],
+        },
+        "Domba Ekor Gemuk": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk domba ekor gemuk.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 25,
+                "Tinggi pundak minimum (cm)": 50,
+                "Panjang badan minimum (cm)": 48,
+                "Lingkar dada minimum (cm)": 60,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Ekor gemuk",
+                "Cadangan lemak ekor tampak",
+                "Sehat dan tidak cacat",
+                "Kaki kuat",
+            ],
+        },
+        "Merino Cross": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk Merino Cross.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 35,
+                "Tinggi pundak minimum (cm)": 60,
+                "Panjang badan minimum (cm)": 58,
+                "Lingkar dada minimum (cm)": 68,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Bulu/wol lebih tebal",
+                "Rangka panjang",
+                "Sehat dan tidak cacat",
+                "Kaki kuat",
+            ],
+        },
+    },
+}
+
+
 SPECIES_CONFIG = {
     "Sapi Potong": {
         "formula": "large",
@@ -1703,6 +2093,112 @@ Gunakan bahasa Indonesia yang praktis, mudah dipahami, dan tidak terlalu teoriti
     return prompt
 
 
+
+def get_sni_reference(species, breed):
+    species_refs = SNI_REFERENCE_DATA.get(species, {})
+    return species_refs.get(breed)
+
+
+def evaluate_sni_compliance(
+    sni_thresholds,
+    estimated_weight,
+    height_cm,
+    body_length_cm,
+    heart_girth_cm,
+    bcs,
+    qualitative_score,
+    health_score,
+):
+    checks = [
+        {
+            "Parameter": "Bobot hidup",
+            "Nilai ternak": round(estimated_weight, 2),
+            "Acuan minimum": sni_thresholds["Bobot hidup minimum (kg)"],
+            "Satuan": "kg",
+            "Status": "Memenuhi" if estimated_weight >= sni_thresholds["Bobot hidup minimum (kg)"] else "Belum memenuhi",
+        },
+        {
+            "Parameter": "Tinggi pundak",
+            "Nilai ternak": round(height_cm, 2),
+            "Acuan minimum": sni_thresholds["Tinggi pundak minimum (cm)"],
+            "Satuan": "cm",
+            "Status": "Memenuhi" if height_cm >= sni_thresholds["Tinggi pundak minimum (cm)"] else "Belum memenuhi",
+        },
+        {
+            "Parameter": "Panjang badan",
+            "Nilai ternak": round(body_length_cm, 2),
+            "Acuan minimum": sni_thresholds["Panjang badan minimum (cm)"],
+            "Satuan": "cm",
+            "Status": "Memenuhi" if body_length_cm >= sni_thresholds["Panjang badan minimum (cm)"] else "Belum memenuhi",
+        },
+        {
+            "Parameter": "Lingkar dada",
+            "Nilai ternak": round(heart_girth_cm, 2),
+            "Acuan minimum": sni_thresholds["Lingkar dada minimum (cm)"],
+            "Satuan": "cm",
+            "Status": "Memenuhi" if heart_girth_cm >= sni_thresholds["Lingkar dada minimum (cm)"] else "Belum memenuhi",
+        },
+        {
+            "Parameter": "BCS",
+            "Nilai ternak": round(bcs, 2),
+            "Acuan minimum": sni_thresholds["BCS minimum"],
+            "Satuan": "skor",
+            "Status": "Memenuhi" if bcs >= sni_thresholds["BCS minimum"] else "Belum memenuhi",
+        },
+        {
+            "Parameter": "Kesesuaian fenotipe",
+            "Nilai ternak": round((qualitative_score / 15) * 100, 1),
+            "Acuan minimum": 70,
+            "Satuan": "%",
+            "Status": "Memenuhi" if qualitative_score >= 10.5 else "Belum memenuhi",
+        },
+        {
+            "Parameter": "Kesehatan lapangan",
+            "Nilai ternak": round((health_score / 15) * 100, 1),
+            "Acuan minimum": 80,
+            "Satuan": "%",
+            "Status": "Memenuhi" if health_score >= 12 else "Belum memenuhi",
+        },
+    ]
+
+    total_checks = len(checks)
+    passed_checks = sum(1 for item in checks if item["Status"] == "Memenuhi")
+    compliance_percent = round((passed_checks / total_checks) * 100, 1)
+
+    if passed_checks == total_checks:
+        final_status = "Sesuai acuan SNI aplikasi"
+        final_style = "good"
+    elif compliance_percent >= 70:
+        final_status = "Mendekati acuan SNI"
+        final_style = "warning"
+    else:
+        final_status = "Belum sesuai acuan SNI"
+        final_style = "danger"
+
+    return checks, compliance_percent, final_status, final_style
+
+
+def generate_sni_gap_text(checks):
+    gaps = []
+
+    for item in checks:
+        if item["Status"] == "Belum memenuhi":
+            diff = item["Acuan minimum"] - item["Nilai ternak"]
+            if diff > 0:
+                gaps.append(
+                    f"{item['Parameter']} kurang {diff:.1f} {item['Satuan']}"
+                )
+            else:
+                gaps.append(
+                    f"{item['Parameter']} belum memenuhi"
+                )
+
+    if not gaps:
+        return "Semua parameter pembanding telah memenuhi acuan yang digunakan aplikasi."
+
+    return "; ".join(gaps)
+
+
 # =========================================================
 # SESSION STATE
 # =========================================================
@@ -1747,11 +2243,12 @@ st.caption(
 # INPUT AREA
 # =========================================================
 
-tab_input, tab_result, tab_pheno, tab_compare, tab_prompt, tab_guide = st.tabs(
+tab_input, tab_result, tab_pheno, tab_sni, tab_compare, tab_prompt, tab_guide = st.tabs(
     [
         "📝 Input Penilaian",
         "📊 Hasil & Insight",
         "🧬 Ciri Bangsa",
+        "🇮🇩 Pembanding SNI",
         "📋 Tabel Evaluasi",
         "🤖 Prompt AI",
         "📘 Panduan",
@@ -2068,6 +2565,29 @@ qualitative_score, qualitative_details = score_qualitative_traits(
     breed_info=breed_info,
 )
 
+sni_reference = get_sni_reference(species, breed)
+
+if sni_reference is None:
+    sni_reference = {
+        "standard_no": "Belum tersedia",
+        "standard_title": "Belum tersedia",
+        "coverage": "unmapped",
+        "source_note": "Belum ada pemetaan SNI pada aplikasi.",
+        "default_min": {
+            "Bobot hidup minimum (kg)": target_min,
+            "Tinggi pundak minimum (cm)": height_min,
+            "Panjang badan minimum (cm)": max(body_length_cm * 0.9, 1),
+            "Lingkar dada minimum (cm)": max(heart_girth_cm * 0.9, 1),
+            "BCS minimum": 2.5,
+        },
+        "qualitative_required": [
+            "Sehat dan tidak cacat",
+            "Bentuk tubuh sesuai tujuan",
+        ],
+    }
+
+default_sni_thresholds = dict(sni_reference["default_min"])
+
 total_score = round(
     weight_score
     + bcs_score
@@ -2318,6 +2838,9 @@ Biaya pakan tambahan: {rupiah(additional_feed_cost) if feed_cost_per_day > 0 els
                 "Skor Kualitatif": qualitative_score,
                 "Skor Total": total_score,
                 "Kategori": category,
+                "Acuan SNI": sni_reference["standard_no"],
+                "Status SNI": sni_final_status if "sni_final_status" in locals() else "-",
+                "Kesesuaian SNI %": sni_compliance_percent if "sni_compliance_percent" in locals() else 0,
                 "Posisi Bobot": weight_position,
                 "Estimasi Karkas kg": carcass_estimate,
                 "Estimasi Daging kg": meat_estimate,
@@ -2399,6 +2922,180 @@ riwayat induk-pejantan, catatan kelahiran, performa pertumbuhan, riwayat kesehat
 dan pengamatan langsung oleh orang yang berpengalaman.
 """
     )
+
+
+
+# =========================================================
+# SNI COMPARISON TAB
+# =========================================================
+
+with tab_sni:
+    st.subheader("Pembanding Hasil dengan Acuan SNI")
+
+    st.markdown(
+        """
+<div class="section-note">
+Fitur ini membandingkan hasil pengukuran ternak dengan acuan SNI yang dipetakan di aplikasi.
+Karena nilai SNI dapat berbeda menurut umur, jenis kelamin, dan kelas mutu, ambang di bawah ini
+bisa diedit agar sama dengan dokumen SNI resmi yang Anda gunakan.
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("---")
+
+    sni_col1, sni_col2 = st.columns([1, 2])
+
+    with sni_col1:
+        st.metric("Nomor/Acuan SNI", sni_reference["standard_no"])
+        st.caption(sni_reference["standard_title"])
+
+    with sni_col2:
+        if sni_reference["coverage"] in ["bibit", "acuan_terdekat"]:
+            st.success(sni_reference["source_note"])
+        elif sni_reference["coverage"] == "non_sni_direct":
+            st.warning(sni_reference["source_note"])
+        else:
+            st.error(sni_reference["source_note"])
+
+    st.markdown("### Ambang SNI yang digunakan untuk pembanding")
+
+    edit_sni_thresholds = st.toggle(
+        "Ubah ambang SNI secara manual",
+        value=False,
+        help="Aktifkan bila Anda memiliki dokumen SNI resmi dan ingin memasukkan nilai minimum sesuai umur, jenis kelamin, atau kelas mutu.",
+    )
+
+    threshold_col1, threshold_col2, threshold_col3 = st.columns(3)
+
+    if edit_sni_thresholds:
+        with threshold_col1:
+            sni_weight_min = st.number_input(
+                "SNI bobot hidup minimum (kg)",
+                min_value=0.0,
+                value=float(default_sni_thresholds["Bobot hidup minimum (kg)"]),
+                step=1.0,
+            )
+
+            sni_height_min = st.number_input(
+                "SNI tinggi pundak minimum (cm)",
+                min_value=0.0,
+                value=float(default_sni_thresholds["Tinggi pundak minimum (cm)"]),
+                step=1.0,
+            )
+
+        with threshold_col2:
+            sni_body_length_min = st.number_input(
+                "SNI panjang badan minimum (cm)",
+                min_value=0.0,
+                value=float(default_sni_thresholds["Panjang badan minimum (cm)"]),
+                step=1.0,
+            )
+
+            sni_heart_girth_min = st.number_input(
+                "SNI lingkar dada minimum (cm)",
+                min_value=0.0,
+                value=float(default_sni_thresholds["Lingkar dada minimum (cm)"]),
+                step=1.0,
+            )
+
+        with threshold_col3:
+            sni_bcs_min = st.number_input(
+                "BCS minimum",
+                min_value=1.0,
+                max_value=5.0,
+                value=float(default_sni_thresholds["BCS minimum"]),
+                step=0.1,
+            )
+
+            st.caption("Fenotipe minimal: 70% dan kesehatan minimal: 80%.")
+    else:
+        sni_weight_min = float(default_sni_thresholds["Bobot hidup minimum (kg)"])
+        sni_height_min = float(default_sni_thresholds["Tinggi pundak minimum (cm)"])
+        sni_body_length_min = float(default_sni_thresholds["Panjang badan minimum (cm)"])
+        sni_heart_girth_min = float(default_sni_thresholds["Lingkar dada minimum (cm)"])
+        sni_bcs_min = float(default_sni_thresholds["BCS minimum"])
+
+        threshold_df = pd.DataFrame(
+            [
+                ["Bobot hidup minimum", sni_weight_min, "kg"],
+                ["Tinggi pundak minimum", sni_height_min, "cm"],
+                ["Panjang badan minimum", sni_body_length_min, "cm"],
+                ["Lingkar dada minimum", sni_heart_girth_min, "cm"],
+                ["BCS minimum", sni_bcs_min, "skor"],
+                ["Kesesuaian fenotipe minimum", 70, "%"],
+                ["Kesehatan lapangan minimum", 80, "%"],
+            ],
+            columns=["Parameter", "Acuan", "Satuan"],
+        )
+        st.dataframe(threshold_df, use_container_width=True, hide_index=True)
+
+    active_sni_thresholds = {
+        "Bobot hidup minimum (kg)": sni_weight_min,
+        "Tinggi pundak minimum (cm)": sni_height_min,
+        "Panjang badan minimum (cm)": sni_body_length_min,
+        "Lingkar dada minimum (cm)": sni_heart_girth_min,
+        "BCS minimum": sni_bcs_min,
+    }
+
+    sni_checks, sni_compliance_percent, sni_final_status, sni_final_style = evaluate_sni_compliance(
+        sni_thresholds=active_sni_thresholds,
+        estimated_weight=estimated_weight,
+        height_cm=height_cm,
+        body_length_cm=body_length_cm,
+        heart_girth_cm=heart_girth_cm,
+        bcs=bcs,
+        qualitative_score=qualitative_score,
+        health_score=health_score,
+    )
+
+    st.markdown("---")
+    st.subheader("Hasil Perbandingan SNI")
+
+    result_col1, result_col2, result_col3 = st.columns(3)
+
+    with result_col1:
+        st.metric("Status SNI", sni_final_status)
+
+    with result_col2:
+        st.metric("Kesesuaian", f"{sni_compliance_percent:.1f}%")
+
+    with result_col3:
+        st.metric("Parameter lolos", f"{sum(1 for item in sni_checks if item['Status'] == 'Memenuhi')}/{len(sni_checks)}")
+
+    sni_df = pd.DataFrame(sni_checks)
+
+    st.dataframe(
+        sni_df,
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    sni_gap_text = generate_sni_gap_text(sni_checks)
+
+    if sni_final_style == "good":
+        st.success(sni_gap_text)
+    elif sni_final_style == "warning":
+        st.warning(sni_gap_text)
+    else:
+        st.error(sni_gap_text)
+
+    st.markdown("---")
+    st.subheader("Acuan Kualitatif SNI / Bibit")
+
+    st.write("Ciri yang perlu dicek pada pemeriksaan lapangan:")
+
+    for item in sni_reference["qualitative_required"]:
+        st.markdown(f"- {item}")
+
+    st.info(
+        """
+Catatan: fitur ini bukan sertifikat SNI. Untuk sertifikasi atau Surat Keterangan Layak Bibit,
+gunakan dokumen SNI resmi dan pemeriksaan oleh pihak/instansi berwenang.
+"""
+    )
+
 
 
 # =========================================================
@@ -2638,11 +3335,21 @@ with tab_guide:
 - **Blantik**: fokus pada selisih harga, tampilan, bangsa, umur, bobot, dan risiko klaim kualitas.
 - **Bibit/perah**: jangan hanya melihat bobot; perhatikan reproduksi, ambing, kaki, dan riwayat produksi.
 
-### 6. Keterbatasan sistem
+### 6. Pembanding SNI
+
+Tab **Pembanding SNI** digunakan untuk membandingkan hasil ukur ternak dengan acuan minimum.
+Parameter yang dibandingkan meliputi bobot hidup, tinggi pundak, panjang badan, lingkar dada,
+BCS, kesesuaian fenotipe, dan kesehatan lapangan.
+
+Gunakan fitur **Ubah ambang SNI secara manual** bila Anda memiliki dokumen SNI resmi.
+Hal ini penting karena beberapa SNI membedakan syarat berdasarkan umur, jenis kelamin, kelas mutu,
+lingkar skrotum, panjang telinga, serta ciri reproduksi.
+
+### 7. Keterbatasan sistem
 
 Aplikasi ini menggunakan estimasi berbasis ukuran tubuh, ciri visual, dan parameter umum. 
 Hasil dapat berbeda dengan timbangan aktual, kondisi pasar, kualitas pakan, kesehatan tersembunyi, 
-umur sebenarnya, kemurnian bangsa, dan standar lokal masing-masing daerah.
+umur sebenarnya, kemurnian bangsa, dokumen SNI terbaru, dan standar lokal masing-masing daerah.
 """
     )
 
