@@ -394,6 +394,278 @@ a[href*="streamlit.io"] {
     }
 }
 
+
+/* =========================================================
+   RESPONSIVE UX UPGRADE
+   Better phone, tablet, and desktop layouts.
+   ========================================================= */
+
+:root {
+    --radius-xl: 24px;
+    --radius-lg: 18px;
+    --radius-md: 14px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+.hero {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero:after {
+    content: "";
+    position: absolute;
+    right: -80px;
+    top: -80px;
+    width: 220px;
+    height: 220px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    filter: blur(4px);
+    z-index: 0;
+}
+
+.hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin: 14px 0 18px 0;
+}
+
+.dash-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    min-height: 96px;
+}
+
+.dash-label {
+    color: var(--muted);
+    font-size: .84rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.dash-value {
+    color: var(--text);
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: -.03em;
+    line-height: 1.1;
+}
+
+.dash-note {
+    color: var(--muted);
+    font-size: .78rem;
+    margin-top: 7px;
+}
+
+.section-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 8px 0 12px 0;
+}
+
+.section-title-row h3 {
+    margin: 0 !important;
+}
+
+.red-flag-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.red-flag-item {
+    border: 1px solid var(--border);
+    border-left: 6px solid var(--warn);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    padding: 12px 14px;
+    color: var(--text);
+    line-height: 1.45;
+    box-shadow: var(--shadow);
+}
+
+.action-list {
+    display: grid;
+    gap: 9px;
+    margin-top: 8px;
+}
+
+.action-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    padding: 11px 13px;
+    color: var(--text);
+    line-height: 1.45;
+}
+
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.photo-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    padding: 10px;
+    box-shadow: var(--shadow);
+}
+
+.stTabs [data-baseweb="tab-list"] {
+    gap: 6px;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: thin;
+}
+
+.stTabs [data-baseweb="tab-list"]::-webkit-scrollbar {
+    height: 4px;
+}
+
+.stTabs [data-baseweb="tab-list"]::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 999px;
+}
+
+[data-testid="column"] {
+    min-width: 0;
+}
+
+@media (min-width: 1180px) {
+    .main .block-container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+@media (max-width: 1100px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .photo-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .red-flag-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .main .block-container {
+        padding-left: .85rem !important;
+        padding-right: .85rem !important;
+        padding-top: .75rem !important;
+    }
+
+    .hero {
+        padding: 20px 16px !important;
+        border-radius: 20px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .hero-title {
+        font-size: 1.55rem !important;
+        line-height: 1.15 !important;
+    }
+
+    .hero-subtitle {
+        font-size: .92rem !important;
+        line-height: 1.5 !important;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .dash-card,
+    .metric-card,
+    .card,
+    .insight,
+    .red-flag-item,
+    .action-item {
+        border-radius: 16px !important;
+        padding: 13px 14px !important;
+    }
+
+    .dash-value {
+        font-size: 1.18rem;
+    }
+
+    .big-score {
+        font-size: 2.35rem !important;
+    }
+
+    .badge {
+        font-size: .78rem !important;
+        padding: 6px 10px !important;
+        margin-right: 4px !important;
+    }
+
+    .app-shell-topbar {
+        padding: 10px 12px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .photo-grid {
+        grid-template-columns: 1fr;
+    }
+
+    div[data-testid="stMetric"] {
+        padding: 10px 12px !important;
+    }
+
+    .stTextInput input,
+    .stNumberInput input,
+    .stTextArea textarea {
+        font-size: 16px !important;
+    }
+
+    .stButton button,
+    .stDownloadButton button {
+        width: 100%;
+        min-height: 42px;
+    }
+}
+
+@media (max-width: 420px) {
+    .hero-title {
+        font-size: 1.35rem !important;
+    }
+
+    .hero-subtitle {
+        font-size: .86rem !important;
+    }
+
+    .dash-label {
+        font-size: .76rem;
+    }
+
+    .dash-value {
+        font-size: 1.05rem;
+    }
+}
+
 </style>
 """
 
@@ -1456,11 +1728,181 @@ def make_insights(
     return insights
 
 
+
+def data_completeness_score(items):
+    if not items:
+        return 0, []
+    filled = []
+    missing = []
+
+    for name, value in items.items():
+        is_filled = True
+
+        if value is None:
+            is_filled = False
+        elif isinstance(value, str) and value.strip() == "":
+            is_filled = False
+        elif isinstance(value, (list, tuple, set)) and len(value) == 0:
+            is_filled = False
+
+        if is_filled:
+            filled.append(name)
+        else:
+            missing.append(name)
+
+    score = round((len(filled) / len(items)) * 100, 1)
+    return score, missing
+
+
+def generate_red_flags(
+    health_score,
+    foot_score,
+    bcs,
+    risk_score,
+    sni_percent,
+    pheno_score,
+    market_price_status,
+    dental_status_result,
+    document_score,
+    kind,
+    poultry_special_score,
+):
+    flags = []
+
+    if health_score < 10:
+        flags.append("Kesehatan lapangan rendah. Perlu pemeriksaan ulang sebelum transaksi.")
+
+    if foot_score < 7:
+        flags.append("Kaki/kuku/postur belum aman. Risiko performa turun atau sulit dijual kembali.")
+
+    if bcs < 2.3:
+        flags.append("BCS terlalu rendah. Cek pakan, parasit, penyakit kronis, dan stres.")
+
+    if bcs > 4.3:
+        flags.append("BCS terlalu tinggi. Risiko boros pakan, lemak berlebih, atau gangguan produksi.")
+
+    if risk_score >= 60:
+        flags.append("Risiko transaksi tinggi. Hindari keputusan besar tanpa verifikasi lanjutan.")
+
+    if sni_percent < 70:
+        flags.append("Kesesuaian SNI/acuan masih rendah. Jangan gunakan sebagai bibit/premium tanpa validasi.")
+
+    if pheno_score < 8:
+        flags.append("Fenotipe/ciri bangsa kurang kuat. Klaim bangsa/rumpun perlu diragukan.")
+
+    if market_price_status == "Terlalu mahal":
+        flags.append("Harga penawaran di atas pasar maksimum. Perlu negosiasi kuat atau cari alternatif.")
+
+    if dental_status_result == "Tidak sesuai":
+        flags.append("Umur input tidak sejalan dengan kondisi gigi. Wajib cek umur langsung.")
+
+    if document_score < 5:
+        flags.append("Dokumen pendukung lemah. Risiko asal ternak, kesehatan, dan klaim kualitas lebih tinggi.")
+
+    if kind == "poultry" and poultry_special_score < 2.5:
+        flags.append("Faktor khusus ayam lokal rendah. Cek ulang suara, warna, postur, atau produktivitas.")
+
+    if not flags:
+        flags.append("Tidak ada red flag besar dari data yang dimasukkan. Tetap lakukan pemeriksaan fisik langsung.")
+
+    return flags
+
+
+def render_status_badge(label, status):
+    status_lower = str(status).lower()
+
+    if "rendah" in status_lower or "layak" in status_lower or "sesuai" in status_lower or "wajar" in status_lower:
+        css = "badge-good"
+    elif "sedang" in status_lower or "mendekati" in status_lower or "bersyarat" in status_lower or "agak" in status_lower:
+        css = "badge-warn"
+    elif "tinggi" in status_lower or "belum" in status_lower or "mahal" in status_lower or "tidak" in status_lower:
+        css = "badge-bad"
+    else:
+        css = "badge-primary"
+
+    return f'<span class="badge {css}">{label}: {status}</span>'
+
+
+def compact_value(value, suffix=""):
+    try:
+        if value is None:
+            return "-"
+        if isinstance(value, float):
+            return f"{value:.1f}{suffix}"
+        return f"{value}{suffix}"
+    except Exception:
+        return "-"
+
+
+def build_action_plan(
+    mode,
+    kind,
+    health_score,
+    foot_score,
+    feed_score,
+    risk_status,
+    market_price_status,
+    actual_adg,
+    expected_adg,
+    document_score,
+):
+    actions = []
+
+    if health_score < 12:
+        actions.append("Lakukan pemeriksaan kesehatan ulang, terutama nafsu makan, napas, feses, mata, dan parasit.")
+
+    if foot_score < 8:
+        actions.append("Periksa kaki/kuku/shank, sendi, dan postur berdiri sebelum ternak dipindahkan atau dibeli.")
+
+    if feed_score < 8:
+        actions.append("Perbaiki pakan: air bersih, pakan utama, konsentrat/pakan tambahan, dan mineral/vitamin.")
+
+    if actual_adg is not None and actual_adg < expected_adg * 0.75:
+        actions.append("ADG aktual di bawah target. Evaluasi kualitas pakan, penyakit tersembunyi, dan stres lingkungan.")
+
+    if document_score < 6:
+        actions.append("Lengkapi bukti asal ternak, catatan kesehatan, vaksin/obat, dan riwayat induk/produksi bila untuk bibit.")
+
+    if market_price_status in ["Agak mahal", "Terlalu mahal"]:
+        actions.append("Gunakan hasil skor, kekurangan acuan, dan risiko sebagai dasar negosiasi harga.")
+
+    if mode == "Jagal":
+        actions.append("Fokuskan pemeriksaan pada dada, paha, punggung, lemak, luka, memar, dan estimasi karkas.")
+    elif mode == "Blantik / Jual Beli":
+        actions.append("Bandingkan harga penjual dengan harga pasar minimum-rata-rata-maksimum sebelum transaksi.")
+    elif mode == "Pembibit":
+        actions.append("Lanjutkan verifikasi reproduksi, fenotipe, asal-usul, dan kesesuaian standar bibit.")
+    elif kind == "poultry":
+        actions.append("Untuk ayam lokal, cek tujuan khusus: telur, suara, warna, postur, atau pelestarian rumpun.")
+
+    if risk_status == "Risiko tinggi":
+        actions.insert(0, "Tunda transaksi sampai red flag utama ditangani.")
+
+    if not actions:
+        actions.append("Pertahankan manajemen saat ini dan lakukan monitoring bobot/kesehatan secara berkala.")
+
+    return actions
+
 def make_report_html(record, insights):
     insight_html = "".join(
         f"<li><strong>{title}:</strong> {body}</li>"
         for _, title, body in insights
     )
+
+    red_flags_text = str(record.get("Red flags detail", ""))
+    action_text = str(record.get("Rencana tindak lanjut", ""))
+
+    red_flag_html = "".join(
+        f"<li>{item}</li>"
+        for item in red_flags_text.split(" | ")
+        if item.strip()
+    ) or "<li>Tidak ada red flag besar.</li>"
+
+    action_html = "".join(
+        f"<li>{item}</li>"
+        for item in action_text.split(" | ")
+        if item.strip()
+    ) or "<li>Lakukan monitoring berkala.</li>"
 
     rows = "".join(
         f"<tr><td>{k}</td><td>{v}</td></tr>"
@@ -1507,6 +1949,10 @@ th {{
 <p class="badge">{record.get("Kategori", "-")}</p>
 <h2>Data Ringkas</h2>
 <table>{rows}</table>
+<h2>Red Flags</h2>
+<ul>{red_flag_html}</ul>
+<h2>Rencana Tindak Lanjut</h2>
+<ul>{action_html}</ul>
 <h2>Insight</h2>
 <ul>{insight_html}</ul>
 <p><em>Laporan ini adalah alat bantu evaluasi, bukan sertifikat resmi.</em></p>
@@ -1615,6 +2061,26 @@ with tab_input:
         animal_id = st.text_input("Kode / nama ternak", value=f"{breed}-{datetime.now().strftime('%H%M%S')}")
         sex = st.selectbox("Jenis kelamin", ["Jantan", "Betina", "Kebiri / tidak diketahui"])
         location = st.text_input("Lokasi / kandang", value="")
+        owner_name = st.text_input("Pemilik / penanggung jawab", value="")
+        origin_source = st.text_input("Asal ternak / sumber pembelian", value="")
+        entry_date = st.date_input("Tanggal masuk / tanggal evaluasi")
+
+    st.markdown("---")
+    st.subheader("Dokumentasi Foto")
+
+    uploaded_photos = st.file_uploader(
+        "Upload foto ternak: samping, depan, belakang, kaki, kepala/jengger/tanduk",
+        type=["jpg", "jpeg", "png", "webp"],
+        accept_multiple_files=True,
+        help="Foto tidak dianalisis otomatis, tetapi membantu dokumentasi dan pemeriksaan manual.",
+    )
+
+    if uploaded_photos:
+        st.caption(f"{len(uploaded_photos)} foto berhasil dimuat untuk dokumentasi sesi ini.")
+        preview_cols = st.columns(min(4, len(uploaded_photos)))
+        for idx, photo in enumerate(uploaded_photos[:4]):
+            with preview_cols[idx % len(preview_cols)]:
+                st.image(photo, caption=photo.name, use_container_width=True)
 
     st.markdown("---")
     st.subheader("Data Kuantitatif")
@@ -2058,6 +2524,43 @@ risk_score, risk_status = calculate_risk_score(
     market_price_status=market_price_status,
 )
 
+completeness_items = {
+    "Kode ternak": animal_id,
+    "Jenis ternak": species,
+    "Bangsa/rumpun": breed,
+    "Mode pengguna": mode,
+    "Tujuan": purpose,
+    "Jenis kelamin": sex,
+    "Lokasi/kandang": location,
+    "Pemilik": owner_name,
+    "Asal ternak": origin_source,
+    "Umur": age_months,
+    "Bobot": weight,
+    "Lingkar dada": girth,
+    "Panjang badan": length,
+    "Tinggi": height,
+    "BCS": bcs,
+    "Warna/fenotipe": color,
+    "Ciri khas": features,
+    "Dokumen foto": uploaded_photos,
+}
+
+completeness_percent, missing_items = data_completeness_score(completeness_items)
+
+red_flags = generate_red_flags(
+    health_score=health_score,
+    foot_score=foot_score,
+    bcs=bcs,
+    risk_score=risk_score,
+    sni_percent=sni_percent_calc,
+    pheno_score=pheno_score,
+    market_price_status=market_price_status,
+    dental_status_result=dental_status_result,
+    document_score=document_score,
+    kind=kind,
+    poultry_special_score=poultry_special_score,
+)
+
 # These ekonomi variables might not exist before tab render in some cases,
 # so define safe defaults.
 if "buy_price" not in locals():
@@ -2099,6 +2602,19 @@ purpose_score = purpose_weighted_score(
 
 decision = advanced_decision(purpose_score, risk_status, mode, purpose)
 
+action_plan = build_action_plan(
+    mode=mode,
+    kind=kind,
+    health_score=health_score,
+    foot_score=foot_score,
+    feed_score=feed_score,
+    risk_status=risk_status,
+    market_price_status=market_price_status,
+    actual_adg=actual_adg,
+    expected_adg=data["adg"],
+    document_score=document_score,
+)
+
 insights = make_insights(
     kind,
     species,
@@ -2128,6 +2644,36 @@ with tab_result:
 <span class="badge">Bangsa/Rumpun: {breed}</span>
 <span class="badge">Mode: {mode}</span>
 <span class="badge">Fase: {age_stage}</span>
+{render_status_badge("Risiko", risk_status)}
+{render_status_badge("Harga", market_price_status)}
+""",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f"""
+<div class="dashboard-grid">
+    <div class="dash-card">
+        <div class="dash-label">Kelengkapan Data</div>
+        <div class="dash-value">{completeness_percent:.1f}%</div>
+        <div class="dash-note">{len(missing_items)} item belum lengkap</div>
+    </div>
+    <div class="dash-card">
+        <div class="dash-label">Red Flag</div>
+        <div class="dash-value">{len(red_flags)}</div>
+        <div class="dash-note">indikator perhatian</div>
+    </div>
+    <div class="dash-card">
+        <div class="dash-label">Risiko Transaksi</div>
+        <div class="dash-value">{risk_status}</div>
+        <div class="dash-note">{risk_score:.1f}/100</div>
+    </div>
+    <div class="dash-card">
+        <div class="dash-label">Acuan/SNI</div>
+        <div class="dash-value">{sni_percent_calc:.1f}%</div>
+        <div class="dash-note">{sni_status_calc}</div>
+    </div>
+</div>
 """,
         unsafe_allow_html=True,
     )
@@ -2173,6 +2719,22 @@ with tab_result:
 <strong>Rekomendasi akhir:</strong><br>{decision}
 </div>
 """,
+        unsafe_allow_html=True,
+    )
+
+    st.subheader("Red Flags Otomatis")
+    st.markdown(
+        "<div class='red-flag-list'>"
+        + "".join([f"<div class='red-flag-item'>⚠️ {flag}</div>" for flag in red_flags])
+        + "</div>",
+        unsafe_allow_html=True,
+    )
+
+    st.subheader("Rencana Tindak Lanjut")
+    st.markdown(
+        "<div class='action-list'>"
+        + "".join([f"<div class='action-item'>✅ {item}</div>" for item in action_plan])
+        + "</div>",
         unsafe_allow_html=True,
     )
 
@@ -2247,6 +2809,12 @@ with tab_result:
             "Mode": mode,
             "Tujuan": purpose,
             "Kelamin": sex,
+            "Pemilik": owner_name,
+            "Asal ternak": origin_source,
+            "Tanggal evaluasi": str(entry_date),
+            "Jumlah foto": len(uploaded_photos) if uploaded_photos else 0,
+            "Kelengkapan data %": completeness_percent,
+            "Red flag": len(red_flags),
             "Umur bulan": age_months,
             "Fase": age_stage,
             "Bobot kg": round(weight, 3),
@@ -2270,6 +2838,8 @@ with tab_result:
             "Skor dokumen": document_score,
             "Laba/rugi kasar": profit,
             "Rekomendasi akhir": decision,
+            "Red flags detail": " | ".join(red_flags),
+            "Rencana tindak lanjut": " | ".join(action_plan),
         }
         st.session_state.records.append(record)
         st.success("Data tersimpan ke riwayat.")
@@ -2301,16 +2871,49 @@ with tab_history:
         st.info("Belum ada riwayat. Simpan hasil dari tab Hasil.")
     else:
         hist_df = pd.DataFrame(st.session_state.records)
-        st.dataframe(hist_df, use_container_width=True, hide_index=True)
 
-        csv = hist_df.to_csv(index=False).encode("utf-8-sig")
+        st.markdown("### Filter Riwayat")
+        f1, f2, f3 = st.columns(3)
+
+        filtered_df = hist_df.copy()
+
+        with f1:
+            if "Jenis" in filtered_df.columns:
+                jenis_filter = st.multiselect(
+                    "Filter jenis",
+                    sorted(filtered_df["Jenis"].dropna().unique().tolist()),
+                )
+                if jenis_filter:
+                    filtered_df = filtered_df[filtered_df["Jenis"].isin(jenis_filter)]
+
+        with f2:
+            if "Kategori" in filtered_df.columns:
+                kategori_filter = st.multiselect(
+                    "Filter kategori",
+                    sorted(filtered_df["Kategori"].dropna().unique().tolist()),
+                )
+                if kategori_filter:
+                    filtered_df = filtered_df[filtered_df["Kategori"].isin(kategori_filter)]
+
+        with f3:
+            if "Risiko transaksi" in filtered_df.columns:
+                risiko_filter = st.multiselect(
+                    "Filter risiko",
+                    sorted(filtered_df["Risiko transaksi"].dropna().unique().tolist()),
+                )
+                if risiko_filter:
+                    filtered_df = filtered_df[filtered_df["Risiko transaksi"].isin(risiko_filter)]
+
+        st.dataframe(filtered_df, use_container_width=True, hide_index=True)
+
+        csv = filtered_df.to_csv(index=False).encode("utf-8-sig")
         st.download_button("⬇️ Download CSV Riwayat", data=csv, file_name="riwayat_evaluasi_ternak.csv", mime="text/csv", use_container_width=True)
 
         st.markdown("---")
         st.subheader("Grafik Perkembangan")
 
-        if "Waktu" in hist_df.columns:
-            chart_df = hist_df.copy()
+        if "Waktu" in filtered_df.columns:
+            chart_df = filtered_df.copy()
             chart_df["Urutan"] = range(1, len(chart_df) + 1)
             if "Bobot kg" in chart_df.columns:
                 st.line_chart(chart_df.set_index("Urutan")[["Bobot kg"]])
@@ -2319,9 +2922,9 @@ with tab_history:
 
         st.markdown("---")
         st.subheader("Ringkasan")
-        st.metric("Jumlah data", len(hist_df))
-        if "Skor total" in hist_df.columns:
-            st.metric("Rata-rata skor", f"{pd.to_numeric(hist_df['Skor total'], errors='coerce').mean():.1f}")
+        st.metric("Jumlah data tampil", len(filtered_df))
+        if "Skor total" in filtered_df.columns and len(filtered_df) > 0:
+            st.metric("Rata-rata skor", f"{pd.to_numeric(filtered_df['Skor total'], errors='coerce').mean():.1f}")
 
 
 # =========================================================
@@ -2340,6 +2943,12 @@ with tab_report:
         "Mode": mode,
         "Tujuan": purpose,
         "Kelamin": sex,
+        "Pemilik": owner_name,
+        "Asal ternak": origin_source,
+        "Tanggal evaluasi": str(entry_date),
+        "Jumlah foto": len(uploaded_photos) if uploaded_photos else 0,
+        "Kelengkapan data": f"{completeness_percent:.1f}%",
+        "Item belum lengkap": ", ".join(missing_items) if missing_items else "-",
         "Umur/Fase": f"{age_months} bulan / {age_stage}",
         "Bobot": f"{weight:.3f} kg",
         "BCS": bcs,
@@ -2407,6 +3016,11 @@ with tab_guide:
 | Dokumen pendukung | Mengecek surat kesehatan, asal ternak, vaksin/obat, dan riwayat induk/produksi |
 | Risiko transaksi | Menghasilkan status risiko rendah, sedang, atau tinggi |
 | Skor sesuai tujuan | Bobot penilaian berubah sesuai mode jagal, blantik, pembibit, ayam lokal, atau peternak |
+| Upload foto | Dokumentasi foto samping, depan, belakang, kaki, kepala, jengger, atau tanduk |
+| Kelengkapan data | Persentase data yang sudah lengkap agar evaluasi lebih valid |
+| Red flags otomatis | Peringatan cepat untuk risiko kesehatan, harga, dokumen, SNI, fenotipe, dan kaki |
+| Rencana tindak lanjut | Daftar tindakan praktis 7–30 hari berdasarkan kekurangan data |
+| Filter riwayat | Memfilter hasil evaluasi berdasarkan jenis, kategori, dan risiko transaksi |
 
 ### Skor sesuai tujuan
 
