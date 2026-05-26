@@ -1000,6 +1000,220 @@ SNI_REFERENCE_DATA = {
             ],
         },
     },
+
+    "Ayam Lokal Indonesia": {
+        "Ayam KUB-1": {
+            "standard_no": "SNI 8405-1:2017",
+            "standard_title": "Bibit ayam umur sehari/kuri - Bagian 1: KUB-1",
+            "coverage": "doc_kuri",
+            "source_note": "BSN mencantumkan SNI 8405-1:2017 untuk bibit ayam umur sehari/kuri KUB-1. Untuk ayam grower/dewasa, gunakan ubah manual sesuai dokumen/standar operasional.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 0.035,
+                "Tinggi pundak minimum (cm)": 8,
+                "Panjang badan minimum (cm)": 6,
+                "Lingkar dada minimum (cm)": 5,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "DOC/kuri sehat, aktif, dan tidak cacat",
+                "Bulu kering, bersih, dan menutup tubuh",
+                "Pusar tertutup baik",
+                "Kaki normal dan kuat",
+                "Seragam sesuai galur KUB-1",
+            ],
+        },
+        "Ayam KUB Janaka Agrinak": {
+            "standard_no": "SNI 8405-2:2023",
+            "standard_title": "Bibit ayam umur sehari/kuri - Bagian 2: KUB janaka agrinak",
+            "coverage": "doc_kuri",
+            "source_note": "BSN mencantumkan SNI 8405-2:2023 sebagai SNI terkait untuk bibit ayam umur sehari/kuri KUB Janaka Agrinak. Untuk ayam grower/dewasa, gunakan ubah manual.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 0.035,
+                "Tinggi pundak minimum (cm)": 8,
+                "Panjang badan minimum (cm)": 6,
+                "Lingkar dada minimum (cm)": 5,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "DOC/kuri sehat, aktif, dan tidak cacat",
+                "Bulu kering, bersih, dan menutup tubuh",
+                "Pusar tertutup baik",
+                "Kaki normal dan kuat",
+                "Seragam sesuai galur KUB Janaka Agrinak",
+            ],
+        },
+        "Ayam Kampung": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Kampung dewasa. Gunakan acuan internal atau standar teknis lembaga.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 0.9,
+                "Tinggi pundak minimum (cm)": 30,
+                "Panjang badan minimum (cm)": 25,
+                "Lingkar dada minimum (cm)": 25,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Sehat, aktif, dan tidak cacat",
+                "Bulu rapat dan mengilap",
+                "Kaki kuat",
+                "Mata cerah",
+            ],
+        },
+        "Ayam Sentul": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Sentul.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 1.0,
+                "Tinggi pundak minimum (cm)": 32,
+                "Panjang badan minimum (cm)": 26,
+                "Lingkar dada minimum (cm)": 26,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Warna sentul/kelabu sesuai rumpun",
+                "Sehat dan aktif",
+                "Bulu rapat",
+                "Kaki kuat",
+            ],
+        },
+        "Ayam Pelung": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Pelung.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 2.0,
+                "Tinggi pundak minimum (cm)": 45,
+                "Panjang badan minimum (cm)": 35,
+                "Lingkar dada minimum (cm)": 32,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Postur tinggi dan tegap",
+                "Suara panjang/merdu pada jantan",
+                "Sehat dan aktif",
+                "Kaki panjang dan kuat",
+            ],
+        },
+        "Ayam Kedu Hitam": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Kedu Hitam.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 1.2,
+                "Tinggi pundak minimum (cm)": 35,
+                "Panjang badan minimum (cm)": 28,
+                "Lingkar dada minimum (cm)": 28,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Bulu hitam dominan",
+                "Kaki/paruh cenderung gelap",
+                "Sehat dan aktif",
+                "Bulu rapat dan mengilap",
+            ],
+        },
+        "Ayam Cemani": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Cemani.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 1.2,
+                "Tinggi pundak minimum (cm)": 35,
+                "Panjang badan minimum (cm)": 28,
+                "Lingkar dada minimum (cm)": 28,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Bulu, kulit, paruh, jengger, dan kaki hitam",
+                "Sehat dan aktif",
+                "Bulu rapat dan mengilap",
+                "Tidak cacat",
+            ],
+        },
+        "Ayam Nunukan": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Nunukan.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 1.4,
+                "Tinggi pundak minimum (cm)": 35,
+                "Panjang badan minimum (cm)": 28,
+                "Lingkar dada minimum (cm)": 28,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Warna buff/cokelat kemerahan",
+                "Ciri bulu sayap/ekor khas",
+                "Sehat dan aktif",
+                "Kaki kuat",
+            ],
+        },
+        "Ayam Merawang": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Merawang.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 1.2,
+                "Tinggi pundak minimum (cm)": 35,
+                "Panjang badan minimum (cm)": 28,
+                "Lingkar dada minimum (cm)": 28,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Warna kuning/cokelat keemasan",
+                "Sehat dan aktif",
+                "Bulu rapat",
+                "Kaki kuat",
+            ],
+        },
+        "Ayam Gaok": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Gaok.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 1.5,
+                "Tinggi pundak minimum (cm)": 40,
+                "Panjang badan minimum (cm)": 32,
+                "Lingkar dada minimum (cm)": 30,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Postur tinggi",
+                "Suara panjang pada jantan",
+                "Sehat dan aktif",
+                "Kaki kuat",
+            ],
+        },
+        "Ayam Kokok Balenggek": {
+            "standard_no": "Belum dipetakan langsung",
+            "standard_title": "Gunakan acuan internal atau dokumen standar yang dimiliki",
+            "coverage": "non_sni_direct",
+            "source_note": "Aplikasi belum menemukan pemetaan SNI langsung untuk ayam Kokok Balenggek.",
+            "default_min": {
+                "Bobot hidup minimum (kg)": 1.2,
+                "Tinggi pundak minimum (cm)": 35,
+                "Panjang badan minimum (cm)": 28,
+                "Lingkar dada minimum (cm)": 28,
+                "BCS minimum": 2.5,
+            },
+            "qualitative_required": [
+                "Kokok bertingkat pada jantan",
+                "Postur tegap",
+                "Sehat dan aktif",
+                "Bulu rapat dan mengilap",
+            ],
+        },
+    },
     "Domba": {
         "Domba Garut": {
             "standard_no": "SNI 7532.1:2015",
@@ -1106,6 +1320,12 @@ SPECIES_CONFIG = {
         "market_name": "pedaging/perah/bibit",
         "price_unit": "kg bobot hidup",
     },
+    "Ayam Lokal Indonesia": {
+        "formula": "poultry",
+        "ideal_bcs": (2.5, 3.5),
+        "market_name": "daging/telur/hias/pelestarian",
+        "price_unit": "kg bobot hidup atau ekor",
+    },
     "Domba": {
         "formula": "small",
         "ideal_bcs": (2.5, 3.5),
@@ -1160,6 +1380,19 @@ COLOR_OPTIONS = [
     "Putih krem",
     "Lainnya / tidak sesuai",
     "Tidak yakin",
+    "Campuran/liar",
+    "Hitam merah",
+    "Cokelat merah",
+    "Wiring",
+    "Kelabu",
+    "Sentul batu",
+    "Sentul kelabu",
+    "Sentul mas",
+    "Hitam total",
+    "Paruh gelap",
+    "Buff/kuning kecokelatan",
+    "Columbian",
+    "Kuning keemasan",
 ]
 
 
@@ -1175,6 +1408,11 @@ FACE_OPTIONS = [
     "Roman nose",
     "Sedang",
     "Tidak yakin",
+    "Kepala sedang",
+    "Kepala besar",
+    "Paruh sedang",
+    "Paruh gelap",
+    "Postur kepala tegap",
 ]
 
 
@@ -1188,6 +1426,12 @@ HORN_OPTIONS = [
     "Tanduk kecil melengkung",
     "Melengkung ke belakang",
     "Tidak yakin",
+    "Jengger tunggal",
+    "Jengger kecil",
+    "Jengger besar",
+    "Jengger gelap",
+    "Jengger rose",
+    "Jengger pea",
 ]
 
 
@@ -1201,6 +1445,12 @@ EAR_OPTIONS = [
     "Panjang menggantung",
     "Sedang menggantung",
     "Tidak yakin",
+    "Kaki kuning",
+    "Kaki putih",
+    "Kaki hitam",
+    "Kaki kehijauan",
+    "Kaki gelap",
+    "Kaki panjang",
 ]
 
 
@@ -1230,6 +1480,12 @@ BODY_BUILD_OPTIONS = [
     "Berbulu tebal",
     "Lainnya / tidak sesuai",
     "Tidak yakin",
+    "Tubuh sedang",
+    "Tipe dwiguna lokal",
+    "Tipe petelur lokal",
+    "Postur tegap",
+    "Tubuh besar",
+    "Tipe pedaging lokal",
 ]
 
 
@@ -1248,8 +1504,13 @@ def rupiah(value):
         return "-"
 
 
-def estimate_weight(species, heart_girth_cm, body_length_cm):
+def estimate_weight(species, heart_girth_cm, body_length_cm, live_weight_kg=None):
     formula_type = SPECIES_CONFIG[species]["formula"]
+
+    if formula_type == "poultry":
+        if live_weight_kg is None:
+            return 0
+        return round(float(live_weight_kg), 3)
 
     if formula_type == "large":
         weight = (heart_girth_cm ** 2 * body_length_cm) / 10840
@@ -1268,6 +1529,17 @@ def get_age_stage(species, age_months):
         if age_months < 36:
             return "Dewasa muda/siap produksi"
         return "Dewasa"
+
+    if species == "Ayam Lokal Indonesia":
+        if age_months < 1:
+            return "DOC/kuri"
+        if age_months < 2:
+            return "Starter"
+        if age_months < 4:
+            return "Grower"
+        if age_months < 7:
+            return "Dara/pullet atau jantan muda"
+        return "Dewasa/produksi"
 
     if age_months < 4:
         return "Cempe/anak"
@@ -1341,6 +1613,8 @@ def score_proportion(heart_girth_cm, body_length_cm, species):
 
     if species in ["Sapi Potong", "Sapi Perah", "Kerbau"]:
         low, high = 0.85, 1.18
+    elif species == "Ayam Lokal Indonesia":
+        low, high = 0.75, 1.35
     else:
         low, high = 0.80, 1.20
 
@@ -2292,7 +2566,7 @@ with tab_input:
             "Umur ternak (bulan)",
             min_value=0,
             max_value=240,
-            value=24 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else 12,
+            value=24 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else (6 if species == "Ayam Lokal Indonesia" else 12),
             step=1,
         )
 
@@ -2328,6 +2602,18 @@ with tab_input:
 
     default_height = int((breed_info["height_min"] + breed_info["height_max"]) / 2)
 
+    if species == "Ayam Lokal Indonesia":
+        live_weight_kg = st.number_input(
+            "Bobot hidup aktual / estimasi timbang (kg)",
+            min_value=0.01,
+            max_value=10.0,
+            value=float(breed_info["target_market_ideal"]),
+            step=0.01,
+            help="Untuk ayam, bobot hidup dimasukkan langsung karena rumus lingkar dada x panjang badan untuk sapi/kambing tidak valid untuk unggas.",
+        )
+    else:
+        live_weight_kg = None
+
     col_m1, col_m2, col_m3 = st.columns(3)
 
     with col_m1:
@@ -2335,7 +2621,7 @@ with tab_input:
             "Lingkar dada (cm)",
             min_value=10.0,
             max_value=300.0,
-            value=150.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else 70.0,
+            value=150.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else (28.0 if species == "Ayam Lokal Indonesia" else 70.0),
             step=0.5,
         )
 
@@ -2344,7 +2630,7 @@ with tab_input:
             "Panjang badan (cm)",
             min_value=10.0,
             max_value=300.0,
-            value=130.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else 65.0,
+            value=130.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else (30.0 if species == "Ayam Lokal Indonesia" else 65.0),
             step=0.5,
         )
 
@@ -2364,7 +2650,7 @@ with tab_input:
             "Kedalaman dada (cm)",
             min_value=1.0,
             max_value=150.0,
-            value=60.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else 28.0,
+            value=60.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else (10.0 if species == "Ayam Lokal Indonesia" else 28.0),
             step=0.5,
             help="Diukur dari bagian atas punggung/gumba ke bagian bawah dada secara vertikal.",
         )
@@ -2374,7 +2660,7 @@ with tab_input:
             "Lebar pinggul / panggul (cm)",
             min_value=1.0,
             max_value=150.0,
-            value=35.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else 16.0,
+            value=35.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else (8.0 if species == "Ayam Lokal Indonesia" else 16.0),
             step=0.5,
             help="Menggambarkan kapasitas rangka belakang, penting untuk daging, reproduksi, dan keseimbangan tubuh.",
         )
@@ -2384,7 +2670,7 @@ with tab_input:
             "Lingkar tulang kering / kaki depan (cm)",
             min_value=1.0,
             max_value=80.0,
-            value=18.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else 7.0,
+            value=18.0 if species in ["Sapi Potong", "Sapi Perah", "Kerbau"] else (2.5 if species == "Ayam Lokal Indonesia" else 7.0),
             step=0.5,
             help="Indikator kasar kekuatan kaki/rangka. Jangan dinilai sendiri tanpa melihat postur dan kesehatan kuku.",
         )
@@ -2419,13 +2705,13 @@ pinggul lebar untuk rangka belakang/reproduksi, dan tulang kering untuk indikasi
 
     with k2:
         selected_horn = st.selectbox(
-            "Kondisi tanduk",
+            "Jengger" if species == "Ayam Lokal Indonesia" else "Kondisi tanduk",
             HORN_OPTIONS,
             index=HORN_OPTIONS.index(pheno["horns"][0]) if pheno["horns"][0] in HORN_OPTIONS else 0,
         )
 
         selected_ear = st.selectbox(
-            "Bentuk telinga",
+            "Warna/bentuk kaki" if species == "Ayam Lokal Indonesia" else "Bentuk telinga",
             EAR_OPTIONS,
             index=EAR_OPTIONS.index(pheno["ears"][0]) if pheno["ears"][0] in EAR_OPTIONS else 0,
         )
@@ -2531,7 +2817,7 @@ dressing = breed_info["dressing"]
 notes = breed_info["notes"]
 ideal_bcs = SPECIES_CONFIG[species]["ideal_bcs"]
 
-estimated_weight = estimate_weight(species, heart_girth_cm, body_length_cm)
+estimated_weight = estimate_weight(species, heart_girth_cm, body_length_cm, live_weight_kg)
 age_stage = get_age_stage(species, age_months)
 
 weight_score = score_weight(estimated_weight, target_min, target_ideal)
@@ -2945,6 +3231,12 @@ bisa diedit agar sama dengan dokumen SNI resmi yang Anda gunakan.
 
     st.markdown("---")
 
+    if species == "Ayam Lokal Indonesia":
+        st.warning(
+            "Catatan ayam: SNI yang tersedia di aplikasi terutama memetakan DOC/kuri KUB. "
+            "Untuk ayam grower/dewasa, aktifkan 'Ubah ambang SNI secara manual' dan masukkan standar bobot/ukuran sesuai dokumen atau SOP yang digunakan."
+        )
+
     sni_col1, sni_col2 = st.columns([1, 2])
 
     with sni_col1:
@@ -2954,7 +3246,7 @@ bisa diedit agar sama dengan dokumen SNI resmi yang Anda gunakan.
     with sni_col2:
         if sni_reference["coverage"] in ["bibit", "acuan_terdekat"]:
             st.success(sni_reference["source_note"])
-        elif sni_reference["coverage"] == "non_sni_direct":
+        elif sni_reference["coverage"] in ["non_sni_direct", "doc_kuri"]:
             st.warning(sni_reference["source_note"])
         else:
             st.error(sni_reference["source_note"])
@@ -3335,7 +3627,16 @@ with tab_guide:
 - **Blantik**: fokus pada selisih harga, tampilan, bangsa, umur, bobot, dan risiko klaim kualitas.
 - **Bibit/perah**: jangan hanya melihat bobot; perhatikan reproduksi, ambing, kaki, dan riwayat produksi.
 
-### 6. Pembanding SNI
+### 6. Catatan khusus Ayam Lokal Indonesia
+
+Untuk ayam lokal/asli Indonesia, aplikasi memakai bobot hidup aktual/estimasi timbang, bukan rumus estimasi bobot ruminansia.
+Faktor yang dinilai meliputi bobot hidup, panjang badan, lingkar dada, tinggi, kedalaman dada,
+lebar panggul, lingkar shank/kaki, warna bulu, jengger, kaki, postur, kesehatan, dan ciri khas rumpun.
+
+Rumpun yang tersedia mencakup Ayam Kampung, KUB-1, KUB Janaka Agrinak, Sentul, Pelung, Kedu Hitam,
+Cemani, Nunukan, Merawang, Gaok, dan Kokok Balenggek.
+
+### 7. Pembanding SNI
 
 Tab **Pembanding SNI** digunakan untuk membandingkan hasil ukur ternak dengan acuan minimum.
 Parameter yang dibandingkan meliputi bobot hidup, tinggi pundak, panjang badan, lingkar dada,
@@ -3345,7 +3646,7 @@ Gunakan fitur **Ubah ambang SNI secara manual** bila Anda memiliki dokumen SNI r
 Hal ini penting karena beberapa SNI membedakan syarat berdasarkan umur, jenis kelamin, kelas mutu,
 lingkar skrotum, panjang telinga, serta ciri reproduksi.
 
-### 7. Keterbatasan sistem
+### 8. Keterbatasan sistem
 
 Aplikasi ini menggunakan estimasi berbasis ukuran tubuh, ciri visual, dan parameter umum. 
 Hasil dapat berbeda dengan timbangan aktual, kondisi pasar, kualitas pakan, kesehatan tersembunyi, 
